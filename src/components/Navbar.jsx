@@ -243,7 +243,7 @@ const Navbar = () => {
                   <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 rounded-xl flex items-center justify-center shadow-2xl border-2 border-gray-700 group-hover:border-blue-400 transition-all duration-300">
                     {/* Logo Image */}
                     <img 
-                      src="./src/assets/images/logo.png" 
+                      src="./images/logo.png" 
                       alt="Util Logo"
                       className="w-8 h-8 object-contain filter brightness-110 contrast-110 group-hover:scale-110 transition-transform duration-300"
                     />

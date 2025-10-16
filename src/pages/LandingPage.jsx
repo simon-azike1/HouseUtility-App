@@ -122,7 +122,7 @@ const Landing = () => {
       {/* Simplified Hero Section */}
       <motion.section
         className="relative flex items-center justify-center text-center text-white min-h-screen bg-cover bg-center"
-        style={{ backgroundImage: "url('/src/assets/images/house-dashboard.jpg')" }}
+        style={{ backgroundImage: "url('./images/house-dashboard.jpg')" }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
