@@ -15,6 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 const authRoutes = require('./routes/auth');
+const contributionRoutes = require('./routes/contributions');
+const expenseRoutes = require('./routes/expenses');
 
 // Basic route
 app.get('/', (req, res) => {
@@ -23,6 +25,8 @@ app.get('/', (req, res) => {
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+app.use('/api/contributions', contributionRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // MongoDB Connection
 const connectDB = async () => {

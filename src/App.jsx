@@ -1,14 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-
-// Pages
-import Navbar from './components/Navbar'; // 👈 NEW
 import Landing from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Pricing from './pages/Pricing'; // 👈 NEW PAGE IMPORT
+import Contributions from './pages/Contributions';
+import Expenses from './pages/Expenses';
 
 // Redirect authenticated users away from auth pages
 const PublicRoute = ({ children }) => {
@@ -16,43 +14,47 @@ const PublicRoute = ({ children }) => {
   return isAuthenticated ? <Navigate to="/dashboard" /> : children;
 };
 
-// Wrapper to include Navbar on public pages
-const WithNavbar = ({ children }) => (
-  <>
-    <Navbar />
-    {children}
-  </>
-);
-
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<WithNavbar><Landing /></WithNavbar>} />
-      <Route path="/pricing" element={<WithNavbar><Pricing /></WithNavbar>} />
-
+      <Route path="/" element={<Landing />} />
       <Route 
         path="/login" 
         element={
           <PublicRoute>
-            <WithNavbar><Login /></WithNavbar>
+            <Login />
           </PublicRoute>
         } 
       />
-
       <Route 
         path="/register" 
         element={
           <PublicRoute>
-            <WithNavbar><Register /></WithNavbar>
+            <Register />
           </PublicRoute>
         } 
       />
-
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard /> {/* No navbar here */}
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/contributions"
+        element={
+          <ProtectedRoute>
+            <Contributions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/expenses"
+        element={
+          <ProtectedRoute>
+            <Expenses />
           </ProtectedRoute>
         }
       />

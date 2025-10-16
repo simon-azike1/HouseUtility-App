@@ -1,189 +1,440 @@
-"use client"
-
-import { useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard,
-  DollarSign,
-  Receipt,
-  FileText,
-  BarChart3,
   Home,
-  ChevronLeft,
-  ChevronRight,
+  DollarSign,
+  FileText,
+  Calendar,
+  Users,
+  Settings,
   LogOut,
+  Menu,
+  X,
+  Bell,
+  Search,
+  ChevronDown,
   User,
-} from "lucide-react"
+  Shield,
+  HelpCircle,
+  Moon,
+  Sun,
+  Zap
+} from 'lucide-react';
 
 const DashboardLayout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout()
-    navigate("/login")
-  }
+  // Close dropdowns on route change
+  useEffect(() => {
+    setProfileDropdownOpen(false);
+    setNotificationsOpen(false);
+    // Don't close sidebar on desktop
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [location]);
+
+  // Handle escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setSidebarOpen(false);
+        setProfileDropdownOpen(false);
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const navigation = [
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Contributions", path: "/contributions", icon: DollarSign, badge: "Soon" },
-    { name: "Expenses", path: "/expenses", icon: Receipt, badge: "Soon" },
-    { name: "Bills", path: "/bills", icon: FileText, badge: "Soon" },
-    { name: "Reports", path: "/reports", icon: BarChart3, badge: "Soon" },
-  ]
+    { name: 'Dashboard', href: '/dashboard', icon: Home, current: location.pathname === '/dashboard' },
+    { name: 'Contributions', href: '/contributions', icon: DollarSign, current: location.pathname === '/contributions' },
+    { name: 'Expenses', href: '/expenses', icon: FileText, current: location.pathname === '/expenses' },
+    { name: 'Bills', href: '/bills', icon: Calendar, current: location.pathname === '/bills' },
+    { name: 'Members', href: '/members', icon: Users, current: location.pathname === '/members' },
+    { name: 'Settings', href: '/settings', icon: Settings, current: location.pathname === '/settings' },
+  ];
 
-  const isActive = (path) => location.pathname === path
+  const notifications = [
+    { id: 1, title: 'Bill Due Soon', message: 'Internet bill due in 2 days', time: '2h ago', type: 'warning' },
+    { id: 2, title: 'New Contribution', message: 'John added $250 for electricity', time: '4h ago', type: 'success' },
+    { id: 3, title: 'Expense Added', message: 'Water bill payment recorded', time: '1d ago', type: 'info' },
+  ];
+
+  const profileMenuItems = [
+    { name: 'Your Profile', icon: User, href: '/profile' },
+    { name: 'Account Settings', icon: Settings, href: '/account' },
+    { name: 'Privacy & Security', icon: Shield, href: '/privacy' },
+    { name: 'Help & Support', icon: HelpCircle, href: '/help' },
+  ];
+
+  // Animation variants
+  const sidebarVariants = {
+    open: { x: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } },
+    closed: { x: '-100%', transition: { type: 'spring', stiffness: 300, damping: 30 } }
+  };
+
+  const overlayVariants = {
+    open: { opacity: 1, transition: { duration: 0.2 } },
+    closed: { opacity: 0, transition: { duration: 0.2 } }
+  };
+
+  const dropdownVariants = {
+    open: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { type: 'spring', stiffness: 300, damping: 30 }
+    },
+    closed: { 
+      opacity: 0, 
+      y: -10, 
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    }
+  };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <motion.aside
-        animate={{ width: sidebarOpen ? 280 : 80 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="fixed top-0 left-0 z-50 h-full bg-white border-r border-gray-200 flex flex-col shadow-sm"
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 h-16">
-          <Link to="/" className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white shadow-md flex-shrink-0">
-              <Home className="w-5 h-5" />
+    <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Mobile sidebar overlay */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              variants={overlayVariants}
+              initial="closed"
+              animate="open"
+              exit="closed"
+              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Sidebar - FIXED: Always visible on desktop */}
+        <div className="hidden lg:flex lg:w-72 lg:flex-col">
+          {/* Desktop Sidebar */}
+          <div className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700">
+            {/* Logo */}
+            <div className="flex items-center gap-4 px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30"></div>
+                <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-white dark:text-black" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-xl font-black bg-gradient-to-r from-black via-blue-600 to-green-600 dark:from-white dark:via-blue-400 dark:to-green-400 bg-clip-text text-transparent">
+                  UTIL
+                </h1>
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-widest uppercase">
+                  Dashboard
+                </p>
+              </div>
             </div>
-            <AnimatePresence>
-              {sidebarOpen && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="min-w-0"
-                >
-                  <h1 className="text-base font-bold text-gray-900 truncate">House Utility</h1>
-                  <p className="text-xs text-gray-500 truncate">Management</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Link>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-            aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-          >
-            {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-          </button>
-        </div>
 
-        <nav className="flex-1 mt-2 px-3 overflow-y-auto">
-          {navigation.map((item) => {
-            const Icon = item.icon
-            const active = isActive(item.path)
-
-            return (
-              <Link
-                key={item.name}
-                to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 mb-1 rounded-lg font-medium transition-all group relative ${
-                  active ? "bg-blue-600 text-white shadow-md shadow-blue-600/20" : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <Icon
-                  className={`w-5 h-5 flex-shrink-0 ${active ? "text-white" : "text-gray-600 group-hover:text-blue-600"}`}
-                />
-                <AnimatePresence>
-                  {sidebarOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="flex-1 truncate"
-                    >
-                      {item.name}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                {item.badge && sidebarOpen && (
-                  <motion.span
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                      active ? "bg-white/20 text-white" : "bg-green-100 text-green-700"
+            {/* Navigation */}
+            <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+              {navigation.map((item) => {
+                const IconComponent = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                      item.current
+                        ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
-                    {item.badge}
-                  </motion.span>
-                )}
-                {!sidebarOpen && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                    {item.name}
-                  </div>
-                )}
-              </Link>
-            )
-          })}
-        </nav>
+                    <IconComponent className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                      item.current ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                    }`} />
+                    <span>{item.name}</span>
+                    {item.current && (
+                      <motion.div
+                        layoutId="activeTab"
+                        className="ml-auto w-2 h-2 bg-white rounded-full"
+                        initial={false}
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
 
-        <div className="p-3 border-t border-gray-200">
-          <AnimatePresence>
-            {sidebarOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="flex items-center gap-3 mb-3 p-3 bg-gray-50 rounded-lg"
-              >
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 shadow-sm">
-                  {user?.name?.charAt(0).toUpperCase() || <User className="w-5 h-5" />}
+            {/* User info */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                  {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || "User"}</p>
-                  <p className="text-xs text-gray-500 truncate">{user?.email || "user@example.com"}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {user?.email}
+                  </p>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <button
-            onClick={handleLogout}
-            className={`w-full flex items-center gap-2 px-3 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-red-50 hover:text-red-600 transition-all font-medium group ${
-              !sidebarOpen ? "justify-center" : ""
-            }`}
-            aria-label="Logout"
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            <AnimatePresence>
-              {sidebarOpen && (
-                <motion.span
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                >
-                  Logout
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        </div>
-      </motion.aside>
-
-      <motion.div
-        animate={{ marginLeft: sidebarOpen ? 280 : 80 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="flex-1 flex flex-col min-w-0"
-      >
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between px-6 h-16">
-            <h2 className="text-xl font-bold text-gray-900">
-              {navigation.find((item) => isActive(item.path))?.name || "Dashboard"}
-            </h2>
+              </div>
+            </div>
           </div>
-        </header>
+        </div>
 
-        {/* Page Content */}
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-50">{children}</main>
-      </motion.div>
+        {/* Mobile Sidebar */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              variants={sidebarVariants}
+              initial="closed"
+              animate="open"
+              exit="closed"
+              className="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-800 shadow-2xl lg:hidden border-r border-gray-200 dark:border-gray-700"
+            >
+              <div className="flex h-full flex-col">
+                {/* Mobile Logo */}
+                <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30"></div>
+                      <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg">
+                        <Zap className="w-6 h-6 text-white dark:text-black" />
+                      </div>
+                    </div>
+                    <div>
+                      <h1 className="text-xl font-black bg-gradient-to-r from-black via-blue-600 to-green-600 dark:from-white dark:via-blue-400 dark:to-green-400 bg-clip-text text-transparent">
+                        UTIL
+                      </h1>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-widest uppercase">
+                        Dashboard
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {/* Mobile Navigation */}
+                <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                  {navigation.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                          item.current
+                            ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <IconComponent className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                          item.current ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                        }`} />
+                        <span>{item.name}</span>
+                        {item.current && (
+                          <div className="ml-auto w-2 h-2 bg-white rounded-full" />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                {/* Mobile User info */}
+                <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 z-30">
+            <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
+              {/* Left side */}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                >
+                  <Menu className="w-6 h-6" />
+                </button>
+
+                {/* Search */}
+                <div className="hidden sm:block relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="block w-64 pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Right side */}
+              <div className="flex items-center gap-3">
+                {/* Dark mode toggle */}
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                >
+                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
+                {/* Notifications */}
+                <div className="relative">
+                  <button
+                    onClick={() => setNotificationsOpen(!notificationsOpen)}
+                    className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                  >
+                    <Bell className="w-5 h-5" />
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                  </button>
+
+                  <AnimatePresence>
+                    {notificationsOpen && (
+                      <motion.div
+                        variants={dropdownVariants}
+                        initial="closed"
+                        animate="open"
+                        exit="closed"
+                        className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
+                      >
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                        </div>
+                        <div className="max-h-64 overflow-y-auto">
+                          {notifications.map((notification) => (
+                            <div key={notification.id} className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                              <div className="flex items-start gap-3">
+                                <div className={`w-2 h-2 rounded-full mt-2 ${
+                                  notification.type === 'success' ? 'bg-green-500' :
+                                  notification.type === 'warning' ? 'bg-orange-500' :
+                                  'bg-blue-500'
+                                }`}></div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.title}</p>
+                                  <p className="text-xs text-gray-600 dark:text-gray-400">{notification.message}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{notification.time}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Profile dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="flex items-center gap-2 p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-green-500 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+
+                  <AnimatePresence>
+                    {profileDropdownOpen && (
+                      <motion.div
+                        variants={dropdownVariants}
+                        initial="closed"
+                        animate="open"
+                        exit="closed"
+                        className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
+                      >
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{user?.email}</p>
+                        </div>
+                        
+                        {profileMenuItems.map((item) => {
+                          const IconComponent = item.icon;
+                          return (
+                            <Link
+                              key={item.name}
+                              to={item.href}
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors"
+                            >
+                              <IconComponent className="w-4 h-4" />
+                              {item.name}
+                            </Link>
+                          );
+                        })}
+                        
+                        <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Sign out
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+            <div className="p-4 sm:p-6 lg:p-8">
+              {children}
+            </div>
+          </main>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardLayout
+export default DashboardLayout;

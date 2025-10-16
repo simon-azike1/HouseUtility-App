@@ -2,9 +2,8 @@
 /* Add this to your main CSS file or import it where needed */
 
 /* Ensure Tailwind utilities are available */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
 
 /* Custom animations */
 @keyframes spin {
