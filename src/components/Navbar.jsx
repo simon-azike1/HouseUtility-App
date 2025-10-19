@@ -258,9 +258,9 @@ const Navbar = () => {
                   <span className="text-2xl font-black bg-gradient-to-r from-black via-blue-600 to-green-600 bg-clip-text text-transparent tracking-tight leading-none">
                     UTIL
                   </span>
-                  <span className="text-xs font-semibold text-gray-500 tracking-widest uppercase leading-none">
+                  {/* <span className="text-xs font-semibold text-gray-500 tracking-widest uppercase leading-none">
                     Solutions
-                  </span>
+                  </span> */}
                 </div>
 
                 {/* Animated Accent Line */}
@@ -359,7 +359,7 @@ const Navbar = () => {
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-sm opacity-40"></div>
                       <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 rounded-xl flex items-center justify-center shadow-xl border border-gray-600">
                         <img 
-                          src="./src/assets/images/logo.png" 
+                        src="./images/logo.png" 
                           alt="Util Logo"
                           className="w-8 h-8 object-contain filter brightness-110"
                         />
@@ -371,9 +371,9 @@ const Navbar = () => {
                       <span className="text-xl font-black bg-gradient-to-r from-white via-blue-400 to-green-400 bg-clip-text text-transparent tracking-tight">
                         UTIL
                       </span>
-                      <span className="text-xs font-semibold text-gray-400 tracking-widest uppercase">
+                      {/* <span className="text-xs font-semibold text-gray-400 tracking-widest uppercase">
                         Solutions
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                 </div>

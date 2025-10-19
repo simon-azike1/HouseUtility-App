@@ -21,7 +21,7 @@ const Footer = () => {
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Home className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-white">HouseUtil</span>
+              <span className="text-2xl font-bold text-white">Util</span>
             </div>
             <p className="text-gray-400 leading-relaxed mb-6">
               Professional household financial management platform designed for modern living. 
@@ -195,7 +195,7 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-400 text-sm">
-              © {new Date().getFullYear()} HouseUtil. All rights reserved.
+              © {new Date().getFullYear()} Util. All rights reserved.
             </div>
             <div className="flex items-center space-x-6 text-sm text-gray-400">
               <span>Built by BuildLabs</span>
