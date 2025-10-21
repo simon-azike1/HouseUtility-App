@@ -17,7 +17,9 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center space-x-3 mb-6">
+            <div className="flex ite
+            
+    ms-center space-x-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Home className="w-6 h-6 text-white" />
               </div>
