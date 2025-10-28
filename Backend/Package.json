@@ -2,6 +2,7 @@
   "name": "house-utility-backend",
   "version": "1.0.0",
   "description": "Backend for House Utility Management System",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

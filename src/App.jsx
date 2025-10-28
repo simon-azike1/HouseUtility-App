@@ -18,46 +18,11 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route 
-        path="/login" 
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        } 
-      />
-      <Route 
-        path="/register" 
-        element={
-          <PublicRoute>
-            <Register />
-          </PublicRoute>
-        } 
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/contributions"
-        element={
-          <ProtectedRoute>
-            <Contributions />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/expenses"
-        element={
-          <ProtectedRoute>
-            <Expenses />
-          </ProtectedRoute>
-        }
-      />
+      <Route    path="/login" element={<PublicRoute> <Login /></PublicRoute>}/>
+      <Route path="/register" element={<PublicRoute> <Register /></PublicRoute> }/>
+      <Route path="/dashboard" element={ <ProtectedRoute><Dashboard /></ProtectedRoute>}/>
+      <Route path="/contributions" element={<ProtectedRoute> <Contributions /> </ProtectedRoute>}/>
+      <Route path="/expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>}/>
     </Routes>
   );
 }
