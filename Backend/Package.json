@@ -1,12 +1,11 @@
-{
+ {
   "name": "house-utility-backend",
   "version": "1.0.0",
   "description": "Backend for House Utility Management System",
-  "main": "server.js",
-  "type": "module",
+  "main": "src/Backend/server.js", 
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node src/Backend/server.js", 
+    "dev": "nodemon src/Backend/server.js"  
   },
   "keywords": ["utilities", "household", "expense-tracker"],
   "author": "BuildLabs Team",
@@ -21,5 +20,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"  
   }
 }
