@@ -1,4 +1,4 @@
-     {
+         {
        "name": "house-utility-backend",
        "version": "1.0.0",
        "description": "Backend for House Utility Management System",
@@ -8,6 +8,7 @@
          "start": "node Backend/server.js",
          "dev": "nodemon Backend/server.js"
        },
+     
        "keywords": ["utilities", "household", "expense-tracker"],
        "author": "BuildLabs Team",
        "license": "MIT",
