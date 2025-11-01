@@ -49,10 +49,13 @@ connectDB();
 import authRoutes from './routes/auth.js';
 import contributionRoutes from './routes/contributions.js';
 import expenseRoutes from './routes/expenses.js';
+import billRoutes from './routes/bills.js';
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/contributions', contributionRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/bills', billRoutes);
 
 // Base route
 app.get('/', (req, res) => {
