@@ -1,4 +1,3 @@
-// server.js
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -11,7 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
-
 const app = express();
 
 // Middleware
@@ -23,7 +21,7 @@ app.use(
 );
 app.use(express.json());
 
-// MongoDB Connection
+// Connect MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -33,29 +31,29 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
-
 connectDB();
 
-// Import routes
+// ✅ Import routes
 import authRoutes from './routes/auth.js';
-// You can import other routes later if needed, e.g.:
-// import householdRoutes from './routes/household.js';
+import contributionRoutes from './routes/contributions.js';
+import expenseRoutes from './routes/expenses.js';
 
-// Use routes
+// ✅ Use routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/household', householdRoutes);
+app.use('/api/contributions', contributionRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // Base route
 app.get('/', (req, res) => {
   res.json({
-    message: 'HouseUtility API is running 🚀',
+    message: 'House Utility API is running 🚀',
     version: '1.0.0',
   });
 });
 
-// Error handling middleware
+// Error handling
 app.use((err, req, res, next) => {
-  console.error('❌ Server error:', err.stack);
+  console.error(err.stack);
   res.status(500).json({
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined,

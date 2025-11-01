@@ -1,22 +1,28 @@
 // routes/contributions.js
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   getContributions,
   getContribution,
   createContribution,
   updateContribution,
   deleteContribution,
   getStats
-} = require('../controllers/contributionController');
-const { protect } = require('../middleware/auth');
+} from '../controllers/contributionController.js';
+import { protect } from '../middleware/auth.js';
+
+const router = express.Router();
 
 // Protect all routes
 router.use(protect);
 
 // Routes
 router.route('/stats').get(getStats);
-router.route('/').get(getContributions).post(createContribution);
-router.route('/:id').get(getContribution).put(updateContribution).delete(deleteContribution);
+router.route('/')
+  .get(getContributions)
+  .post(createContribution);
+router.route('/:id')
+  .get(getContribution)
+  .put(updateContribution)
+  .delete(deleteContribution);
 
-module.exports = router;
+export default router;

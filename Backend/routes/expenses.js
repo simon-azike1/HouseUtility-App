@@ -1,22 +1,28 @@
 // routes/expenses.js
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   getExpenses,
   getExpense,
   createExpense,
   updateExpense,
   deleteExpense,
   getStats
-} = require('../controllers/expenseController');
-const { protect } = require('../middleware/auth');
+} from '../controllers/expenseController.js';
+import { protect } from '../middleware/auth.js';
+
+const router = express.Router();
 
 // Protect all routes
 router.use(protect);
 
 // Routes
 router.route('/stats').get(getStats);
-router.route('/').get(getExpenses).post(createExpense);
-router.route('/:id').get(getExpense).put(updateExpense).delete(deleteExpense);
+router.route('/')
+  .get(getExpenses)
+  .post(createExpense);
+router.route('/:id')
+  .get(getExpense)
+  .put(updateExpense)
+  .delete(deleteExpense);
 
-module.exports = router;
+export default router;
