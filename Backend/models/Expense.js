@@ -1,5 +1,4 @@
-// models/Expense.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const expenseSchema = new mongoose.Schema({
   user: {
@@ -20,7 +19,16 @@ const expenseSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['utilities', 'groceries', 'maintenance', 'cleaning', 'internet', 'entertainment', 'transportation', 'other'],
+    enum: [
+      'utilities',
+      'groceries',
+      'maintenance',
+      'cleaning',
+      'internet',
+      'entertainment',
+      'transportation',
+      'other'
+    ],
     default: 'other'
   },
   description: {
@@ -37,17 +45,19 @@ const expenseSchema = new mongoose.Schema({
     required: [true, 'Paid by is required']
   },
   receipt: {
-    type: String,
+    type: String
   },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: 'approved'
   },
-  tags: [{
-    type: String,
-    trim: true
-  }],
+  tags: [
+    {
+      type: String,
+      trim: true
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now
@@ -57,8 +67,9 @@ const expenseSchema = new mongoose.Schema({
 expenseSchema.index({ user: 1, expenseDate: -1 });
 expenseSchema.index({ category: 1 });
 
-expenseSchema.virtual('formattedAmount').get(function() {
+expenseSchema.virtual('formattedAmount').get(function () {
   return `$${this.amount.toFixed(2)}`;
 });
 
-module.exports = mongoose.model('Expense', expenseSchema);
+const Expense = mongoose.model('Expense', expenseSchema);
+export default Expense;

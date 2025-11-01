@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// ES module setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -13,12 +12,26 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:5173', // Vite dev server
+  'http://localhost:3000', // React dev server
+  'https://house-utility-app.vercel.app', // Production frontend
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy: ${origin} not allowed`));
+      }
+    },
     credentials: true,
   })
 );
+
 app.use(express.json());
 
 // Connect MongoDB
@@ -33,31 +46,18 @@ const connectDB = async () => {
 };
 connectDB();
 
-// ✅ Import routes
+// Routes
 import authRoutes from './routes/auth.js';
 import contributionRoutes from './routes/contributions.js';
 import expenseRoutes from './routes/expenses.js';
 
-// ✅ Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contributions', contributionRoutes);
 app.use('/api/expenses', expenseRoutes);
 
 // Base route
 app.get('/', (req, res) => {
-  res.json({
-    message: 'House Utility API is running 🚀',
-    version: '1.0.0',
-  });
-});
-
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
-  });
+  res.json({ message: 'House Utility API is running 🚀', version: '1.0.0' });
 });
 
 // Serve frontend in production
@@ -68,6 +68,15 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+  });
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -1,5 +1,4 @@
-// models/Contribution.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const contributionSchema = new mongoose.Schema({
   user: {
@@ -47,12 +46,11 @@ const contributionSchema = new mongoose.Schema({
   }
 });
 
-// Index for faster queries
 contributionSchema.index({ user: 1, contributionDate: -1 });
 
-// Virtual for formatted amount
-contributionSchema.virtual('formattedAmount').get(function() {
+contributionSchema.virtual('formattedAmount').get(function () {
   return `$${this.amount.toFixed(2)}`;
 });
 
-module.exports = mongoose.model('Contribution', contributionSchema);
+const Contribution = mongoose.model('Contribution', contributionSchema);
+export default Contribution;
