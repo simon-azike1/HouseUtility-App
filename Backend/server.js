@@ -5,28 +5,22 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// ES module setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables
 dotenv.config();
-
 const app = express();
 
-// --------------------
 // Middleware
-// --------------------
 const allowedOrigins = [
-  'http://localhost:5173', // Vite dev server
-  'http://localhost:3000',  // React dev server
-  'https://house-utility-app.vercel.app', // Production frontend
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://house-utility-app.vercel.app',
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like Postman)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -37,11 +31,9 @@ app.use(
   })
 );
 
-app.use(express.json()); // Parse JSON requests
+app.use(express.json());
 
-// --------------------
-// MongoDB Connection
-// --------------------
+// MongoDB connection
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -53,9 +45,7 @@ const connectDB = async () => {
 };
 connectDB();
 
-// --------------------
-// Routes
-// --------------------
+// API routes
 import authRoutes from './routes/auth.js';
 import contributionRoutes from './routes/contributions.js';
 import expenseRoutes from './routes/expenses.js';
@@ -69,21 +59,18 @@ app.get('/', (req, res) => {
   res.json({ message: 'House Utility API is running 🚀', version: '1.0.0' });
 });
 
-// --------------------
 // Serve frontend in production
-// --------------------
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.resolve(__dirname, '../house-utility-frontend/dist');
   app.use(express.static(frontendPath));
 
+  // **Rewrite all routes to index.html**
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
 
-// --------------------
-// Global Error Handling
-// --------------------
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -92,9 +79,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// --------------------
-// Start Server
-// --------------------
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
