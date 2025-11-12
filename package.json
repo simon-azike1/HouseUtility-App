@@ -23,12 +23,14 @@
   },
   "dependencies": {
     "axios": "^1.7.7",
-    "chart.js": "^4.4.1",
+    "chart.js": "^4.5.1",
     "framer-motion": "^12.23.24",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.545.0",
     "react": "^18.3.1",
-    "react-chartjs-2": "^5.2.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0"
+    "react-router-dom": "^7.9.5"
   }
 }

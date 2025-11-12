@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { authAPI } from '/./services/api';
+import { authAPI, householdAPI } from '/services/api'; // Ensure correct path
 
 const AuthContext = createContext();
 
@@ -25,8 +25,7 @@ export const AuthProvider = ({ children }) => {
       if (token && savedUser) {
         try {
           setUser(JSON.parse(savedUser));
-          // Optionally verify token is still valid
-          await authAPI.getMe();
+          await authAPI.getMe(); // Verify token
         } catch (err) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -39,15 +38,23 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
+  // Login method
   const login = async (email, password) => {
     try {
       setError(null);
       const response = await authAPI.login({ email, password });
-      const { token, user: userData } = response.data;
+      const { token } = response.data;
 
       localStorage.setItem('token', token);
+
+      const userResponse = await authAPI.getMe();
+      const userData = userResponse.data;
+
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
+
+      console.log('User fetched after login:', userData);
+      console.log('Token saved:', token);
 
       return { success: true };
     } catch (err) {
@@ -57,6 +64,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Register method
   const register = async (name, email, password) => {
     try {
       setError(null);
@@ -67,7 +75,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
 
-      return { success: true };
+      return { success: true, user: userData };
     } catch (err) {
       const message = err.response?.data?.message || 'Registration failed';
       setError(message);
@@ -75,10 +83,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Logout method
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    window.location.href = '/';
   };
 
   const value = {

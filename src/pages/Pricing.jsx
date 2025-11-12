@@ -2,6 +2,7 @@ import React from "react";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 import Footer from '../components/Footer'
+import Navbar from "../components/Navbar";
 
 
 const plans = [
@@ -27,7 +28,9 @@ const plans = [
 
 export default function Pricing() {
   return (
+  
     <div className=" bg-white">
+    <Navbar/> 
     {/* Hero Section */}
 <section className="relative text-white h-[400px] sm:h-[500px] md:h-[550px]">
   {/* Background Image + Overlay */}

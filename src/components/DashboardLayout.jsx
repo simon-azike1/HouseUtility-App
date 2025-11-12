@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+
+
 import {
   Home,
   DollarSign,
@@ -69,6 +71,7 @@ const DashboardLayout = ({ children }) => {
     { name: 'Contributions', href: '/contributions', icon: DollarSign, current: location.pathname === '/contributions' },
     { name: 'Expenses', href: '/expenses', icon: FileText, current: location.pathname === '/expenses' },
     { name: 'Bills', href: '/bills', icon: Calendar, current: location.pathname === '/bills' },
+    { name: 'Reports', href: '/reports', icon: Calendar, current: location.pathname === '/reports' },
     { name: 'Members', href: '/members', icon: Users, current: location.pathname === '/members' },
     { name: 'Settings', href: '/settings', icon: Settings, current: location.pathname === '/settings' },
   ];
@@ -142,9 +145,12 @@ const DashboardLayout = ({ children }) => {
                 </div>
               </div>
               <div>
-                <h1 className="text-xl font-black bg-gradient-to-r from-black via-blue-600 to-green-600 dark:from-white dark:via-blue-400 dark:to-green-400 bg-clip-text text-transparent">
-                  UTIL
-                </h1>
+              <Link to="/" className="inline-block">
+  <h1 className="text-xl font-black bg-gradient-to-r from-black via-blue-600 to-green-600 dark:from-white dark:via-blue-400 dark:to-green-400 bg-clip-text text-transparent">
+    UTIL
+  </h1>
+</Link>
+
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-widest uppercase">
                   Dashboard
                 </p>

@@ -7,7 +7,11 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Contributions from './pages/Contributions';
 import Expenses from './pages/Expenses';
-import Bills from './pages/Bills'; // <-- Import Bills component
+import Pricing from './pages/Pricing';
+import Bills from './pages/Bills';
+import Profile from './pages/Profile';
+import Reports from './pages/Reports';
+import Members from './pages/Members'
 
 // Redirect authenticated users away from auth pages
 const PublicRoute = ({ children }) => {
@@ -18,26 +22,82 @@ const PublicRoute = ({ children }) => {
 function AppRoutes() {
   return (
     <Routes>
+      {/* Public Pages */}
       <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<PublicRoute> <Login /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute> <Register /></PublicRoute>} />
+      <Route path="/pricing" element={<Pricing/>} />
+    
 
-      {/* Protected Routes */}
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/contributions" element={<ProtectedRoute><Contributions /></ProtectedRoute>} />
-      <Route path="/expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
-      <Route path="/bills" element={<ProtectedRoute><Bills /></ProtectedRoute>} /> {/* <-- Bills route */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
+      />
+
+      {/* Protected Pages */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+     <Route path="/reports" element={<Reports />} />
+     <Route path="/members" element={<Members />} />
+      <Route
+        path="/contributions"
+        element={
+          <ProtectedRoute>
+            <Contributions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/expenses"
+        element={
+          <ProtectedRoute>
+            <Expenses />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bills"
+        element={
+          <ProtectedRoute>
+            <Bills />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <AppRoutes />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

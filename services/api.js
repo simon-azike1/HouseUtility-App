@@ -1,38 +1,34 @@
-import axios from 'axios';
+// /services/api.js
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
+// Base API instance
 const api = axios.create({
-  baseURL: API_URL,
-  headers: { 'Content-Type': 'application/json' },
-  withCredentials: true, // <- important if your backend sends cookies
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Attach token automatically if present
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
+// ✅ Auth API
 export const authAPI = {
-  register: (data) => api.post('/auth/register', data),
-  login: (data) => api.post('/auth/login', data),
-  getMe: () => api.get('/auth/me'),
+  register: (data) => api.post("/auth/register", data),
+  login: (data) => api.post("/auth/login", data),
+  getMe: () => api.get("/auth/me"),
+  updateProfile: (data) => api.put("/auth/me", data),
+  getAllUsers: () => api.get("/auth/users"), // fallback for members list
 };
 
+// ✅ Household API
+export const householdAPI = {
+  getHousehold: () => api.get("/household"),
+  getMembers: () => api.get("/household/members"),
+  joinHousehold: (code) => api.post("/household/join", { code }),
+  createHousehold: (data) => api.post("/household", data),
+};
+
+// ✅ Export base API as default
 export default api;

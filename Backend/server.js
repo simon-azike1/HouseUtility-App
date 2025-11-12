@@ -50,8 +50,10 @@ import authRoutes from './routes/auth.js';
 import contributionRoutes from './routes/contributions.js';
 import expenseRoutes from './routes/expenses.js';
 import billRoutes from './routes/bills.js';
+import householdRoutes from "./routes/household.js";
 
-
+// Corrected route paths
+app.use("/api/household", householdRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/contributions', contributionRoutes);
 app.use('/api/expenses', expenseRoutes);
@@ -67,7 +69,6 @@ if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.resolve(__dirname, '../house-utility-frontend/dist');
   app.use(express.static(frontendPath));
 
-  // **Rewrite all routes to index.html**
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
   });

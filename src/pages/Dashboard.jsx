@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -19,24 +22,154 @@ import {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState({
+    contributions: { total: 0, thisMonth: 0, lastMonth: 0, count: 0 },
+    expenses: { total: 0, thisMonth: 0, lastMonth: 0, count: 0 },
+    bills: { total: 0, pending: 0, overdue: 0, pendingAmount: 0, upcomingBills: [] },
+    recentActivity: []
+  });
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch all data in parallel
+      const [contribStats, expenseStats, billStats, contributions, expenses, bills] = await Promise.all([
+        axios.get('/api/contributions/stats', { headers }),
+        axios.get('/api/expenses/stats', { headers }),
+        axios.get('/api/bills/stats', { headers }),
+        axios.get('/api/contributions', { headers }),
+        axios.get('/api/expenses', { headers }),
+        axios.get('/api/bills', { headers })
+      ]);
+
+      // Get upcoming bills (next 7 days)
+      const today = new Date();
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      
+      const upcomingBills = bills.data.data
+        .filter(bill => {
+          const dueDate = new Date(bill.dueDate);
+          return bill.status === 'pending' && dueDate >= today && dueDate <= nextWeek;
+        })
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+        .slice(0, 3);
+
+      // Build recent activity from all sources
+      const recentActivity = [];
+      
+      // Add recent contributions (last 2)
+      contributions.data.data.slice(0, 2).forEach(item => {
+        recentActivity.push({
+          type: 'contribution',
+          message: `Added $${item.amount.toFixed(2)} contribution for ${item.description}`,
+          time: getTimeAgo(item.contributionDate),
+          icon: DollarSign,
+          color: 'text-green-600 bg-green-100'
+        });
+      });
+
+      // Add recent expenses (last 2)
+      expenses.data.data.slice(0, 2).forEach(item => {
+        recentActivity.push({
+          type: 'expense',
+          message: `${item.title} expense of $${item.amount.toFixed(2)} recorded`,
+          time: getTimeAgo(item.expenseDate),
+          icon: FileText,
+          color: 'text-blue-600 bg-blue-100'
+        });
+      });
+
+      // Add upcoming bills
+      upcomingBills.forEach(bill => {
+        const daysUntil = Math.ceil((new Date(bill.dueDate) - today) / (1000 * 60 * 60 * 24));
+        recentActivity.push({
+          type: 'bill',
+          message: `${bill.title} bill due in ${daysUntil} day${daysUntil > 1 ? 's' : ''}`,
+          time: getTimeAgo(bill.dueDate),
+          icon: Calendar,
+          color: 'text-orange-600 bg-orange-100'
+        });
+      });
+
+      // Sort by most recent
+      recentActivity.sort((a, b) => b.time.localeCompare(a.time));
+
+      setDashboardData({
+        contributions: contribStats.data.data,
+        expenses: expenseStats.data.data,
+        bills: {
+          ...billStats.data.data,
+          upcomingBills
+        },
+        recentActivity: recentActivity.slice(0, 4)
+      });
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setLoading(false);
+    }
+  };
+
+  const getTimeAgo = (date) => {
+    const now = new Date();
+    const past = new Date(date);
+    const diffMs = now - past;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    return past.toLocaleDateString();
+  };
+
+  const calculateBalance = () => {
+    return dashboardData.contributions.total - dashboardData.expenses.total - dashboardData.bills.paidAmount;
+  };
+
+  const calculateMonthlyChange = (thisMonth, lastMonth) => {
+    if (lastMonth === 0) return thisMonth > 0 ? '+100%' : '0%';
+    const change = ((thisMonth - lastMonth) / lastMonth) * 100;
+    return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+  };
+
+  const getTrendFromChange = (changeStr) => {
+    if (changeStr.startsWith('+')) return 'up';
+    if (changeStr.startsWith('-')) return 'down';
+    return 'neutral';
+  };
+
+  const balance = calculateBalance();
+  const expenseChange = calculateMonthlyChange(dashboardData.expenses.thisMonth, dashboardData.expenses.lastMonth);
 
   const stats = [
     { 
       title: 'Total Balance', 
-      value: '$2,450.00', 
-      change: '+12.5%', 
-      trend: 'up',
+      value: `$${Math.abs(balance).toFixed(2)}`, 
+      change: balance >= 0 ? 'Surplus' : 'Deficit',
+      trend: balance >= 0 ? 'up' : 'down',
       icon: DollarSign, 
       bgColor: 'from-blue-500 to-blue-600', 
-      textColor: 'text-blue-600', 
-      bgLight: 'bg-blue-50',
-      description: 'vs last month'
+      textColor: balance >= 0 ? 'text-blue-600' : 'text-red-600', 
+      bgLight: balance >= 0 ? 'bg-blue-50' : 'bg-red-50',
+      description: 'current status'
     },
     { 
       title: 'Monthly Expenses', 
-      value: '$1,230.50', 
-      change: '+8.2%', 
-      trend: 'up',
+      value: `$${dashboardData.expenses.thisMonth.toFixed(2)}`, 
+      change: expenseChange, 
+      trend: getTrendFromChange(expenseChange),
       icon: BarChart3, 
       bgColor: 'from-green-500 to-green-600', 
       textColor: 'text-green-600', 
@@ -45,25 +178,25 @@ const Dashboard = () => {
     },
     { 
       title: 'Pending Bills', 
-      value: '3', 
-      change: '2 due soon', 
-      trend: 'neutral',
+      value: dashboardData.bills.pending.toString(), 
+      change: `$${dashboardData.bills.pendingAmount.toFixed(2)}`, 
+      trend: dashboardData.bills.overdue > 0 ? 'down' : 'neutral',
       icon: Calendar, 
       bgColor: 'from-orange-500 to-orange-600', 
       textColor: 'text-orange-600', 
       bgLight: 'bg-orange-50',
-      description: 'next 7 days'
+      description: dashboardData.bills.overdue > 0 ? `${dashboardData.bills.overdue} overdue` : 'on track'
     },
     { 
-      title: 'Contributors', 
-      value: '4', 
-      change: '1 new', 
+      title: 'Contributions', 
+      value: `$${dashboardData.contributions.thisMonth.toFixed(2)}`, 
+      change: `${dashboardData.contributions.count} total`, 
       trend: 'up',
       icon: Users, 
       bgColor: 'from-purple-500 to-purple-600', 
       textColor: 'text-purple-600', 
       bgLight: 'bg-purple-50',
-      description: 'active members'
+      description: 'this month'
     },
   ];
 
@@ -72,63 +205,30 @@ const Dashboard = () => {
       name: 'Add Contribution', 
       icon: Plus, 
       color: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
-      description: 'Record new payment'
+      description: 'Record new payment',
+      path: '/contributions'
     },
     { 
       name: 'Record Expense', 
       icon: FileText, 
       color: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
-      description: 'Log household expense'
+      description: 'Log household expense',
+      path: '/expenses'
     },
     { 
       name: 'Add Bill', 
       icon: Calendar, 
       color: 'bg-gradient-to-r from-gray-800 to-black hover:from-black hover:to-gray-900',
-      description: 'Schedule new bill'
+      description: 'Schedule new bill',
+      path: '/bills'
     },
     { 
       name: 'View Reports', 
       icon: BarChart3, 
       color: 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
-      description: 'Analytics dashboard'
+      description: 'Analytics dashboard',
+      path: '/reports'
     },
-  ];
-
-  const recentActivity = [
-    { 
-      type: 'contribution', 
-      message: 'John added $250 for electricity bill', 
-      time: '2 hours ago',
-      icon: DollarSign,
-      color: 'text-green-600 bg-green-100'
-    },
-    { 
-      type: 'expense', 
-      message: 'Water bill payment of $89.50 recorded', 
-      time: '5 hours ago',
-      icon: FileText,
-      color: 'text-blue-600 bg-blue-100'
-    },
-    { 
-      type: 'bill', 
-      message: 'Internet bill due in 3 days', 
-      time: '1 day ago',
-      icon: Calendar,
-      color: 'text-orange-600 bg-orange-100'
-    },
-    { 
-      type: 'member', 
-      message: 'Sarah joined the household', 
-      time: '2 days ago',
-      icon: Users,
-      color: 'text-purple-600 bg-purple-100'
-    },
-  ];
-
-  const upcomingBills = [
-    { name: 'Internet', amount: '$79.99', due: 'Tomorrow', status: 'urgent' },
-    { name: 'Electricity', amount: '$156.30', due: 'In 3 days', status: 'warning' },
-    { name: 'Gas', amount: '$92.45', due: 'In 5 days', status: 'normal' },
   ];
 
   // Animation variants
@@ -163,6 +263,30 @@ const Dashboard = () => {
     return <Activity className="w-4 h-4 text-gray-500" />;
   };
 
+  const getBillStatus = (bill) => {
+    const daysUntil = Math.ceil((new Date(bill.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
+    if (daysUntil <= 1) return 'urgent';
+    if (daysUntil <= 3) return 'warning';
+    return 'normal';
+  };
+
+  const formatDaysUntil = (date) => {
+    const daysUntil = Math.ceil((new Date(date) - new Date()) / (1000 * 60 * 60 * 24));
+    if (daysUntil === 0) return 'Today';
+    if (daysUntil === 1) return 'Tomorrow';
+    return `In ${daysUntil} days`;
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <motion.div
@@ -181,9 +305,6 @@ const Dashboard = () => {
           
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-4">
-              {/* <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div> */}
               <div>
                 <h2 className="text-3xl font-bold">
                   Welcome back, {user?.name?.split(' ')[0]}! 
@@ -260,6 +381,7 @@ const Dashboard = () => {
                     variants={cardVariant}
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate(action.path)}
                     className={`${action.color} text-white p-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl group`}
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -289,27 +411,42 @@ const Dashboard = () => {
             </div>
             
             <div className="space-y-4">
-              {upcomingBills.map((bill, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`p-4 rounded-xl border-l-4 ${
-                    bill.status === 'urgent' ? 'border-red-500 bg-red-50' :
-                    bill.status === 'warning' ? 'border-orange-500 bg-orange-50' :
-                    'border-green-500 bg-green-50'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-gray-900">{bill.name}</p>
-                      <p className="text-sm text-gray-600">{bill.due}</p>
-                    </div>
-                    <p className="font-bold text-lg text-gray-900">{bill.amount}</p>
-                  </div>
-                </motion.div>
-              ))}
+              {dashboardData.bills.upcomingBills.length > 0 ? (
+                dashboardData.bills.upcomingBills.map((bill, index) => {
+                  const status = getBillStatus(bill);
+                  return (
+                    <motion.div
+                      key={bill._id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={`p-4 rounded-xl border-l-4 ${
+                        status === 'urgent' ? 'border-red-500 bg-red-50' :
+                        status === 'warning' ? 'border-orange-500 bg-orange-50' :
+                        'border-green-500 bg-green-50'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold text-gray-900">{bill.title}</p>
+                          <p className="text-sm text-gray-600">{formatDaysUntil(bill.dueDate)}</p>
+                        </div>
+                        <p className="font-bold text-lg text-gray-900">${bill.amount.toFixed(2)}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No upcoming bills</p>
+                  <button
+                    onClick={() => navigate('/bills')}
+                    className="mt-4 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                  >
+                    Add your first bill →
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
@@ -327,26 +464,33 @@ const Dashboard = () => {
           </div>
           
           <div className="space-y-4">
-            {recentActivity.map((activity, index) => {
-              const IconComponent = activity.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activity.color}`}>
-                    <IconComponent className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-gray-900 font-medium">{activity.message}</p>
-                    <p className="text-sm text-gray-500">{activity.time}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {dashboardData.recentActivity.length > 0 ? (
+              dashboardData.recentActivity.map((activity, index) => {
+                const IconComponent = activity.icon;
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activity.color}`}>
+                      <IconComponent className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-gray-900 font-medium">{activity.message}</p>
+                      <p className="text-sm text-gray-500">{activity.time}</p>
+                    </div>
+                  </motion.div>
+                );
+              })
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No recent activity</p>
+                <p className="text-sm text-gray-400 mt-2">Start by adding contributions, expenses, or bills</p>
+              </div>
+            )}
           </div>
         </motion.div>
 

@@ -61,7 +61,8 @@ const Navbar = () => {
       dropdown: [
         { label: 'Web Development', href: '#web-dev' },
         { label: 'Mobile Apps', href: '#mobile' },
-        { label: 'Consulting', href: '#consulting' }
+        { label: 'Consulting', href: '#consulting' },
+        { label: 'Reprot', href: '/reports' }
       ]
     },
     { label: 'Contact Us', href: '#contact' },

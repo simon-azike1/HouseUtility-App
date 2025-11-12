@@ -23,6 +23,8 @@ const Login = () => {
     setError('');
 
     const result = await login(formData.email, formData.password);
+    console.log("Login result:", result);
+
 
     if (result.success) {
       navigate('/dashboard');
@@ -32,6 +34,7 @@ const Login = () => {
 
     setLoading(false);
   };
+console.log("Navigating to dashboard...");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
