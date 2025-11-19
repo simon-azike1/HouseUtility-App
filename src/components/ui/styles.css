@@ -1,0 +1,23 @@
+/* Base styles for Card and Button components */
+/* Add this to your main CSS file or import it where needed */
+
+/* Ensure Tailwind utilities are available */
+@import "tailwindcss";
+
+
+/* Custom animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Focus visible styles for accessibility */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
