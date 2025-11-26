@@ -9,6 +9,8 @@ console.log('🔍 Environment Variables Check:');
 console.log('MONGO_URI:', process.env.MONGO_URI ? '✅ Loaded' : '❌ Missing');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Loaded' : '❌ Missing');
 console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? '✅ Loaded' : '❌ Missing');
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('FRONTEND_URLS:', process.env.FRONTEND_URLS);
 console.log('---');
 
 const app = express();
@@ -21,15 +23,34 @@ console.log('✅ Allowed CORS origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow non-browser requests (no origin header)
-    if (!origin) return callback(null, true);
+    console.log('🌐 Incoming request from origin:', origin);
+    
+    // Allow non-browser requests (no origin header) - e.g., Postman, curl
+    if (!origin) {
+      console.log('✅ Allowing request with no origin');
+      return callback(null, true);
+    }
+    
     // Allow requests from whitelisted origins
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      console.log('✅ Origin allowed:', origin);
+      return callback(null, true);
+    }
+    
     // Reject requests from other origins
-    return callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    console.log('❌ Origin rejected:', origin);
+    console.log('Allowed origins are:', allowedOrigins);
+    return callback(new Error(`CORS policy: origin ${origin} not allowed`), false);
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400 // 24 hours
 }));
+
+// Add explicit OPTIONS handler for preflight requests
+app.options('*', cors());
 
 // Body parser
 app.use(express.json());
@@ -85,13 +106,34 @@ app.use(
 
     // Health check endpoint
     app.get('/', (req, res) => {
-      res.json({ message: 'House Utility API is running' });
+      res.json({ 
+        message: 'House Utility API is running',
+        allowedOrigins: allowedOrigins,
+        nodeEnv: process.env.NODE_ENV
+      });
+    });
+
+    // Error handling middleware
+    app.use((err, req, res, next) => {
+      if (err.message.includes('CORS policy')) {
+        console.error('CORS Error:', err.message);
+        return res.status(403).json({ 
+          error: 'CORS Error', 
+          message: err.message,
+          requestOrigin: req.get('origin'),
+          allowedOrigins: allowedOrigins
+        });
+      }
+      console.error('Server Error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     });
 
     // Start listening
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌐 Allowed origins: ${allowedOrigins.join(', ')}`);
     });
   } catch (error) {
     console.error('❌ Error starting server:', error.message);
