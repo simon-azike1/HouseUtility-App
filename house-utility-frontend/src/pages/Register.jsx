@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -16,7 +16,6 @@ const Register = () => {
   const [passwordStrength, setPasswordStrength] = useState(0);
 
   const { register } = useAuth();
-  const navigate = useNavigate();
 
   const calculatePasswordStrength = (password) => {
     let strength = 0;
@@ -59,15 +58,37 @@ const Register = () => {
       return;
     }
 
-    const result = await register(formData.name, formData.email, formData.password);
+    try {
+      // ✅ Call register from AuthContext
+      const result = await register(formData.name, formData.email, formData.password);
 
-    if (result.success) {
-      navigate('/dashboard');
-    } else {
-      setError(result.error);
+      console.log('📝 Registration result:', result); // Debug log
+
+      if (result.success) {
+        // ✅ ALWAYS redirect to verification for new users
+        console.log('✅ Registration successful, redirecting to verification...');
+        console.log('📧 Email to verify:', formData.email);
+        
+        // Store email in localStorage as backup
+        localStorage.setItem('pendingVerificationEmail', formData.email);
+        console.log('✅ Email stored in localStorage');
+        
+        // Redirect to verification page (use window.location for most reliable redirect)
+        console.log('🔄 Redirecting to /verify-email...');
+        setTimeout(() => {
+          window.location.href = `/verify-email?email=${encodeURIComponent(formData.email)}`;
+        }, 100);
+      } else {
+        // Show error
+        console.log('❌ Registration failed:', result.error);
+        setError(result.error || 'Registration failed. Please try again.');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('❌ Registration error:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const getStrengthColor = () => {

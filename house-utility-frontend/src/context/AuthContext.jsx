@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { authAPI, householdAPI } from '/services/api'; // Ensure correct path
+import { authAPI, householdAPI } from '/services/api';
 
 const AuthContext = createContext();
 
@@ -59,27 +59,50 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed';
+      
+      // ✅ Check if error is about email verification
+      const needsVerification = err.response?.data?.needsVerification || 
+                               message.toLowerCase().includes('not verified') ||
+                               message.toLowerCase().includes('verify');
+      
       setError(message);
-      return { success: false, error: message };
+      
+      return { 
+        success: false, 
+        error: message,
+        needsVerification: needsVerification,
+        email: email // Pass email for redirect
+      };
     }
   };
 
-  // Register method
+  // ✅ CORRECTED REGISTER METHOD
   const register = async (name, email, password) => {
     try {
       setError(null);
       const response = await authAPI.register({ name, email, password });
-      const { token, user: userData } = response.data;
-
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-
-      return { success: true, user: userData };
+      
+      // ✅ ALWAYS return needsVerification: true for new registrations
+      // Store email for verification page
+      localStorage.setItem('pendingVerificationEmail', email);
+      
+      console.log('Registration response:', response.data);
+      
+      return { 
+        success: true, 
+        needsVerification: true, // ✅ ALWAYS TRUE for new users
+        email: email,
+        message: response.data.message || 'Registration successful'
+      };
+      
     } catch (err) {
       const message = err.response?.data?.message || 'Registration failed';
       setError(message);
-      return { success: false, error: message };
+      console.error('Registration error:', err);
+      return { 
+        success: false, 
+        error: message 
+      };
     }
   };
 
@@ -87,6 +110,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('pendingVerificationEmail'); // ✅ Clean up
     setUser(null);
     window.location.href = '/';
   };

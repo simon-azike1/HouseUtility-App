@@ -4,6 +4,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
+import VerifySuccess from './pages/VerifySuccess';
 import Dashboard from './pages/Dashboard';
 import Contributions from './pages/Contributions';
 import Expenses from './pages/Expenses';
@@ -11,7 +13,7 @@ import Pricing from './pages/Pricing';
 import Bills from './pages/Bills';
 import Profile from './pages/Profile';
 import Reports from './pages/Reports';
-import Members from './pages/Members'
+import Members from './pages/Members';
 
 // Redirect authenticated users away from auth pages
 const PublicRoute = ({ children }) => {
@@ -24,9 +26,8 @@ function AppRoutes() {
     <Routes>
       {/* Public Pages */}
       <Route path="/" element={<Landing />} />
-      <Route path="/pricing" element={<Pricing/>} />
+      <Route path="/pricing" element={<Pricing />} />
     
-
       <Route
         path="/login"
         element={
@@ -35,6 +36,7 @@ function AppRoutes() {
           </PublicRoute>
         }
       />
+      
       <Route
         path="/register"
         element={
@@ -43,6 +45,10 @@ function AppRoutes() {
           </PublicRoute>
         }
       />
+
+      {/* ✅ Email Verification Routes */}
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/verify-success" element={<VerifySuccess />} />
 
       {/* Protected Pages */}
       <Route
@@ -53,8 +59,25 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-     <Route path="/reports" element={<Reports />} />
-     <Route path="/members" element={<Members />} />
+      
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <Reports />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/members"
+        element={
+          <ProtectedRoute>
+            <Members />
+          </ProtectedRoute>
+        }
+      />
+      
       <Route
         path="/contributions"
         element={
@@ -63,6 +86,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/expenses"
         element={
@@ -71,6 +95,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/bills"
         element={
@@ -79,6 +104,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/profile"
         element={
@@ -87,6 +113,9 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* 404 Catch-All */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

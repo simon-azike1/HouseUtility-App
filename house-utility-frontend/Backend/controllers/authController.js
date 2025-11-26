@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-// @desc Register user
+// @desc Register user (unverified)
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -13,50 +13,193 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create the new user
-    const user = await User.create({ name, email, password });
+    // ✅ Create unverified user
+    const user = await User.create({ 
+      name, 
+      email, 
+      password,
+      isVerified: false // Explicitly set as unverified
+    });
 
-    // Generate a token immediately after registration
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-
-    // Respond with user info and token (excluding password)
+    // ✅ Don't generate token yet - user needs to verify first
     res.status(201).json({
       success: true,
-      message: 'Registration successful',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      token,
+      message: 'Account created successfully. Please verify your email.',
+      userId: user._id,
+      email: user.email,
+      needsVerification: true, // Signal to frontend
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// @desc Login user
+// @desc Login user (only if verified)
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     // Explicitly select password since it's excluded by default
     const user = await User.findOne({ email }).select('+password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // ✅ Check if email is verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        message: 'Email not verified. Please verify your email to login.',
+        needsVerification: true,
+        email: user.email,
+      });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(403).json({ message: 'Account is deactivated' });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token });
+    
+    res.json({ 
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified,
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+// ✅ @desc Verify email with Google OAuth
+// This is called after successful Google OAuth callback
+export const verifyEmailWithGoogle = async (req, res) => {
+  try {
+    const { googleEmail, registeredEmail } = req.body;
 
-// ✅ @desc Get logged-in user data
+    // Check if emails match (case-insensitive)
+    if (googleEmail.toLowerCase() !== registeredEmail.toLowerCase()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email mismatch',
+        error: `Google email (${googleEmail}) does not match registered email (${registeredEmail})`,
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email: registeredEmail });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Check if already verified
+    if (user.isVerified) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+      return res.json({
+        success: true,
+        message: 'Email already verified',
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        }
+      });
+    }
+
+    // ✅ Mark user as verified
+    user.isVerified = true;
+    await user.save();
+
+    // Generate token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
+  }
+};
+
+// ✅ @desc Check verification status
+export const checkVerificationStatus = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      email: user.email,
+      isVerified: user.isVerified,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ✅ @desc Resend verification (for future email-based verification)
+export const resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email already verified' });
+    }
+
+    // For now, just return success
+    // Later you can add email sending logic here
+    res.json({
+      success: true,
+      message: 'Verification instructions sent',
+      email: user.email,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc Get logged-in user data
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -67,8 +210,7 @@ export const getMe = async (req, res) => {
   }
 };
 
-
-// ✅ @desc Get all users (household members)
+// @desc Get all users (household members)
 // @route GET /api/auth/users
 // @access Private
 export const getAllUsers = async (req, res) => {
@@ -85,8 +227,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-
-// ✅ @desc Update user profile
+// @desc Update user profile
 export const updateProfile = async (req, res) => {
   try {
     const updates = req.body;
