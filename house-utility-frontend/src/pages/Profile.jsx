@@ -1,17 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Shield, 
-  Save, 
+import {
+  User,
+  Mail,
+  Lock,
+  Shield,
+  Save,
   Camera,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Home,
+  Copy,
+  Users
 } from 'lucide-react';
 
 const Profile = () => {
@@ -19,6 +22,9 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [household, setHousehold] = useState(null);
+  const [householdLoading, setHouseholdLoading] = useState(true);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // Profile form
   const [profileData, setProfileData] = useState({
@@ -38,6 +44,41 @@ const Profile = () => {
     new: false,
     confirm: false
   });
+
+  useEffect(() => {
+    const fetchHouseholdData = async () => {
+      setHouseholdLoading(true);
+
+      if (!user?.household) {
+        setHousehold(null);
+        setHouseholdLoading(false);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/api/household', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setHousehold(response.data.data);
+      } catch (error) {
+        console.error('Error fetching household data:', error);
+        setHousehold(null);
+      } finally {
+        setHouseholdLoading(false);
+      }
+    };
+
+    fetchHouseholdData();
+  }, [user]);
+
+  const copyInviteCode = () => {
+    if (household?.inviteCode) {
+      navigator.clipboard.writeText(household.inviteCode);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
+  };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -122,6 +163,7 @@ const Profile = () => {
 
   const tabs = [
     { id: 'profile', label: 'Profile Information', icon: User },
+    { id: 'household', label: 'Household', icon: Home },
     { id: 'security', label: 'Security', icon: Shield },
   ];
 
@@ -231,6 +273,115 @@ const Profile = () => {
                   <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 )}
                 <span className="text-sm">{message.text}</span>
+              </motion.div>
+            )}
+
+            {/* Household Tab */}
+            {activeTab === 'household' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+              >
+                {householdLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading household information...</p>
+                  </div>
+                ) : household ? (
+                  <>
+                    <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">{household.name}</h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {household.members?.length || 0} member{household.members?.length !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-2xl flex items-center justify-center text-white">
+                          <Home className="w-8 h-8" />
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Invite Code
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <div className="flex-1 bg-white px-4 py-3 rounded-xl border border-gray-300 font-mono text-lg tracking-wider text-gray-900">
+                            {household.inviteCode}
+                          </div>
+                          <button
+                            onClick={copyInviteCode}
+                            className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors flex items-center space-x-2"
+                          >
+                            <Copy className="w-5 h-5" />
+                            <span>{copySuccess ? 'Copied!' : 'Copy'}</span>
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Share this code with family members to invite them to your household
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold text-gray-900">Household Role</h3>
+                        <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
+                          user?.householdRole === 'owner' ? 'bg-yellow-100 text-yellow-700' :
+                          user?.householdRole === 'admin' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {user?.householdRole?.toUpperCase() || 'MEMBER'}
+                        </span>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <div className="flex items-start space-x-3">
+                          <Users className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div className="text-sm text-blue-800">
+                            <p className="font-semibold mb-1">Permissions</p>
+                            <ul className="list-disc list-inside space-y-1">
+                              {user?.householdRole === 'owner' && (
+                                <>
+                                  <li>Full access to all household data</li>
+                                  <li>Manage household members and roles</li>
+                                  <li>Add, edit, and delete all expenses, bills, and contributions</li>
+                                </>
+                              )}
+                              {user?.householdRole === 'admin' && (
+                                <>
+                                  <li>View all household data</li>
+                                  <li>Manage household members</li>
+                                  <li>Add, edit, and delete all expenses, bills, and contributions</li>
+                                </>
+                              )}
+                              {(user?.householdRole === 'member' || !user?.householdRole) && (
+                                <>
+                                  <li>View all household data</li>
+                                  <li>Add new expenses, bills, and contributions</li>
+                                  <li>Edit and delete your own items</li>
+                                </>
+                              )}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No Household Found</h3>
+                    <p className="text-gray-600 mb-4">
+                      You don't belong to any household yet. A household should have been created automatically when you verified your email.
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Please try logging out and logging back in, or contact support if the issue persists.
+                    </p>
+                  </div>
+                )}
               </motion.div>
             )}
 

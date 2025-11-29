@@ -26,8 +26,9 @@ export const authAPI = {
 export const householdAPI = {
   getHousehold: () => api.get("/household"),
   getMembers: () => api.get("/household/members"),
-  joinHousehold: (code) => api.post("/household/join", { code }),
-  createHousehold: (data) => api.post("/household", data),
+  joinHousehold: (inviteCode) => api.post("/household/join", { inviteCode }),
+  updateMemberRole: (userId, role) => api.put(`/household/members/${userId}/role`, { role }),
+  removeMember: (userId) => api.delete(`/household/members/${userId}`),
 };
 
 // ✅ Export base API as default

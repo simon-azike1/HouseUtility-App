@@ -2,6 +2,12 @@
 import mongoose from 'mongoose';
 
 const billSchema = new mongoose.Schema({
+  // ✅ NEW: Link bill to household
+  household: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Household',
+    required: [true, 'Household is required']
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -38,7 +44,7 @@ const billSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'paid', 'overdue', 'cancelled'],
+    enum: ['pending', 'paid', 'overdue', 'cancelled', 'partially_paid'],
     default: 'pending'
   },
   paymentMethod: {
@@ -60,32 +66,105 @@ const billSchema = new mongoose.Schema({
     trim: true,
     maxlength: [500, 'Description cannot exceed 500 characters']
   },
+  // ✅ NEW: Bill splitting among household members
+  splitType: {
+    type: String,
+    enum: ['equal', 'custom', 'percentage', 'full'],
+    default: 'equal'
+  },
+  splitDetails: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    amount: {
+      type: Number,
+      min: 0
+    },
+    percentage: {
+      type: Number,
+      min: 0,
+      max: 100
+    },
+    paid: {
+      type: Boolean,
+      default: false
+    },
+    paidDate: {
+      type: Date
+    },
+    paidAmount: {
+      type: Number,
+      default: 0
+    }
+  }],
   reminderDays: {
     type: Number,
-    default: 3, // Remind 3 days before due date
+    default: 3,
     min: [0, 'Reminder days cannot be negative']
   },
   lastPaidDate: {
     type: Date
   },
+  // ✅ ENHANCED: More detailed payment history
   paymentHistory: [{
     paidDate: {
       type: Date,
       default: Date.now
     },
     amount: Number,
-    reference: String
+    paidBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    reference: String,
+    paymentMethod: String
   }],
+  // ✅ NEW: Attachment support
+  attachments: [{
+    url: String,
+    name: String,
+    uploadedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  // ✅ NEW: Audit trail
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  lastModifiedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Index for faster queries
-billSchema.index({ user: 1, dueDate: 1 });
-billSchema.index({ status: 1 });
-billSchema.index({ isRecurring: 1 });
+// ✅ UPDATED: Index by household first
+billSchema.index({ household: 1, dueDate: 1 });
+billSchema.index({ household: 1, status: 1 });
+billSchema.index({ household: 1, isRecurring: 1 });
+billSchema.index({ household: 1, category: 1 });
+
+// Update timestamp on save
+billSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  
+  // Update status to overdue if past due date
+  if (this.status === 'pending' && new Date() > this.dueDate) {
+    this.status = 'overdue';
+  }
+  
+  next();
+});
 
 // Virtual for checking if bill is overdue
 billSchema.virtual('isOverdue').get(function() {
@@ -93,15 +172,96 @@ billSchema.virtual('isOverdue').get(function() {
   return new Date() > this.dueDate;
 });
 
-// Method to mark bill as paid
-billSchema.methods.markAsPaid = function(paymentReference) {
+// ✅ NEW: Calculate total paid amount
+billSchema.virtual('totalPaid').get(function() {
+  return this.paymentHistory.reduce((sum, payment) => sum + payment.amount, 0);
+});
+
+// ✅ NEW: Calculate remaining amount
+billSchema.virtual('remainingAmount').get(function() {
+  return this.amount - this.totalPaid;
+});
+
+// ✅ ENHANCED: Mark bill as paid (with user tracking)
+billSchema.methods.markAsPaid = function(userId, paymentReference, paymentMethod) {
   this.status = 'paid';
   this.lastPaidDate = new Date();
   this.paymentHistory.push({
     paidDate: new Date(),
     amount: this.amount,
-    reference: paymentReference || 'Manual payment'
+    paidBy: userId,
+    reference: paymentReference || 'Manual payment',
+    paymentMethod: paymentMethod || this.paymentMethod
   });
+  
+  // Mark all splits as paid
+  this.splitDetails.forEach(split => {
+    split.paid = true;
+    split.paidDate = new Date();
+    split.paidAmount = split.amount;
+  });
+  
+  return this.save();
+};
+
+// ✅ NEW: Record partial payment
+billSchema.methods.recordPayment = function(userId, amount, reference, paymentMethod) {
+  const totalPaid = this.totalPaid + amount;
+  
+  this.paymentHistory.push({
+    paidDate: new Date(),
+    amount: amount,
+    paidBy: userId,
+    reference: reference || 'Partial payment',
+    paymentMethod: paymentMethod || this.paymentMethod
+  });
+  
+  if (totalPaid >= this.amount) {
+    this.status = 'paid';
+    this.lastPaidDate = new Date();
+  } else {
+    this.status = 'partially_paid';
+  }
+  
+  return this.save();
+};
+
+// ✅ NEW: Calculate equal split for all household members
+billSchema.methods.calculateEqualSplit = function(memberIds) {
+  const splitAmount = this.amount / memberIds.length;
+  this.splitDetails = memberIds.map(userId => ({
+    user: userId,
+    amount: splitAmount,
+    percentage: 100 / memberIds.length,
+    paid: false,
+    paidAmount: 0
+  }));
+  return this;
+};
+
+// ✅ NEW: Mark individual split as paid
+billSchema.methods.markSplitPaid = function(userId, amount) {
+  const split = this.splitDetails.find(s => s.user.toString() === userId.toString());
+  if (!split) {
+    throw new Error('User not found in split details');
+  }
+  
+  split.paidAmount = (split.paidAmount || 0) + amount;
+  
+  if (split.paidAmount >= split.amount) {
+    split.paid = true;
+    split.paidDate = new Date();
+  }
+  
+  // Check if all splits are paid
+  const allPaid = this.splitDetails.every(s => s.paid);
+  if (allPaid) {
+    this.status = 'paid';
+    this.lastPaidDate = new Date();
+  } else {
+    this.status = 'partially_paid';
+  }
+  
   return this.save();
 };
 
@@ -132,16 +292,15 @@ billSchema.methods.generateNextBill = function() {
     dueDate: nextDueDate,
     status: 'pending',
     lastPaidDate: undefined,
-    paymentHistory: []
+    paymentHistory: [],
+    // Reset split details to unpaid
+    splitDetails: this.splitDetails.map(split => ({
+      ...split,
+      paid: false,
+      paidDate: undefined,
+      paidAmount: 0
+    }))
   };
 };
-
-// Update status to overdue if past due date
-billSchema.pre('save', function(next) {
-  if (this.status === 'pending' && new Date() > this.dueDate) {
-    this.status = 'overdue';
-  }
-  next();
-});
 
 export default mongoose.model('Bill', billSchema);

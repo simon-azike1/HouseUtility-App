@@ -1,14 +1,24 @@
 // controllers/billController.js
 import Bill from '../models/Bill.js';
+import Household from '../models/Household.js';
+import User from '../models/User.js';
 
 // @desc    Get all bills
 // @route   GET /api/bills
 // @access  Private
 export const getBills = async (req, res) => {
   try {
+    // Check if user has a household
+    if (!req.user.household) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not belong to any household'
+      });
+    }
+
     const { status, category, isRecurring } = req.query;
-    
-    let query = { user: req.user.id };
+
+    let query = { household: req.user.household };
 
     // Filter by status
     if (status) query.status = status;
@@ -21,6 +31,7 @@ export const getBills = async (req, res) => {
 
     const bills = await Bill.find(query)
       .populate('user', 'name email')
+      .populate('household', 'name')
       .sort({ dueDate: 1 });
 
     // Calculate totals
@@ -50,7 +61,8 @@ export const getBills = async (req, res) => {
 export const getBill = async (req, res) => {
   try {
     const bill = await Bill.findById(req.params.id)
-      .populate('user', 'name email');
+      .populate('user', 'name email')
+      .populate('household', 'name');
 
     if (!bill) {
       return res.status(404).json({
@@ -59,8 +71,8 @@ export const getBill = async (req, res) => {
       });
     }
 
-    // Check if bill belongs to user
-    if (bill.user._id.toString() !== req.user.id) {
+    // Check if bill belongs to user's household
+    if (bill.household._id.toString() !== req.user.household.toString()) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view this bill'
@@ -85,13 +97,24 @@ export const getBill = async (req, res) => {
 // @access  Private
 export const createBill = async (req, res) => {
   try {
-    // Add user to req.body
+    // Check if user has a household
+    if (!req.user.household) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not belong to any household'
+      });
+    }
+
+    // Add user and household to req.body
     req.body.user = req.user.id;
+    req.body.household = req.user.household;
+    req.body.createdBy = req.user.id;
 
     const bill = await Bill.create(req.body);
 
-    // Populate user data
+    // Populate user and household data
     await bill.populate('user', 'name email');
+    await bill.populate('household', 'name');
 
     res.status(201).json({
       success: true,
@@ -121,19 +144,35 @@ export const updateBill = async (req, res) => {
       });
     }
 
-    // Check if bill belongs to user
-    if (bill.user.toString() !== req.user.id) {
+    // Check if bill belongs to user's household
+    if (bill.household.toString() !== req.user.household.toString()) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to update this bill'
       });
     }
 
+    // Check if user is admin OR owner of the bill
+    const household = await Household.findById(req.user.household);
+    const isAdmin = household.isAdmin(req.user.id);
+    const isOwner = bill.user.toString() === req.user.id;
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only update your own bills, or be an admin'
+      });
+    }
+
+    // Track who modified
+    req.body.lastModifiedBy = req.user.id;
+
     bill = await Bill.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    ).populate('user', 'name email');
+    ).populate('user', 'name email')
+     .populate('household', 'name');
 
     res.status(200).json({
       success: true,
@@ -163,11 +202,23 @@ export const deleteBill = async (req, res) => {
       });
     }
 
-    // Check if bill belongs to user
-    if (bill.user.toString() !== req.user.id) {
+    // Check if bill belongs to user's household
+    if (bill.household.toString() !== req.user.household.toString()) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to delete this bill'
+      });
+    }
+
+    // Check if user is admin OR owner of the bill
+    const household = await Household.findById(req.user.household);
+    const isAdmin = household.isAdmin(req.user.id);
+    const isOwner = bill.user.toString() === req.user.id;
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only delete your own bills, or be an admin'
       });
     }
 
@@ -200,16 +251,16 @@ export const markBillAsPaid = async (req, res) => {
       });
     }
 
-    // Check if bill belongs to user
-    if (bill.user.toString() !== req.user.id) {
+    // Check if bill belongs to user's household
+    if (bill.household.toString() !== req.user.household.toString()) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to update this bill'
       });
     }
 
-    const { paymentReference } = req.body;
-    await bill.markAsPaid(paymentReference);
+    const { paymentReference, paymentMethod } = req.body;
+    await bill.markAsPaid(req.user.id, paymentReference, paymentMethod);
 
     // If recurring, create next bill
     if (bill.isRecurring) {
@@ -220,6 +271,7 @@ export const markBillAsPaid = async (req, res) => {
     }
 
     await bill.populate('user', 'name email');
+    await bill.populate('household', 'name');
 
     res.status(200).json({
       success: true,
@@ -240,16 +292,25 @@ export const markBillAsPaid = async (req, res) => {
 // @access  Private
 export const getUpcomingBills = async (req, res) => {
   try {
+    // Check if user has a household
+    if (!req.user.household) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not belong to any household'
+      });
+    }
+
     const today = new Date();
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
 
     const bills = await Bill.find({
-      user: req.user.id,
+      household: req.user.household,
       status: { $in: ['pending', 'overdue'] },
       dueDate: { $gte: today, $lte: nextWeek }
     })
       .populate('user', 'name email')
+      .populate('household', 'name')
       .sort({ dueDate: 1 });
 
     res.status(200).json({
@@ -271,7 +332,15 @@ export const getUpcomingBills = async (req, res) => {
 // @access  Private
 export const getStats = async (req, res) => {
   try {
-    const bills = await Bill.find({ user: req.user.id });
+    // Check if user has a household
+    if (!req.user.household) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not belong to any household'
+      });
+    }
+
+    const bills = await Bill.find({ household: req.user.household });
 
     const stats = {
       total: bills.reduce((sum, bill) => sum + bill.amount, 0),

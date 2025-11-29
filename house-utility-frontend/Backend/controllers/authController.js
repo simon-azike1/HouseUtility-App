@@ -1,5 +1,6 @@
 // controllers/authController.js
 import User from '../models/User.js';
+import Household from '../models/Household.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
@@ -65,8 +66,8 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-    
-    res.json({ 
+
+    res.json({
       success: true,
       token,
       user: {
@@ -75,6 +76,8 @@ export const login = async (req, res) => {
         email: user.email,
         role: user.role,
         isVerified: user.isVerified,
+        household: user.household,
+        householdRole: user.householdRole,
       }
     });
   } catch (err) {
@@ -124,6 +127,36 @@ export const verifyEmailWithGoogle = async (req, res) => {
 
     // ✅ Mark user as verified
     user.isVerified = true;
+
+    // ✅ Create household if user doesn't have one
+    if (!user.household) {
+      // Generate unique invite code
+      const generateInviteCode = () => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 8; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      };
+
+      // Create household
+      const household = await Household.create({
+        name: `${user.name}'s Household`,
+        owner: user._id,
+        inviteCode: generateInviteCode(),
+        members: [{
+          user: user._id,
+          role: 'owner',
+          joinedAt: new Date()
+        }]
+      });
+
+      // Link user to household
+      user.household = household._id;
+      user.householdRole = 'owner';
+    }
+
     await user.save();
 
     // Generate token
@@ -139,6 +172,8 @@ export const verifyEmailWithGoogle = async (req, res) => {
         email: user.email,
         role: user.role,
         isVerified: user.isVerified,
+        household: user.household,
+        householdRole: user.householdRole,
       }
     });
   } catch (err) {
@@ -202,8 +237,12 @@ export const resendVerification = async (req, res) => {
 // @desc Get logged-in user data
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id)
+      .select('-password')
+      .populate('household', 'name inviteCode');
+
     if (!user) return res.status(404).json({ message: 'User not found' });
+
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });

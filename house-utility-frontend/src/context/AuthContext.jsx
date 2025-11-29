@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { authAPI, householdAPI } from '/services/api';
 
 const AuthContext = createContext();
@@ -16,6 +16,28 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ✅ Refresh user data from server
+  const refreshUser = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+
+      const userResponse = await authAPI.getMe();
+      const userData = userResponse.data;
+
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+
+      console.log('✅ User data refreshed from server:', userData);
+      console.log('📋 Household field:', userData.household);
+      console.log('👤 Household role:', userData.householdRole);
+      return userData;
+    } catch (err) {
+      console.error('❌ Failed to refresh user data:', err);
+      return null;
+    }
+  }, []);
+
   // Load user from localStorage on mount
   useEffect(() => {
     const loadUser = async () => {
@@ -24,8 +46,11 @@ export const AuthProvider = ({ children }) => {
 
       if (token && savedUser) {
         try {
+          // Set cached user first for immediate display
           setUser(JSON.parse(savedUser));
-          await authAPI.getMe(); // Verify token
+
+          // Then refresh from server to get latest data
+          await refreshUser();
         } catch (err) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -36,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     loadUser();
-  }, []);
+  }, [refreshUser]);
 
   // Login method
   const login = async (email, password) => {
@@ -122,6 +147,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    refreshUser, // ✅ Expose refresh function
     isAuthenticated: !!user,
   };
 

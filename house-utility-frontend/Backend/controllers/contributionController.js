@@ -1,13 +1,24 @@
 // controllers/contributionController.js
 import Contribution from '../models/Contribution.js';
+import Household from '../models/Household.js';
+import User from '../models/User.js';
 
 // @desc    Get all contributions
 // @route   GET /api/contributions
 // @access  Private
 export const getContributions = async (req, res) => {
   try {
-    const contributions = await Contribution.find({ user: req.user.id })
+    // Check if user has a household
+    if (!req.user.household) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not belong to any household'
+      });
+    }
+
+    const contributions = await Contribution.find({ household: req.user.household })
       .populate('user', 'name email')
+      .populate('household', 'name')
       .sort({ contributionDate: -1 });
 
     const total = contributions.reduce((sum, contrib) => sum + contrib.amount, 0);
@@ -33,13 +44,15 @@ export const getContributions = async (req, res) => {
 export const getContribution = async (req, res) => {
   try {
     const contribution = await Contribution.findById(req.params.id)
-      .populate('user', 'name email');
+      .populate('user', 'name email')
+      .populate('household', 'name');
 
     if (!contribution) {
       return res.status(404).json({ success: false, message: 'Contribution not found' });
     }
 
-    if (contribution.user._id.toString() !== req.user.id) {
+    // Check if contribution belongs to user's household
+    if (contribution.household._id.toString() !== req.user.household.toString()) {
       return res.status(403).json({ success: false, message: 'Not authorized to view this contribution' });
     }
 
@@ -54,9 +67,24 @@ export const getContribution = async (req, res) => {
 // @access  Private
 export const createContribution = async (req, res) => {
   try {
+    // Check if user has a household
+    if (!req.user.household) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not belong to any household'
+      });
+    }
+
+    // Add user and household to req.body
     req.body.user = req.user.id;
+    req.body.household = req.user.household;
+    req.body.createdBy = req.user.id;
+
     const contribution = await Contribution.create(req.body);
+
+    // Populate user and household data
     await contribution.populate('user', 'name email');
+    await contribution.populate('household', 'name');
 
     res.status(201).json({
       success: true,
@@ -83,14 +111,31 @@ export const updateContribution = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Contribution not found' });
     }
 
-    if (contribution.user.toString() !== req.user.id) {
+    // Check if contribution belongs to user's household
+    if (contribution.household.toString() !== req.user.household.toString()) {
       return res.status(403).json({ success: false, message: 'Not authorized to update this contribution' });
     }
+
+    // Check if user is admin OR owner of the contribution
+    const household = await Household.findById(req.user.household);
+    const isAdmin = household.isAdmin(req.user.id);
+    const isOwner = contribution.user.toString() === req.user.id;
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only update your own contributions, or be an admin'
+      });
+    }
+
+    // Track who modified
+    req.body.lastModifiedBy = req.user.id;
 
     contribution = await Contribution.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
-    }).populate('user', 'name email');
+    }).populate('user', 'name email')
+     .populate('household', 'name');
 
     res.status(200).json({
       success: true,
@@ -113,8 +158,21 @@ export const deleteContribution = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Contribution not found' });
     }
 
-    if (contribution.user.toString() !== req.user.id) {
+    // Check if contribution belongs to user's household
+    if (contribution.household.toString() !== req.user.household.toString()) {
       return res.status(403).json({ success: false, message: 'Not authorized to delete this contribution' });
+    }
+
+    // Check if user is admin OR owner of the contribution
+    const household = await Household.findById(req.user.household);
+    const isAdmin = household.isAdmin(req.user.id);
+    const isOwner = contribution.user.toString() === req.user.id;
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only delete your own contributions, or be an admin'
+      });
     }
 
     await contribution.deleteOne();
@@ -129,7 +187,15 @@ export const deleteContribution = async (req, res) => {
 // @access  Private
 export const getStats = async (req, res) => {
   try {
-    const contributions = await Contribution.find({ user: req.user.id });
+    // Check if user has a household
+    if (!req.user.household) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not belong to any household'
+      });
+    }
+
+    const contributions = await Contribution.find({ household: req.user.household });
 
     const stats = {
       total: contributions.reduce((sum, c) => sum + c.amount, 0),
