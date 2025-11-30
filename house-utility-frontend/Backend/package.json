@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "cleanup": "node scripts/cleanup-database.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

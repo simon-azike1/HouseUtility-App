@@ -32,20 +32,23 @@ router.post('/resend-verification', resendVerification);
 // ✅ GOOGLE OAUTH ROUTES WITH ENVIRONMENT VARIABLES
 // ============================================
 
-// Step 1: Start OAuth - PASS EMAIL IN STATE
+// Step 1: Start OAuth - PASS EMAIL AND INVITE CODE IN STATE
 router.get('/google/verify', (req, res, next) => {
-  const { email } = req.query;
-  
+  const { email, inviteCode } = req.query;
+
   console.log('🚀 Starting OAuth for:', email);
+  console.log('📝 Invite code:', inviteCode || 'none');
 
   if (!email) {
     return res.status(400).json({ message: 'Email required' });
   }
 
-  // ✅ PASS EMAIL IN STATE (not session!)
+  // ✅ PASS EMAIL AND INVITE CODE IN STATE
+  const stateData = JSON.stringify({ email, inviteCode: inviteCode || null });
+
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    state: email  // ✅ This will be passed back to callback
+    state: stateData  // ✅ This will be passed back to callback
   })(req, res, next);
 });
 
@@ -60,14 +63,25 @@ router.get('/google/callback',
       const frontendUrl = getFrontendUrl();
       console.log('🚀 CALLBACK RECEIVED');
       console.log('📍 Frontend URL:', frontendUrl);
-      
-      // ✅ GET EMAIL FROM STATE (passed from first request)
-      const pendingEmail = req.query.state;  // ✅ This is where email comes from!
+
+      // ✅ GET EMAIL AND INVITE CODE FROM STATE (passed from first request)
+      let pendingEmail, inviteCode;
+      try {
+        const stateData = JSON.parse(req.query.state || '{}');
+        pendingEmail = stateData.email;
+        inviteCode = stateData.inviteCode;
+      } catch (error) {
+        // Fallback for old format (just email string)
+        pendingEmail = req.query.state;
+        inviteCode = null;
+      }
+
       const googleEmail = req.user?.googleEmail;
-      
+
       console.log('📧 Pending email from STATE:', pendingEmail);
       console.log('📧 Google email:', googleEmail);
-      
+      console.log('📝 Invite code from STATE:', inviteCode || 'none');
+
       if (!pendingEmail) {
         console.error('❌ No email in state');
         return res.redirect(`${frontendUrl}/verify-email?error=no_email`);
@@ -87,16 +101,116 @@ router.get('/google/callback',
       }
       
       console.log('✅ Emails match!');
-      
-      // Verify user
+
+      // Verify user and handle household
       const User = (await import('../models/User.js')).default;
+      const Household = (await import('../models/Household.js')).default;
       const user = await User.findOne({ email: pendingEmail });
-      
+
       if (!user) {
         return res.redirect(`${frontendUrl}/verify-email?error=user_not_found`);
       }
-      
+
       user.isVerified = true;
+
+      // ✅ Handle household based on invite code with comprehensive error handling
+      console.log(`📊 Household status for user ${user.email}: ${user.household ? 'HAS HOUSEHOLD' : 'NO HOUSEHOLD'}`);
+
+      if (!user.household) {
+        console.log('🏠 Creating/joining household for user...');
+
+        try {
+          // Helper function to generate invite code
+          const generateInviteCode = () => {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+              code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+          };
+
+          if (inviteCode) {
+            // User has an invite code - try to join existing household
+            console.log(`🔍 Looking for household with invite code: ${inviteCode}`);
+            const household = await Household.findOne({ inviteCode });
+
+            if (household) {
+              console.log(`✅ Found household: ${household.name} (ID: ${household._id})`);
+
+              // Add user to household if not already a member
+              if (!household.members.some(m => m.user.toString() === user._id.toString())) {
+                console.log(`➕ Adding user ${user.email} to household members`);
+                household.members.push({
+                  user: user._id,
+                  role: 'member',
+                  joinedAt: new Date()
+                });
+                await household.save();
+                console.log(`✅ User added to household members array`);
+              } else {
+                console.log(`ℹ️ User already in household members`);
+              }
+
+              user.household = household._id;
+              user.householdRole = 'member';
+              console.log(`✅ User ${user.email} joined household ${household.name} with code ${inviteCode}`);
+            } else {
+              console.log(`⚠️ Invalid invite code ${inviteCode}, creating new household for user ${user.email}`);
+
+              // Invalid code - create own household as fallback
+              const newHousehold = await Household.create({
+                name: `${user.name}'s Household`,
+                owner: user._id,
+                inviteCode: generateInviteCode(),
+                members: [{
+                  user: user._id,
+                  role: 'owner',
+                  joinedAt: new Date()
+                }]
+              });
+
+              console.log(`✅ Created fallback household: ${newHousehold.name} (ID: ${newHousehold._id}, Code: ${newHousehold.inviteCode})`);
+              user.household = newHousehold._id;
+              user.householdRole = 'owner';
+            }
+          } else {
+            // No invite code - create own household
+            console.log(`🆕 No invite code - creating new household for ${user.email}`);
+
+            const household = await Household.create({
+              name: `${user.name}'s Household`,
+              owner: user._id,
+              inviteCode: generateInviteCode(),
+              members: [{
+                user: user._id,
+                role: 'owner',
+                joinedAt: new Date()
+              }]
+            });
+
+            console.log(`✅ Created household: ${household.name} (ID: ${household._id}, Code: ${household.inviteCode})`);
+            user.household = household._id;
+            user.householdRole = 'owner';
+          }
+
+          // ✅ Verify household was set
+          if (!user.household) {
+            throw new Error('Household creation failed - user.household is still null');
+          }
+
+          console.log(`✅ Household assignment complete - User household: ${user.household}, Role: ${user.householdRole}`);
+
+        } catch (householdError) {
+          console.error('❌ ERROR during household creation:', householdError);
+          console.error('❌ Stack trace:', householdError.stack);
+          // Don't throw - let user continue with verification, they can join/create household later
+          console.log('⚠️ Continuing with verification despite household error');
+        }
+      } else {
+        console.log(`ℹ️ User already has household: ${user.household}`);
+      }
+
       await user.save();
       console.log('✅ User verified!');
       

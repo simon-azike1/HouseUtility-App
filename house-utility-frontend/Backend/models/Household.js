@@ -61,5 +61,118 @@ householdSchema.pre('save', function(next) {
   next();
 });
 
+// ✅ CASCADE DELETION: When a household is deleted, clean up related data
+householdSchema.pre('deleteOne', { document: true, query: false }, async function(next) {
+  try {
+    console.log(`🗑️ Cascading deletion for household: ${this.name}`);
+
+    const User = mongoose.model('User');
+    const Expense = mongoose.model('Expense');
+    const Bill = mongoose.model('Bill');
+    const Contribution = mongoose.model('Contribution');
+
+    // Remove household reference from all members (but keep the users)
+    const membersUpdated = await User.updateMany(
+      { household: this._id },
+      { $set: { household: null, householdRole: null } }
+    );
+    console.log(`👥 Cleared household reference for ${membersUpdated.modifiedCount} members`);
+
+    // Delete all household expenses
+    const expensesDeleted = await Expense.deleteMany({ household: this._id });
+    console.log(`💰 Deleted ${expensesDeleted.deletedCount} expenses`);
+
+    // Delete all household bills
+    const billsDeleted = await Bill.deleteMany({ household: this._id });
+    console.log(`📄 Deleted ${billsDeleted.deletedCount} bills`);
+
+    // Delete all household contributions
+    const contributionsDeleted = await Contribution.deleteMany({ household: this._id });
+    console.log(`💵 Deleted ${contributionsDeleted.deletedCount} contributions`);
+
+    console.log(`✅ Cascade deletion complete for household: ${this.name}`);
+    next();
+  } catch (error) {
+    console.error(`❌ Error in household cascade deletion:`, error);
+    next(error);
+  }
+});
+
+householdSchema.pre('findOneAndDelete', async function(next) {
+  try {
+    const household = await this.model.findOne(this.getQuery());
+    if (!household) {
+      return next();
+    }
+
+    console.log(`🗑️ Cascading deletion for household (findOneAndDelete): ${household.name}`);
+
+    const User = mongoose.model('User');
+    const Expense = mongoose.model('Expense');
+    const Bill = mongoose.model('Bill');
+    const Contribution = mongoose.model('Contribution');
+
+    const membersUpdated = await User.updateMany(
+      { household: household._id },
+      { $set: { household: null, householdRole: null } }
+    );
+    console.log(`👥 Cleared household reference for ${membersUpdated.modifiedCount} members`);
+
+    const expensesDeleted = await Expense.deleteMany({ household: household._id });
+    console.log(`💰 Deleted ${expensesDeleted.deletedCount} expenses`);
+
+    const billsDeleted = await Bill.deleteMany({ household: household._id });
+    console.log(`📄 Deleted ${billsDeleted.deletedCount} bills`);
+
+    const contributionsDeleted = await Contribution.deleteMany({ household: household._id });
+    console.log(`💵 Deleted ${contributionsDeleted.deletedCount} contributions`);
+
+    console.log(`✅ Cascade deletion complete for household: ${household.name}`);
+    next();
+  } catch (error) {
+    console.error(`❌ Error in household cascade deletion:`, error);
+    next(error);
+  }
+});
+
+householdSchema.pre('deleteMany', async function(next) {
+  try {
+    const households = await this.model.find(this.getQuery());
+    const householdIds = households.map(h => h._id);
+
+    if (householdIds.length === 0) {
+      return next();
+    }
+
+    console.log(`🗑️ Cascading deletion for ${households.length} households`);
+
+    const User = mongoose.model('User');
+    const Expense = mongoose.model('Expense');
+    const Bill = mongoose.model('Bill');
+    const Contribution = mongoose.model('Contribution');
+
+    const membersUpdated = await User.updateMany(
+      { household: { $in: householdIds } },
+      { $set: { household: null, householdRole: null } }
+    );
+    console.log(`👥 Cleared household reference for ${membersUpdated.modifiedCount} members`);
+
+    const expensesDeleted = await Expense.deleteMany({ household: { $in: householdIds } });
+    console.log(`💰 Deleted ${expensesDeleted.deletedCount} expenses`);
+
+    const billsDeleted = await Bill.deleteMany({ household: { $in: householdIds } });
+    console.log(`📄 Deleted ${billsDeleted.deletedCount} bills`);
+
+    const contributionsDeleted = await Contribution.deleteMany({ household: { $in: householdIds } });
+    console.log(`💵 Deleted ${contributionsDeleted.deletedCount} contributions`);
+
+    console.log(`✅ Cascade deletion complete for ${households.length} households`);
+    next();
+  } catch (error) {
+    console.error(`❌ Error in household cascade deletion:`, error);
+    next(error);
+  }
+});
+
 const Household = mongoose.model('Household', householdSchema);
 export default Household;

@@ -116,15 +116,14 @@ export const updateContribution = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized to update this contribution' });
     }
 
-    // Check if user is admin OR owner of the contribution
+    // ✅ Allow all household members to edit contributions (collaborative household)
     const household = await Household.findById(req.user.household);
-    const isAdmin = household.isAdmin(req.user.id);
-    const isOwner = contribution.user.toString() === req.user.id;
+    const isMember = household.isMember(req.user.id);
 
-    if (!isAdmin && !isOwner) {
+    if (!isMember) {
       return res.status(403).json({
         success: false,
-        message: 'You can only update your own contributions, or be an admin'
+        message: 'Only household members can update contributions'
       });
     }
 
@@ -163,15 +162,14 @@ export const deleteContribution = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized to delete this contribution' });
     }
 
-    // Check if user is admin OR owner of the contribution
+    // ✅ Allow all household members to delete contributions (collaborative household)
     const household = await Household.findById(req.user.household);
-    const isAdmin = household.isAdmin(req.user.id);
-    const isOwner = contribution.user.toString() === req.user.id;
+    const isMember = household.isMember(req.user.id);
 
-    if (!isAdmin && !isOwner) {
+    if (!isMember) {
       return res.status(403).json({
         success: false,
-        message: 'You can only delete your own contributions, or be an admin'
+        message: 'Only household members can delete contributions'
       });
     }
 

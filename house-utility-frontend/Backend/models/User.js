@@ -102,5 +102,84 @@ userSchema.methods.isHouseholdAdmin = function() {
   return this.householdRole === 'owner' || this.householdRole === 'admin';
 };
 
+// ✅ CASCADE DELETION: When a user is deleted, clean up their data
+userSchema.pre('deleteOne', { document: true, query: false }, async function(next) {
+  try {
+    console.log(`🗑️ Cascading deletion for user: ${this.email}`);
+
+    const Household = mongoose.model('Household');
+    const Expense = mongoose.model('Expense');
+    const Bill = mongoose.model('Bill');
+    const Contribution = mongoose.model('Contribution');
+
+    // Delete all households where this user is the owner
+    const ownedHouseholds = await Household.find({ owner: this._id });
+    console.log(`📊 Found ${ownedHouseholds.length} households owned by user`);
+
+    for (const household of ownedHouseholds) {
+      console.log(`🏠 Deleting household: ${household.name}`);
+      await household.deleteOne(); // This triggers the household's pre-delete hook
+    }
+
+    // Delete all expenses created by this user
+    const expensesDeleted = await Expense.deleteMany({ createdBy: this._id });
+    console.log(`💰 Deleted ${expensesDeleted.deletedCount} expenses`);
+
+    // Delete all bills created by this user
+    const billsDeleted = await Bill.deleteMany({ createdBy: this._id });
+    console.log(`📄 Deleted ${billsDeleted.deletedCount} bills`);
+
+    // Delete all contributions by this user
+    const contributionsDeleted = await Contribution.deleteMany({ user: this._id });
+    console.log(`💵 Deleted ${contributionsDeleted.deletedCount} contributions`);
+
+    console.log(`✅ Cascade deletion complete for user: ${this.email}`);
+    next();
+  } catch (error) {
+    console.error(`❌ Error in user cascade deletion:`, error);
+    next(error);
+  }
+});
+
+userSchema.pre('findOneAndDelete', async function(next) {
+  try {
+    const user = await this.model.findOne(this.getQuery());
+    if (!user) {
+      return next();
+    }
+
+    console.log(`🗑️ Cascading deletion for user (findOneAndDelete): ${user.email}`);
+
+    const Household = mongoose.model('Household');
+    const Expense = mongoose.model('Expense');
+    const Bill = mongoose.model('Bill');
+    const Contribution = mongoose.model('Contribution');
+
+    // Delete all households where this user is the owner
+    const ownedHouseholds = await Household.find({ owner: user._id });
+    console.log(`📊 Found ${ownedHouseholds.length} households owned by user`);
+
+    for (const household of ownedHouseholds) {
+      console.log(`🏠 Deleting household: ${household.name}`);
+      await household.deleteOne();
+    }
+
+    const expensesDeleted = await Expense.deleteMany({ createdBy: user._id });
+    console.log(`💰 Deleted ${expensesDeleted.deletedCount} expenses`);
+
+    const billsDeleted = await Bill.deleteMany({ createdBy: user._id });
+    console.log(`📄 Deleted ${billsDeleted.deletedCount} bills`);
+
+    const contributionsDeleted = await Contribution.deleteMany({ user: user._id });
+    console.log(`💵 Deleted ${contributionsDeleted.deletedCount} contributions`);
+
+    console.log(`✅ Cascade deletion complete for user: ${user.email}`);
+    next();
+  } catch (error) {
+    console.error(`❌ Error in user cascade deletion:`, error);
+    next(error);
+  }
+});
+
 const User = mongoose.model('User', userSchema);
 export default User;
