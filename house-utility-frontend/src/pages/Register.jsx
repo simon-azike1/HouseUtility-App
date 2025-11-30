@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
+  const [searchParams] = useSearchParams();
+  const inviteCode = searchParams.get('inviteCode');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -75,8 +78,15 @@ const Register = () => {
         
         // Redirect to verification page (use window.location for most reliable redirect)
         console.log('🔄 Redirecting to /verify-email...');
+
+        // Store invite code if present
+        if (inviteCode) {
+          localStorage.setItem('pendingInviteCode', inviteCode);
+          console.log('📝 Invite code stored:', inviteCode);
+        }
+
         setTimeout(() => {
-          window.location.href = `/verify-email?email=${encodeURIComponent(formData.email)}`;
+          window.location.href = `/verify-email?email=${encodeURIComponent(formData.email)}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`;
         }, 100);
       } else {
         // Show error
@@ -115,8 +125,23 @@ const Register = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-4xl rounded-2xl mb-4 shadow-lg shadow-blue-500/30">
             🏠
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">Join us to manage your utilities effortlessly</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {inviteCode ? 'Join Household' : 'Create Account'}
+          </h1>
+          <p className="text-gray-600">
+            {inviteCode
+              ? 'Create your account to join the household'
+              : 'Join us to manage your utilities effortlessly'
+            }
+          </p>
+          {inviteCode && (
+            <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Invite Code: <span className="font-mono font-bold ml-1">{inviteCode}</span>
+            </div>
+          )}
         </div>
 
         {/* Register Form Card */}

@@ -25,6 +25,9 @@ const Profile = () => {
   const [household, setHousehold] = useState(null);
   const [householdLoading, setHouseholdLoading] = useState(true);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showJoinForm, setShowJoinForm] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [joinLoading, setJoinLoading] = useState(false);
 
   // Profile form
   const [profileData, setProfileData] = useState({
@@ -77,6 +80,40 @@ const Profile = () => {
       navigator.clipboard.writeText(household.inviteCode);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+    }
+  };
+
+  const handleJoinHousehold = async (e) => {
+    e.preventDefault();
+    setJoinLoading(true);
+    setMessage({ type: '', text: '' });
+
+    if (!joinCode || joinCode.trim().length !== 8) {
+      setMessage({ type: 'error', text: 'Please enter a valid 8-character invite code' });
+      setJoinLoading(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('/api/household/join',
+        { inviteCode: joinCode.trim().toUpperCase() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setMessage({ type: 'success', text: 'Successfully joined household!' });
+      setShowJoinForm(false);
+      setJoinCode('');
+
+      // Refresh page after 2 seconds
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to join household'
+      });
+    } finally {
+      setJoinLoading(false);
     }
   };
 
@@ -307,7 +344,7 @@ const Profile = () => {
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           Invite Code
                         </label>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 mb-3">
                           <div className="flex-1 bg-white px-4 py-3 rounded-xl border border-gray-300 font-mono text-lg tracking-wider text-gray-900">
                             {household.inviteCode}
                           </div>
@@ -319,8 +356,22 @@ const Profile = () => {
                             <span>{copySuccess ? 'Copied!' : 'Copy'}</span>
                           </button>
                         </div>
+                        <button
+                          onClick={() => {
+                            const inviteLink = `${window.location.origin}/register?inviteCode=${household.inviteCode}`;
+                            navigator.clipboard.writeText(inviteLink);
+                            setMessage({ type: 'success', text: 'Invite link copied to clipboard!' });
+                            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+                          }}
+                          className="w-full px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-xl transition-colors flex items-center justify-center space-x-2 text-sm font-semibold"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                          </svg>
+                          <span>Copy Invite Link</span>
+                        </button>
                         <p className="text-xs text-gray-500 mt-2">
-                          Share this code with family members to invite them to your household
+                          Share the invite code or link with family members to invite them to your household
                         </p>
                       </div>
                     </div>
@@ -375,11 +426,71 @@ const Profile = () => {
                     <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No Household Found</h3>
                     <p className="text-gray-600 mb-4">
-                      You don't belong to any household yet. A household should have been created automatically when you verified your email.
+                      You don't belong to any household yet.
                     </p>
-                    <p className="text-sm text-gray-500">
-                      Please try logging out and logging back in, or contact support if the issue persists.
-                    </p>
+
+                    {!showJoinForm ? (
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => setShowJoinForm(true)}
+                          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg"
+                        >
+                          <Users className="w-5 h-5 mr-2" />
+                          Join a Household
+                        </button>
+                        <p className="text-sm text-gray-500">
+                          Have an invite code? Click above to join an existing household
+                        </p>
+                      </div>
+                    ) : (
+                      <motion.form
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        onSubmit={handleJoinHousehold}
+                        className="max-w-md mx-auto mt-6"
+                      >
+                        <div className="bg-white border border-gray-200 rounded-xl p-6">
+                          <h4 className="text-lg font-bold text-gray-900 mb-4">Enter Invite Code</h4>
+                          <div className="mb-4">
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Household Invite Code
+                            </label>
+                            <input
+                              type="text"
+                              value={joinCode}
+                              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                              maxLength={8}
+                              placeholder="ABC12XYZ"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-xl font-mono text-lg tracking-wider text-center uppercase focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                              required
+                            />
+                            <p className="text-xs text-gray-500 mt-2">
+                              Enter the 8-character code you received from the household owner
+                            </p>
+                          </div>
+                          <div className="flex space-x-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowJoinForm(false);
+                                setJoinCode('');
+                                setMessage({ type: '', text: '' });
+                              }}
+                              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="submit"
+                              disabled={joinLoading || joinCode.trim().length !== 8}
+                              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {joinLoading ? 'Joining...' : 'Join Household'}
+                            </button>
+                          </div>
+                        </div>
+                      </motion.form>
+                    )}
                   </div>
                 )}
               </motion.div>

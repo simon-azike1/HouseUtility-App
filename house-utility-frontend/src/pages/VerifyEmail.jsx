@@ -12,7 +12,7 @@ const VerifyEmail = () => {
     // Get email from URL params or localStorage
     const urlEmail = searchParams.get('email');
     const storedEmail = localStorage.getItem('pendingVerificationEmail');
-    
+
     const emailToVerify = urlEmail || storedEmail || '';
     setEmail(emailToVerify);
 
@@ -21,6 +21,15 @@ const VerifyEmail = () => {
     // Store in localStorage as backup
     if (emailToVerify) {
       localStorage.setItem('pendingVerificationEmail', emailToVerify);
+    }
+
+    // Handle invite code
+    const urlInviteCode = searchParams.get('inviteCode');
+    const storedInviteCode = localStorage.getItem('pendingInviteCode');
+    if (urlInviteCode || storedInviteCode) {
+      const inviteCodeToUse = urlInviteCode || storedInviteCode;
+      localStorage.setItem('pendingInviteCode', inviteCodeToUse);
+      console.log('📝 Invite code detected:', inviteCodeToUse);
     }
 
     // Check for errors from Google OAuth callback
@@ -44,7 +53,7 @@ const VerifyEmail = () => {
     }
   }, [searchParams]);
 
-  // ✅ FIXED: Correct redirect URL
+  // ✅ FIXED: Correct redirect URL with invite code support
   const handleVerifyWithGoogle = () => {
     if (!email) {
       setError('Email not found. Please register again.');
@@ -53,10 +62,19 @@ const VerifyEmail = () => {
 
     console.log('🚀 Starting verification for:', email);
 
+    // Get invite code from localStorage
+    const inviteCode = localStorage.getItem('pendingInviteCode');
+
     // ✅ CORRECT URL - No /undefined/
     const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const redirectUrl = `${backendUrl}/auth/google/verify?email=${encodeURIComponent(email)}`;
-    
+    let redirectUrl = `${backendUrl}/auth/google/verify?email=${encodeURIComponent(email)}`;
+
+    // Add invite code if present
+    if (inviteCode) {
+      redirectUrl += `&inviteCode=${encodeURIComponent(inviteCode)}`;
+      console.log('📝 Including invite code:', inviteCode);
+    }
+
     console.log('🔗 Redirecting to:', redirectUrl);
 
     // Redirect to backend Google OAuth route

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
+import HouseholdSyncBanner from '../components/HouseholdSyncBanner';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
@@ -289,6 +290,9 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
+      {/* Household Sync Banner */}
+      <HouseholdSyncBanner />
+
       <motion.div
         variants={containerVariant}
         initial="hidden"
