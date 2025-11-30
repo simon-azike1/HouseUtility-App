@@ -181,14 +181,14 @@ export const verifyEmailWithGoogle = async (req, res) => {
               inviteCode: generateInviteCode(),
               members: [{
                 user: user._id,
-                role: 'owner',
+                role: 'admin',
                 joinedAt: new Date()
               }]
             });
 
             console.log(`✅ Created fallback household: ${newHousehold.name} (ID: ${newHousehold._id}, Code: ${newHousehold.inviteCode})`);
             user.household = newHousehold._id;
-            user.householdRole = 'owner';
+            user.householdRole = 'admin';
           }
         } else {
           // No invite code - create own household
@@ -200,7 +200,7 @@ export const verifyEmailWithGoogle = async (req, res) => {
             inviteCode: generateInviteCode(),
             members: [{
               user: user._id,
-              role: 'owner',
+              role: 'admin',
               joinedAt: new Date()
             }]
           });

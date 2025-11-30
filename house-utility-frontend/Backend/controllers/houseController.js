@@ -151,18 +151,17 @@ export const updateMemberRole = async (req, res) => {
       });
     }
 
-    // Check if user is admin or owner
-    const isOwner = household.isOwner(req.user.id);
+    // Check if user is admin (only admins can manage members)
     const isAdmin = household.isAdmin(req.user.id);
 
-    if (!isAdmin && !isOwner) {
+    if (!isAdmin) {
       return res.status(403).json({
         success: false,
         message: 'Only household admins can update member roles'
       });
     }
 
-    // Find and update member
+    // Find the member
     const member = household.members.find(m => m.user.toString() === userId);
     if (!member) {
       return res.status(404).json({
@@ -171,23 +170,20 @@ export const updateMemberRole = async (req, res) => {
       });
     }
 
-    // Only owner can promote someone to owner or demote current owner
-    if ((role === 'owner' || member.role === 'owner') && !isOwner) {
+    // Cannot change admin role (admin is permanent for household creator)
+    if (member.role === 'admin' || role === 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Only the current owner can transfer ownership'
+        message: 'Cannot modify admin role'
       });
     }
 
-    // If promoting to owner, demote current owner to admin
-    if (role === 'owner' && isOwner) {
-      const currentOwnerMember = household.members.find(m => m.user.toString() === req.user.id);
-      if (currentOwnerMember) {
-        currentOwnerMember.role = 'admin';
-        await User.findByIdAndUpdate(req.user.id, { householdRole: 'admin' });
-      }
-      // Update household owner
-      household.owner = userId;
+    // Only allow 'member' role changes (no owner/admin promotion)
+    if (role !== 'member') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role. Only "member" role can be assigned'
+      });
     }
 
     member.role = role;
@@ -240,12 +236,12 @@ export const removeMember = async (req, res) => {
       });
     }
 
-    // Don't allow removing owner
+    // Don't allow removing admin
     const member = household.members.find(m => m.user.toString() === userId);
-    if (member && member.role === 'owner') {
+    if (member && member.role === 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Cannot remove household owner'
+        message: 'Cannot remove household admin'
       });
     }
 

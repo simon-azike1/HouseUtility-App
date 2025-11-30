@@ -189,7 +189,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'members' && (user?.householdRole === 'owner' || user?.householdRole === 'admin')) {
+    if (activeTab === 'members' && user?.householdRole === 'admin') {
       fetchMembers();
     }
   }, [activeTab]);
@@ -278,7 +278,7 @@ const Profile = () => {
   const tabs = [
     { id: 'profile', label: 'Profile Information', icon: User },
     { id: 'household', label: 'Household', icon: Home },
-    ...(user?.householdRole === 'owner' || user?.householdRole === 'admin' ? [
+    ...(user?.householdRole === 'admin' ? [
       { id: 'members', label: 'Members', icon: Users }
     ] : []),
     { id: 'security', label: 'Security', icon: Shield },
@@ -420,8 +420,8 @@ const Profile = () => {
                         </div>
                       </div>
 
-                      {/* ✅ Only show invite code to owner and admin */}
-                      {(user?.householdRole === 'owner' || user?.householdRole === 'admin') && (
+                      {/* ✅ Only show invite code to admin */}
+                      {user?.householdRole === 'admin' && (
                         <div className="mt-4">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
                             Invite Code
@@ -463,8 +463,7 @@ const Profile = () => {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-bold text-gray-900">Household Role</h3>
                         <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
-                          user?.householdRole === 'owner' ? 'bg-yellow-100 text-yellow-700' :
-                          user?.householdRole === 'admin' ? 'bg-blue-100 text-blue-700' :
+                          user?.householdRole === 'admin' ? 'bg-indigo-100 text-indigo-700' :
                           'bg-gray-100 text-gray-700'
                         }`}>
                           {user?.householdRole?.toUpperCase() || 'MEMBER'}
@@ -477,17 +476,11 @@ const Profile = () => {
                           <div className="text-sm text-blue-800">
                             <p className="font-semibold mb-1">Permissions</p>
                             <ul className="list-disc list-inside space-y-1">
-                              {user?.householdRole === 'owner' && (
-                                <>
-                                  <li>Full access to all household data</li>
-                                  <li>Manage household members and roles</li>
-                                  <li>Add, edit, and delete all expenses, bills, and contributions</li>
-                                </>
-                              )}
                               {user?.householdRole === 'admin' && (
                                 <>
-                                  <li>View all household data</li>
-                                  <li>Manage household members</li>
+                                  <li>Full access to all household data</li>
+                                  <li>Manage and remove household members</li>
+                                  <li>Share household invite code</li>
                                   <li>Add, edit, and delete all expenses, bills, and contributions</li>
                                 </>
                               )}
@@ -639,7 +632,7 @@ const Profile = () => {
             )}
 
             {/* Members Tab */}
-            {activeTab === 'members' && (user?.householdRole === 'owner' || user?.householdRole === 'admin') && (
+            {activeTab === 'members' && user?.householdRole === 'admin' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -699,32 +692,18 @@ const Profile = () => {
 
                           {/* Role and Actions */}
                           <div className="flex items-center space-x-3">
-                            {/* Role Badge/Selector */}
-                            {member._id === user.id || (member.householdRole === 'owner' && user.householdRole !== 'owner') ? (
+                            {/* Role Badge - Admin cannot change their own role or other admins */}
+                            {member._id === user.id || member.householdRole === 'admin' ? (
                               <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
-                                member.householdRole === 'owner' ? 'bg-yellow-100 text-yellow-700' :
-                                member.householdRole === 'admin' ? 'bg-blue-100 text-blue-700' :
+                                member.householdRole === 'admin' ? 'bg-indigo-100 text-indigo-700' :
                                 'bg-gray-100 text-gray-700'
                               }`}>
                                 {member.householdRole?.toUpperCase() || 'MEMBER'}
                               </span>
-                            ) : (
-                              <select
-                                value={member.householdRole || 'member'}
-                                onChange={(e) => handleChangeRole(member._id, e.target.value)}
-                                disabled={actionLoading === member._id}
-                                className="px-3 py-1.5 border border-gray-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                <option value="member">MEMBER</option>
-                                <option value="admin">ADMIN</option>
-                                {user.householdRole === 'owner' && (
-                                  <option value="owner">OWNER</option>
-                                )}
-                              </select>
-                            )}
+                            ) : null}
 
-                            {/* Remove Button */}
-                            {member._id !== user.id && !(member.householdRole === 'owner' && user.householdRole !== 'owner') && (
+                            {/* Remove Button - Cannot remove yourself or other admins */}
+                            {member._id !== user.id && member.householdRole !== 'admin' && (
                               <button
                                 onClick={() => handleRemoveMember(member._id)}
                                 disabled={actionLoading === member._id}
@@ -747,14 +726,10 @@ const Profile = () => {
                     <div className="text-sm text-blue-800">
                       <p className="font-semibold mb-2">Member Management</p>
                       <ul className="list-disc list-inside space-y-1">
-                        <li>You cannot remove yourself from the household</li>
-                        {user.householdRole === 'owner' && (
-                          <li>As owner, you can change any member's role including promoting to owner</li>
-                        )}
-                        {user.householdRole === 'admin' && (
-                          <li>As admin, you can manage members but cannot modify the owner</li>
-                        )}
+                        <li>As admin, you have full control over household members</li>
+                        <li>You cannot remove yourself or other admins</li>
                         <li>Removed members can rejoin using the invite code</li>
+                        <li>Only one admin per household (the creator)</li>
                       </ul>
                     </div>
                   </div>
