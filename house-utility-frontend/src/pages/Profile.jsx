@@ -28,6 +28,9 @@ const Profile = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   const [joinLoading, setJoinLoading] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(null);
 
   // Profile form
   const [profileData, setProfileData] = useState({
@@ -117,6 +120,80 @@ const Profile = () => {
     }
   };
 
+  const fetchMembers = async () => {
+    if (!user?.household) return;
+
+    setMembersLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/household/members', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMembers(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to fetch members'
+      });
+    } finally {
+      setMembersLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId) => {
+    if (!window.confirm('Are you sure you want to remove this member from the household?')) {
+      return;
+    }
+
+    setActionLoading(memberId);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`/api/household/members/${memberId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setMessage({ type: 'success', text: 'Member removed successfully!' });
+      fetchMembers(); // Refresh members list
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to remove member'
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleChangeRole = async (memberId, newRole) => {
+    setActionLoading(memberId);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`/api/household/members/${memberId}/role`,
+        { role: newRole },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setMessage({ type: 'success', text: 'Member role updated successfully!' });
+      fetchMembers(); // Refresh members list
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to update member role'
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'members' && (user?.householdRole === 'owner' || user?.householdRole === 'admin')) {
+      fetchMembers();
+    }
+  }, [activeTab]);
+
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -201,6 +278,9 @@ const Profile = () => {
   const tabs = [
     { id: 'profile', label: 'Profile Information', icon: User },
     { id: 'household', label: 'Household', icon: Home },
+    ...(user?.householdRole === 'owner' || user?.householdRole === 'admin' ? [
+      { id: 'members', label: 'Members', icon: Users }
+    ] : []),
     { id: 'security', label: 'Security', icon: Shield },
   ];
 
@@ -556,6 +636,130 @@ const Profile = () => {
                   </button>
                 </div>
               </motion.form>
+            )}
+
+            {/* Members Tab */}
+            {activeTab === 'members' && (user?.householdRole === 'owner' || user?.householdRole === 'admin') && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Household Members</h3>
+                    <p className="text-sm text-gray-600 mt-1">Manage members and their roles</p>
+                  </div>
+                  <button
+                    onClick={fetchMembers}
+                    className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl transition-colors flex items-center space-x-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Refresh</span>
+                  </button>
+                </div>
+
+                {membersLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading members...</p>
+                  </div>
+                ) : members.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+                    <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600">No members found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {members.map((member) => (
+                      <div
+                        key={member._id}
+                        className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            {/* Avatar */}
+                            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center text-white text-lg font-bold">
+                              {member.name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+
+                            {/* Member Info */}
+                            <div>
+                              <h4 className="font-semibold text-gray-900">
+                                {member.name}
+                                {member._id === user.id && (
+                                  <span className="ml-2 text-xs text-gray-500">(You)</span>
+                                )}
+                              </h4>
+                              <p className="text-sm text-gray-600">{member.email}</p>
+                            </div>
+                          </div>
+
+                          {/* Role and Actions */}
+                          <div className="flex items-center space-x-3">
+                            {/* Role Badge/Selector */}
+                            {member._id === user.id || (member.householdRole === 'owner' && user.householdRole !== 'owner') ? (
+                              <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                                member.householdRole === 'owner' ? 'bg-yellow-100 text-yellow-700' :
+                                member.householdRole === 'admin' ? 'bg-blue-100 text-blue-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {member.householdRole?.toUpperCase() || 'MEMBER'}
+                              </span>
+                            ) : (
+                              <select
+                                value={member.householdRole || 'member'}
+                                onChange={(e) => handleChangeRole(member._id, e.target.value)}
+                                disabled={actionLoading === member._id}
+                                className="px-3 py-1.5 border border-gray-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <option value="member">MEMBER</option>
+                                <option value="admin">ADMIN</option>
+                                {user.householdRole === 'owner' && (
+                                  <option value="owner">OWNER</option>
+                                )}
+                              </select>
+                            )}
+
+                            {/* Remove Button */}
+                            {member._id !== user.id && !(member.householdRole === 'owner' && user.householdRole !== 'owner') && (
+                              <button
+                                onClick={() => handleRemoveMember(member._id)}
+                                disabled={actionLoading === member._id}
+                                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {actionLoading === member._id ? 'Removing...' : 'Remove'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Info Box */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-semibold mb-2">Member Management</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>You cannot remove yourself from the household</li>
+                        {user.householdRole === 'owner' && (
+                          <li>As owner, you can change any member's role including promoting to owner</li>
+                        )}
+                        {user.householdRole === 'admin' && (
+                          <li>As admin, you can manage members but cannot modify the owner</li>
+                        )}
+                        <li>Removed members can rejoin using the invite code</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             )}
 
             {/* Security Tab */}

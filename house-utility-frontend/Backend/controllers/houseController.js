@@ -151,8 +151,11 @@ export const updateMemberRole = async (req, res) => {
       });
     }
 
-    // Check if user is admin
-    if (!household.isAdmin(req.user.id)) {
+    // Check if user is admin or owner
+    const isOwner = household.isOwner(req.user.id);
+    const isAdmin = household.isAdmin(req.user.id);
+
+    if (!isAdmin && !isOwner) {
       return res.status(403).json({
         success: false,
         message: 'Only household admins can update member roles'
@@ -168,12 +171,23 @@ export const updateMemberRole = async (req, res) => {
       });
     }
 
-    // Don't allow changing owner role
-    if (member.role === 'owner') {
+    // Only owner can promote someone to owner or demote current owner
+    if ((role === 'owner' || member.role === 'owner') && !isOwner) {
       return res.status(403).json({
         success: false,
-        message: 'Cannot change owner role'
+        message: 'Only the current owner can transfer ownership'
       });
+    }
+
+    // If promoting to owner, demote current owner to admin
+    if (role === 'owner' && isOwner) {
+      const currentOwnerMember = household.members.find(m => m.user.toString() === req.user.id);
+      if (currentOwnerMember) {
+        currentOwnerMember.role = 'admin';
+        await User.findByIdAndUpdate(req.user.id, { householdRole: 'admin' });
+      }
+      // Update household owner
+      household.owner = userId;
     }
 
     member.role = role;
