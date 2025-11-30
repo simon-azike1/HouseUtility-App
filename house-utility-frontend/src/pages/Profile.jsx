@@ -340,40 +340,43 @@ const Profile = () => {
                         </div>
                       </div>
 
-                      <div className="mt-4">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Invite Code
-                        </label>
-                        <div className="flex items-center space-x-2 mb-3">
-                          <div className="flex-1 bg-white px-4 py-3 rounded-xl border border-gray-300 font-mono text-lg tracking-wider text-gray-900">
-                            {household.inviteCode}
+                      {/* ✅ Only show invite code to owner and admin */}
+                      {(user?.householdRole === 'owner' || user?.householdRole === 'admin') && (
+                        <div className="mt-4">
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Invite Code
+                          </label>
+                          <div className="flex items-center space-x-2 mb-3">
+                            <div className="flex-1 bg-white px-4 py-3 rounded-xl border border-gray-300 font-mono text-lg tracking-wider text-gray-900">
+                              {household.inviteCode}
+                            </div>
+                            <button
+                              onClick={copyInviteCode}
+                              className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors flex items-center space-x-2"
+                            >
+                              <Copy className="w-5 h-5" />
+                              <span>{copySuccess ? 'Copied!' : 'Copy'}</span>
+                            </button>
                           </div>
                           <button
-                            onClick={copyInviteCode}
-                            className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors flex items-center space-x-2"
+                            onClick={() => {
+                              const inviteLink = `${window.location.origin}/register?inviteCode=${household.inviteCode}`;
+                              navigator.clipboard.writeText(inviteLink);
+                              setMessage({ type: 'success', text: 'Invite link copied to clipboard!' });
+                              setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+                            }}
+                            className="w-full px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-xl transition-colors flex items-center justify-center space-x-2 text-sm font-semibold"
                           >
-                            <Copy className="w-5 h-5" />
-                            <span>{copySuccess ? 'Copied!' : 'Copy'}</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                            </svg>
+                            <span>Copy Invite Link</span>
                           </button>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Share the invite code or link with family members to invite them to your household
+                          </p>
                         </div>
-                        <button
-                          onClick={() => {
-                            const inviteLink = `${window.location.origin}/register?inviteCode=${household.inviteCode}`;
-                            navigator.clipboard.writeText(inviteLink);
-                            setMessage({ type: 'success', text: 'Invite link copied to clipboard!' });
-                            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-                          }}
-                          className="w-full px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-xl transition-colors flex items-center justify-center space-x-2 text-sm font-semibold"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                          </svg>
-                          <span>Copy Invite Link</span>
-                        </button>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Share the invite code or link with family members to invite them to your household
-                        </p>
-                      </div>
+                      )}
                     </div>
 
                     <div>
@@ -411,8 +414,8 @@ const Profile = () => {
                               {(user?.householdRole === 'member' || !user?.householdRole) && (
                                 <>
                                   <li>View all household data</li>
-                                  <li>Add new expenses, bills, and contributions</li>
-                                  <li>Edit and delete your own items</li>
+                                  <li>Add, edit, and delete all expenses, bills, and contributions</li>
+                                  <li>Collaborative household management</li>
                                 </>
                               )}
                             </ul>
