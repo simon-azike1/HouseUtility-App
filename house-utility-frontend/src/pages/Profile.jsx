@@ -189,7 +189,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'members' && user?.householdRole === 'admin') {
+    if (activeTab === 'members' && (user?.householdRole === 'admin' || user?.householdRole === 'owner')) {
       fetchMembers();
     }
   }, [activeTab]);
@@ -278,7 +278,7 @@ const Profile = () => {
   const tabs = [
     { id: 'profile', label: 'Profile Information', icon: User },
     { id: 'household', label: 'Household', icon: Home },
-    ...(user?.householdRole === 'admin' ? [
+    ...((user?.householdRole === 'admin' || user?.householdRole === 'owner') ? [
       { id: 'members', label: 'Members', icon: Users }
     ] : []),
     { id: 'security', label: 'Security', icon: Shield },
@@ -421,7 +421,7 @@ const Profile = () => {
                       </div>
 
                       {/* ✅ Only show invite code to admin */}
-                      {user?.householdRole === 'admin' && (
+                      {(user?.householdRole === 'admin' || user?.householdRole === 'owner') && (
                         <div className="mt-4">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
                             Invite Code
@@ -463,10 +463,11 @@ const Profile = () => {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-bold text-gray-900">Household Role</h3>
                         <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
-                          user?.householdRole === 'admin' ? 'bg-indigo-100 text-indigo-700' :
+                          (user?.householdRole === 'admin' || user?.householdRole === 'owner') ? 'bg-indigo-100 text-indigo-700' :
                           'bg-gray-100 text-gray-700'
                         }`}>
-                          {user?.householdRole?.toUpperCase() || 'MEMBER'}
+                          {/* Display "ADMIN" for both 'admin' and 'owner' roles */}
+                          {(user?.householdRole === 'admin' || user?.householdRole === 'owner') ? 'ADMIN' : user?.householdRole?.toUpperCase() || 'MEMBER'}
                         </span>
                       </div>
 
@@ -476,7 +477,7 @@ const Profile = () => {
                           <div className="text-sm text-blue-800">
                             <p className="font-semibold mb-1">Permissions</p>
                             <ul className="list-disc list-inside space-y-1">
-                              {user?.householdRole === 'admin' && (
+                              {(user?.householdRole === 'admin' || user?.householdRole === 'owner') && (
                                 <>
                                   <li>Full access to all household data</li>
                                   <li>Manage and remove household members</li>
@@ -632,7 +633,7 @@ const Profile = () => {
             )}
 
             {/* Members Tab */}
-            {activeTab === 'members' && user?.householdRole === 'admin' && (
+            {activeTab === 'members' && (user?.householdRole === 'admin' || user?.householdRole === 'owner') && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -693,17 +694,18 @@ const Profile = () => {
                           {/* Role and Actions */}
                           <div className="flex items-center space-x-3">
                             {/* Role Badge - Admin cannot change their own role or other admins */}
-                            {member._id === user.id || member.householdRole === 'admin' ? (
+                            {member._id === user.id || member.householdRole === 'admin' || member.householdRole === 'owner' ? (
                               <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
-                                member.householdRole === 'admin' ? 'bg-indigo-100 text-indigo-700' :
+                                (member.householdRole === 'admin' || member.householdRole === 'owner') ? 'bg-indigo-100 text-indigo-700' :
                                 'bg-gray-100 text-gray-700'
                               }`}>
-                                {member.householdRole?.toUpperCase() || 'MEMBER'}
+                                {/* Display "ADMIN" for both 'admin' and 'owner' roles */}
+                                {(member.householdRole === 'admin' || member.householdRole === 'owner') ? 'ADMIN' : member.householdRole?.toUpperCase() || 'MEMBER'}
                               </span>
                             ) : null}
 
                             {/* Remove Button - Cannot remove yourself or other admins */}
-                            {member._id !== user.id && member.householdRole !== 'admin' && (
+                            {member._id !== user.id && member.householdRole !== 'admin' && member.householdRole !== 'owner' && (
                               <button
                                 onClick={() => handleRemoveMember(member._id)}
                                 disabled={actionLoading === member._id}

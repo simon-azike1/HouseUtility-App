@@ -152,7 +152,8 @@ export const updateMemberRole = async (req, res) => {
     }
 
     // Check if user is admin (only admins can manage members)
-    const isAdmin = household.isAdmin(req.user.id);
+    // Support both 'admin' and 'owner' roles for backward compatibility
+    const isAdmin = household.isAdmin(req.user.id) || req.user.householdRole === 'owner';
 
     if (!isAdmin) {
       return res.status(403).json({
@@ -170,15 +171,16 @@ export const updateMemberRole = async (req, res) => {
       });
     }
 
-    // Cannot change admin role (admin is permanent for household creator)
-    if (member.role === 'admin' || role === 'admin') {
+    // Cannot change admin/owner role (admin/owner is permanent for household creator)
+    // Support both 'admin' and 'owner' roles for backward compatibility
+    if (member.role === 'admin' || member.role === 'owner' || role === 'admin' || role === 'owner') {
       return res.status(403).json({
         success: false,
         message: 'Cannot modify admin role'
       });
     }
 
-    // Only allow 'member' role changes (no owner/admin promotion)
+    // Only allow 'member' role changes (no admin/owner promotion)
     if (role !== 'member') {
       return res.status(400).json({
         success: false,
@@ -228,17 +230,17 @@ export const removeMember = async (req, res) => {
       });
     }
 
-    // Check if user is admin
-    if (!household.isAdmin(req.user.id)) {
+    // Check if user is admin (support both 'admin' and 'owner' for backward compatibility)
+    if (!household.isAdmin(req.user.id) && req.user.householdRole !== 'owner') {
       return res.status(403).json({
         success: false,
         message: 'Only household admins can remove members'
       });
     }
 
-    // Don't allow removing admin
+    // Don't allow removing admin or owner
     const member = household.members.find(m => m.user.toString() === userId);
-    if (member && member.role === 'admin') {
+    if (member && (member.role === 'admin' || member.role === 'owner')) {
       return res.status(403).json({
         success: false,
         message: 'Cannot remove household admin'

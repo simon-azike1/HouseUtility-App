@@ -207,7 +207,7 @@ export const verifyEmailWithGoogle = async (req, res) => {
 
           console.log(`✅ Created household: ${household.name} (ID: ${household._id}, Code: ${household.inviteCode})`);
           user.household = household._id;
-          user.householdRole = 'owner';
+          user.householdRole = 'admin';
         }
 
         // ✅ Verify household was set

@@ -156,7 +156,7 @@ export default function Members() {
                       )}
 
                       <span className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow">
-                        {member.role === "owner" ? (
+                        {(member.role === "admin" || member.role === "owner") ? (
                           <Crown size={16} className="text-yellow-500" />
                         ) : (
                           <User size={16} className="text-gray-500" />
@@ -171,10 +171,11 @@ export default function Members() {
 
                     <span
                       className={`mt-3 text-xs px-4 py-1 rounded-full font-medium ${
-                        member.role === "owner" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"
+                        (member.role === "admin" || member.role === "owner") ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"
                       }`}
                     >
-                      {member.role ? member.role.toUpperCase() : "MEMBER"}
+                      {/* Display "ADMIN" for both 'admin' and 'owner' roles */}
+                      {(member.role === "admin" || member.role === "owner") ? "ADMIN" : member.role ? member.role.toUpperCase() : "MEMBER"}
                     </span>
 
                     {isMe && (
