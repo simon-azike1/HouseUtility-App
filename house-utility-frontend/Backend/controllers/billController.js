@@ -2,6 +2,7 @@
 import Bill from '../models/Bill.js';
 import Household from '../models/Household.js';
 import User from '../models/User.js';
+import { notifyHousehold } from '../services/notificationService.js';
 
 // @desc    Get all bills
 // @route   GET /api/bills
@@ -115,6 +116,30 @@ export const createBill = async (req, res) => {
     // Populate user and household data
     await bill.populate('user', 'name email');
     await bill.populate('household', 'name');
+
+    // Send notification to household members
+    try {
+      const dueDate = new Date(bill.dueDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      await notifyHousehold(req.user.household, 'billReminder', {
+        title: bill.title,
+        amount: bill.amount,
+        currency: bill.currency || 'MAD',
+        dueDate: dueDate,
+        category: bill.category,
+        relatedTo: {
+          type: 'bill',
+          id: bill._id
+        }
+      });
+    } catch (notificationError) {
+      console.error('Failed to send bill notification:', notificationError);
+      // Don't fail the request if notification fails
+    }
 
     res.status(201).json({
       success: true,

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 
 import {
@@ -30,9 +31,87 @@ const DashboardLayout = ({ children }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Fetch notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/notifications?limit=10`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.notifications) {
+          // Transform notifications to match UI format
+          const transformedNotifications = response.data.notifications.map(notif => ({
+            id: notif._id,
+            title: notif.title,
+            message: notif.message,
+            time: getRelativeTime(notif.createdAt),
+            type: notif.type,
+            isRead: notif.isRead
+          }));
+          setNotifications(transformedNotifications);
+          setUnreadCount(response.data.unreadCount || 0);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      } finally {
+        setLoadingNotifications(false);
+      }
+    };
+
+    fetchNotifications();
+    // Refresh notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Helper function to calculate relative time
+  const getRelativeTime = (timestamp) => {
+    const now = new Date();
+    const then = new Date(timestamp);
+    const diff = now - then;
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
+
+  // Mark notification as read
+  const markNotificationAsRead = async (notificationId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/notifications/${notificationId}/read`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update local state
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif.id === notificationId ? { ...notif, isRead: true } : notif
+        )
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+  };
 
   // Close dropdowns on route change
   useEffect(() => {
@@ -74,12 +153,6 @@ const DashboardLayout = ({ children }) => {
     { name: 'Reports', href: '/reports', icon: Calendar, current: location.pathname === '/reports' },
     { name: 'Members', href: '/members', icon: Users, current: location.pathname === '/members' },
     { name: 'Settings', href: '/settings', icon: Settings, current: location.pathname === '/settings' },
-  ];
-
-  const notifications = [
-    { id: 1, title: 'Bill Due Soon', message: 'Internet bill due in 2 days', time: '2h ago', type: 'warning' },
-    { id: 2, title: 'New Contribution', message: 'John added $250 for electricity', time: '4h ago', type: 'success' },
-    { id: 3, title: 'Expense Added', message: 'Water bill payment recorded', time: '1d ago', type: 'info' },
   ];
 
   const profileMenuItems = [
@@ -336,7 +409,11 @@ const DashboardLayout = ({ children }) => {
                     className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
                   >
                     <Bell className="w-5 h-5" />
-                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold px-1">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
                   </button>
 
                   <AnimatePresence>
@@ -352,22 +429,42 @@ const DashboardLayout = ({ children }) => {
                           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
                         </div>
                         <div className="max-h-64 overflow-y-auto">
-                          {notifications.map((notification) => (
-                            <div key={notification.id} className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                              <div className="flex items-start gap-3">
-                                <div className={`w-2 h-2 rounded-full mt-2 ${
-                                  notification.type === 'success' ? 'bg-green-500' :
-                                  notification.type === 'warning' ? 'bg-orange-500' :
-                                  'bg-blue-500'
-                                }`}></div>
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.title}</p>
-                                  <p className="text-xs text-gray-600 dark:text-gray-400">{notification.message}</p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{notification.time}</p>
+                          {loadingNotifications ? (
+                            <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                              Loading notifications...
+                            </div>
+                          ) : notifications.length === 0 ? (
+                            <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                              No notifications yet
+                            </div>
+                          ) : (
+                            notifications.map((notification) => (
+                              <div
+                                key={notification.id}
+                                className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
+                                  !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+                                }`}
+                                onClick={() => !notification.isRead && markNotificationAsRead(notification.id)}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-2 h-2 rounded-full mt-2 ${
+                                    notification.type === 'success' ? 'bg-green-500' :
+                                    notification.type === 'warning' ? 'bg-orange-500' :
+                                    notification.type === 'error' ? 'bg-red-500' :
+                                    'bg-blue-500'
+                                  }`}></div>
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.title}</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">{notification.message}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{notification.time}</p>
+                                  </div>
+                                  {!notification.isRead && (
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+                                  )}
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ))
+                          )}
                         </div>
                       </motion.div>
                     )}

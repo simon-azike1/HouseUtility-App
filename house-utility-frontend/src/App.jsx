@@ -19,6 +19,9 @@ import Contact from './pages/Contact';
 import OurStory from './pages/OurStory';
 import Team from './pages/Team';
 // import Blog from './pages/Blog';
+import Help from './pages/Help';
+import AccountSettings from './pages/AccountSettings';
+import PrivacySecurity from './pages/PrivacySecurity';
 import LegalPrivacy from './pages/LegalPrivacy';
 import LegalTerms from './pages/LegalTerms';
 import LegalCookies from './pages/LegalCookies';
@@ -128,6 +131,33 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/help"
+        element={
+          <ProtectedRoute>
+            <Help />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute>
+            <AccountSettings />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/privacy"
+        element={
+          <ProtectedRoute>
+            <PrivacySecurity />
           </ProtectedRoute>
         }
       />

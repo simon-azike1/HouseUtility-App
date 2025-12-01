@@ -2,6 +2,7 @@
 import Expense from '../models/Expense.js';
 import Household from '../models/Household.js';
 import User from '../models/User.js';
+import { notifyHousehold } from '../services/notificationService.js';
 
 // @desc    Get all expenses
 // @route   GET /api/expenses
@@ -97,6 +98,31 @@ export const createExpense = async (req, res) => {
     // Populate user and household data
     await expense.populate('user', 'name email');
     await expense.populate('household', 'name');
+
+    // Send notification to household members
+    try {
+      const expenseDate = new Date(expense.expenseDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      await notifyHousehold(req.user.household, 'expenseAdded', {
+        description: expense.description,
+        amount: expense.amount,
+        currency: expense.currency || 'MAD',
+        category: expense.category,
+        addedBy: req.user.name,
+        date: expenseDate,
+        relatedTo: {
+          type: 'expense',
+          id: expense._id
+        }
+      });
+    } catch (notificationError) {
+      console.error('Failed to send expense notification:', notificationError);
+      // Don't fail the request if notification fails
+    }
 
     res.status(201).json({
       success: true,

@@ -2,6 +2,7 @@
 import Contribution from '../models/Contribution.js';
 import Household from '../models/Household.js';
 import User from '../models/User.js';
+import { notifyHousehold } from '../services/notificationService.js';
 
 // @desc    Get all contributions
 // @route   GET /api/contributions
@@ -85,6 +86,30 @@ export const createContribution = async (req, res) => {
     // Populate user and household data
     await contribution.populate('user', 'name email');
     await contribution.populate('household', 'name');
+
+    // Send notification to household members
+    try {
+      const contributionDate = new Date(contribution.contributionDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      await notifyHousehold(req.user.household, 'contributionAdded', {
+        memberName: req.user.name,
+        amount: contribution.amount,
+        currency: contribution.currency || 'MAD',
+        description: contribution.description,
+        date: contributionDate,
+        relatedTo: {
+          type: 'contribution',
+          id: contribution._id
+        }
+      });
+    } catch (notificationError) {
+      console.error('Failed to send contribution notification:', notificationError);
+      // Don't fail the request if notification fails
+    }
 
     res.status(201).json({
       success: true,

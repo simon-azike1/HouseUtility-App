@@ -81,6 +81,7 @@ app.use(
     const billRoutes = (await import('./routes/bills.js')).default;
     const expenseRoutes = (await import('./routes/expenses.js')).default;
     const contributionRoutes = (await import('./routes/contributions.js')).default;
+    const notificationRoutes = (await import('./routes/notification.js')).default;
     console.log('✅ Routes imported successfully');
 
     // Import passport after env vars are loaded
@@ -103,6 +104,7 @@ app.use(
     app.use('/api/bills', billRoutes);
     app.use('/api/expenses', expenseRoutes);
     app.use('/api/contributions', contributionRoutes);
+    app.use('/api/notifications', notificationRoutes);
 
     // Health check endpoint
     app.get('/', (req, res) => {
