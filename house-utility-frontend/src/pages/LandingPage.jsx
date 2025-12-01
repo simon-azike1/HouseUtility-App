@@ -81,21 +81,21 @@ const Landing = () => {
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
-      role: "Property Manager",
+      name: "Anthony Akwa",
+      role: "Household Member",
       content: "This platform transformed how we manage shared expenses. The transparency and automation saved us hours every month.",
       rating: 5
     },
     {
-      name: "Michael Chen",
+      name: "Eraste Akande",
       role: "House Owner",
       content: "Finally, a professional solution for household finances. The analytics help us make better spending decisions.",
       rating: 5
     },
     {
-      name: "Emily Rodriguez",
-      role: "Tenant",
-      content: "Clean interface, powerful features. Makes splitting bills effortless and transparent for everyone.",
+      name: "Simon Azike",
+      role: "Founder",
+      content: "After managing shared expenses with spreadsheets and WhatsApp messages, I realized there has to be a better way. UTIL was born from a desperate need for transparency and accountability in household finances.",
       rating: 5
     }
   ];

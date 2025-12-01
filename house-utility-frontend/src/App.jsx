@@ -14,6 +14,14 @@ import Bills from './pages/Bills';
 import Profile from './pages/Profile';
 import Reports from './pages/Reports';
 import Members from './pages/Members';
+import Services from './pages/Services';
+import Contact from './pages/Contact';
+import OurStory from './pages/OurStory';
+import Team from './pages/Team';
+import Blog from './pages/Blog';
+import LegalPrivacy from './pages/LegalPrivacy';
+import LegalTerms from './pages/LegalTerms';
+import LegalCookies from './pages/LegalCookies';
 
 // Redirect authenticated users away from auth pages
 const PublicRoute = ({ children }) => {
@@ -27,6 +35,16 @@ function AppRoutes() {
       {/* Public Pages */}
       <Route path="/" element={<Landing />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/services" element={<Services />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/our-story" element={<OurStory />} />
+      <Route path="/team" element={<Team />} />
+      <Route path="/blog" element={<Blog />} />
+
+      {/* Legal Pages */}
+      <Route path="/privacy" element={<LegalPrivacy />} />
+      <Route path="/terms" element={<LegalTerms />} />
+      <Route path="/cookies" element={<LegalCookies />} />
     
       <Route
         path="/login"

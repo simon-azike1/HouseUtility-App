@@ -46,27 +46,22 @@ const Navbar = () => {
 
   // Navigation items with dropdown support
   const navigationItems = [
-    { 
-      label: 'About Us', 
-      href: '#about',
+    {
+      label: 'About Us',
+      href: '/our-story',
+      isRoute: true,
       dropdown: [
-        { label: 'Our Story', href: '#story' },
-        { label: 'Team', href: '#team' },
-        { label: 'Careers', href: '#careers' }
+        { label: 'Our Story', href: '/our-story', isRoute: true },
+        { label: 'Team', href: '/team', isRoute: true }
       ]
     },
-    { 
-      label: 'Services', 
-      href: '#services',
-      dropdown: [
-        { label: 'Web Development', href: '#web-dev' },
-        { label: 'Mobile Apps', href: '#mobile' },
-        { label: 'Consulting', href: '#consulting' },
-        { label: 'Reprot', href: '/reports' }
-      ]
+    {
+      label: 'Services',
+      href: '/services',
+      isRoute: true
     },
-    { label: 'Contact Us', href: '#contact' },
-    { label: 'Blog', href: '#blog' },
+    { label: 'Contact Us', href: '/contact', isRoute: true },
+    { label: 'Blog', href: '/blog', isRoute: true },
     { label: 'Pricing', href: '/pricing', isRoute: true }
   ];
 
@@ -176,14 +171,25 @@ const Navbar = () => {
                     className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
                   >
                     {item.dropdown.map((dropdownItem, index) => (
-                      <a
-                        key={index}
-                        href={dropdownItem.href}
-                        onClick={closeMenu}
-                        className="block px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all"
-                      >
-                        {dropdownItem.label}
-                      </a>
+                      dropdownItem.isRoute ? (
+                        <Link
+                          key={index}
+                          to={dropdownItem.href}
+                          onClick={closeMenu}
+                          className="block px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all"
+                        >
+                          {dropdownItem.label}
+                        </Link>
+                      ) : (
+                        <a
+                          key={index}
+                          href={dropdownItem.href}
+                          onClick={closeMenu}
+                          className="block px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all"
+                        >
+                          {dropdownItem.label}
+                        </a>
+                      )
                     ))}
                   </motion.div>
                 )}
@@ -194,14 +200,25 @@ const Navbar = () => {
             {hasDropdown && isMobile && (
               <div className="ml-4 space-y-2">
                 {item.dropdown.map((dropdownItem, index) => (
-                  <a
-                    key={index}
-                    href={dropdownItem.href}
-                    onClick={closeMenu}
-                    className="block text-gray-300 hover:text-green-300 py-2 px-4 rounded-lg hover:bg-white/5 transition-all"
-                  >
-                    {dropdownItem.label}
-                  </a>
+                  dropdownItem.isRoute ? (
+                    <Link
+                      key={index}
+                      to={dropdownItem.href}
+                      onClick={closeMenu}
+                      className="block text-gray-300 hover:text-green-300 py-2 px-4 rounded-lg hover:bg-white/5 transition-all"
+                    >
+                      {dropdownItem.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={index}
+                      href={dropdownItem.href}
+                      onClick={closeMenu}
+                      className="block text-gray-300 hover:text-green-300 py-2 px-4 rounded-lg hover:bg-white/5 transition-all"
+                    >
+                      {dropdownItem.label}
+                    </a>
+                  )
                 ))}
               </div>
             )}
