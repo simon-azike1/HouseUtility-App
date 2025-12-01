@@ -154,20 +154,6 @@ const Contact = () => {
       {/* Main Content Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Let's Start a Conversation</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Have a project in mind? We'd love to hear about it. Fill out the form and we'll get back to you within 24 hours.
-            </p>
-          </motion.div>
-
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Contact Form - Takes 3 columns */}
             <motion.div
