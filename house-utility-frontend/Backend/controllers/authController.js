@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Household from '../models/Household.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import cloudinary from '../config/cloudinary.js';
 
 // @desc Register user (unverified)
 export const register = async (req, res) => {
@@ -344,5 +345,52 @@ export const updateProfile = async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc Upload profile picture
+// @route POST /api/auth/upload-profile-picture
+// @access Private
+export const uploadProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+
+    // Upload image to Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'house-utility/profile-pictures',
+          transformation: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+            { quality: 'auto:good' }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+
+      uploadStream.end(req.file.buffer);
+    });
+
+    // Update user's profile picture
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture: result.secure_url },
+      { new: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      message: 'Profile picture uploaded successfully',
+      profilePicture: result.secure_url,
+      user
+    });
+  } catch (err) {
+    console.error('Profile picture upload error:', err);
+    res.status(500).json({ message: 'Failed to upload profile picture', error: err.message });
   }
 };

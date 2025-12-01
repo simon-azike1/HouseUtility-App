@@ -9,8 +9,10 @@ import {
   updateProfile,
   checkVerificationStatus,
   resendVerification,
+  uploadProfilePicture,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
+import upload from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -25,6 +27,7 @@ router.post('/login', login);
 router.get('/me', protect, getMe);
 router.get('/users', protect, getAllUsers);
 router.put('/profile', protect, updateProfile);
+router.post('/upload-profile-picture', protect, upload.single('profilePicture'), uploadProfilePicture);
 router.get('/verification-status', checkVerificationStatus);
 router.post('/resend-verification', resendVerification);
 

@@ -31,6 +31,8 @@ const Profile = () => {
   const [members, setMembers] = useState([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(user?.profilePicture || null);
 
   // Profile form
   const [profileData, setProfileData] = useState({
@@ -243,11 +245,11 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put('/api/auth/change-password', 
+      await axios.put('/api/auth/change-password',
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
-        }, 
+        },
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -259,19 +261,69 @@ const Profile = () => {
         newPassword: '',
         confirmPassword: ''
       });
-      
+
       // Logout after 3 seconds
       setTimeout(() => {
         logout();
         window.location.href = '/login';
       }, 3000);
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Failed to change password' 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to change password'
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleProfilePictureChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Image size must be less than 5MB' });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'Please select a valid image file' });
+      return;
+    }
+
+    setUploading(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+
+      const token = localStorage.getItem('token');
+      const response = await axios.post('/api/auth/upload-profile-picture', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setProfilePicture(response.data.profilePicture);
+      setMessage({ type: 'success', text: 'Profile picture uploaded successfully!' });
+
+      // Update user in localStorage
+      const updatedUser = { ...user, profilePicture: response.data.profilePicture };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      // Refresh page after 2 seconds to show new picture everywhere
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to upload profile picture'
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -316,12 +368,35 @@ const Profile = () => {
           <div className="flex items-center space-x-6 pb-6 border-b border-gray-200">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                {user?.name?.charAt(0).toUpperCase()}
-              </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-gray-100 hover:bg-gray-50 transition-colors">
-                <Camera className="w-4 h-4 text-gray-600" />
-              </button>
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt={user?.name}
+                  className="w-24 h-24 rounded-full object-cover shadow-lg border-4 border-white"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <label
+                htmlFor="profile-picture-input"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                {uploading ? (
+                  <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4 text-gray-600" />
+                )}
+              </label>
+              <input
+                id="profile-picture-input"
+                type="file"
+                accept="image/*"
+                onChange={handleProfilePictureChange}
+                className="hidden"
+                disabled={uploading}
+              />
             </div>
 
             {/* User Info */}
