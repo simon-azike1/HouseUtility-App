@@ -61,7 +61,7 @@ const Navbar = () => {
       isRoute: true
     },
     { label: 'Contact Us', href: '/contact', isRoute: true },
-    { label: 'Blog', href: '/blog', isRoute: true },
+    // { label: 'Blog', href: '/blog', isRoute: true },
     { label: 'Pricing', href: '/pricing', isRoute: true }
   ];
 

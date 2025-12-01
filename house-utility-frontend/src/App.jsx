@@ -18,7 +18,7 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import OurStory from './pages/OurStory';
 import Team from './pages/Team';
-import Blog from './pages/Blog';
+// import Blog from './pages/Blog';
 import LegalPrivacy from './pages/LegalPrivacy';
 import LegalTerms from './pages/LegalTerms';
 import LegalCookies from './pages/LegalCookies';
@@ -39,7 +39,7 @@ function AppRoutes() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/our-story" element={<OurStory />} />
       <Route path="/team" element={<Team />} />
-      <Route path="/blog" element={<Blog />} />
+      {/* <Route path="/blog" element={<Blog />} /> */}
 
       {/* Legal Pages */}
       <Route path="/privacy" element={<LegalPrivacy />} />

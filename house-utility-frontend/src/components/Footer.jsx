@@ -113,14 +113,14 @@ const Footer = () => {
                   <span className="group-hover:translate-x-1 transition-transform duration-300">Pricing</span>
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   to="/blog"
                   className="text-gray-400 hover:text-white transition-colors duration-300 flex items-center group"
                 >
                   <span className="group-hover:translate-x-1 transition-transform duration-300">Blog</span>
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   to="/register"
