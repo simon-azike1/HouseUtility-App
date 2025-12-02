@@ -45,7 +45,7 @@ const DashboardLayout = ({ children }) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/notifications?limit=10`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/notifications?limit=10`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -96,7 +96,7 @@ const DashboardLayout = ({ children }) => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/notifications/${notificationId}/read`,
+        `${import.meta.env.VITE_API_URL}/notifications/${notificationId}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
