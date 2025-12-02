@@ -336,7 +336,7 @@ const Dashboard = () => {
                 key={index}
                 variants={cardVariant}
                 whileHover={{ y: -5, scale: 1.02 }}
-                className="group bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className={`w-14 h-14 ${stat.bgLight} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
@@ -354,9 +354,9 @@ const Dashboard = () => {
                   </div>
                 </div>
                 
-                <h3 className="text-gray-600 text-sm font-medium mb-1">{stat.title}</h3>
+                <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">{stat.title}</h3>
                 <p className={`text-3xl font-bold ${stat.textColor} mb-1`}>{stat.value}</p>
-                <p className="text-xs text-gray-500">{stat.description}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{stat.description}</p>
               </motion.div>
             );
           })}
@@ -367,13 +367,13 @@ const Dashboard = () => {
           {/* Quick Actions */}
           <motion.div
             variants={cardVariant}
-            className="lg:col-span-2 bg-white rounded-2xl p-8 border border-gray-100 shadow-sm"
+            className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm"
           >
             <div className="flex items-center gap-3 mb-8">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl flex items-center justify-center">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">Quick Actions</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Quick Actions</h3>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -405,13 +405,13 @@ const Dashboard = () => {
           {/* Upcoming Bills */}
           <motion.div
             variants={cardVariant}
-            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-orange-600" />
+              <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Upcoming Bills</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Upcoming Bills</h3>
             </div>
             
             <div className="space-y-4">
@@ -425,27 +425,27 @@ const Dashboard = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
                       className={`p-4 rounded-xl border-l-4 ${
-                        status === 'urgent' ? 'border-red-500 bg-red-50' :
-                        status === 'warning' ? 'border-orange-500 bg-orange-50' :
-                        'border-green-500 bg-green-50'
+                        status === 'urgent' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' :
+                        status === 'warning' ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' :
+                        'border-green-500 bg-green-50 dark:bg-green-900/20'
                       }`}
                     >
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-semibold text-gray-900">{bill.title}</p>
-                          <p className="text-sm text-gray-600">{formatDaysUntil(bill.dueDate)}</p>
+                          <p className="font-semibold text-gray-900 dark:text-white">{bill.title}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{formatDaysUntil(bill.dueDate)}</p>
                         </div>
-                        <p className="font-bold text-lg text-gray-900">${bill.amount.toFixed(2)}</p>
+                        <p className="font-bold text-lg text-gray-900 dark:text-white">${bill.amount.toFixed(2)}</p>
                       </div>
                     </motion.div>
                   );
                 })
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">No upcoming bills</p>
+                  <p className="text-gray-500 dark:text-gray-400">No upcoming bills</p>
                   <button
                     onClick={() => navigate('/bills')}
-                    className="mt-4 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                    className="mt-4 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
                   >
                     Add your first bill →
                   </button>
@@ -458,13 +458,13 @@ const Dashboard = () => {
         {/* Recent Activity */}
         <motion.div
           variants={cardVariant}
-          className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm"
+          className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm"
         >
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Bell className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+              <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">Recent Activity</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Activity</h3>
           </div>
           
           <div className="space-y-4">
@@ -477,22 +477,22 @@ const Dashboard = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activity.color}`}>
                       <IconComponent className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-gray-900 font-medium">{activity.message}</p>
-                      <p className="text-sm text-gray-500">{activity.time}</p>
+                      <p className="text-gray-900 dark:text-white font-medium">{activity.message}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{activity.time}</p>
                     </div>
                   </motion.div>
                 );
               })
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500">No recent activity</p>
-                <p className="text-sm text-gray-400 mt-2">Start by adding contributions, expenses, or bills</p>
+                <p className="text-gray-500 dark:text-gray-400">No recent activity</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">Start by adding contributions, expenses, or bills</p>
               </div>
             )}
           </div>

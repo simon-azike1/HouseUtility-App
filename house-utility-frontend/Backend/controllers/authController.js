@@ -394,3 +394,90 @@ export const uploadProfilePicture = async (req, res) => {
     res.status(500).json({ message: 'Failed to upload profile picture', error: err.message });
   }
 };
+
+// @desc Change password
+// @route PUT /api/auth/change-password
+// @access Private
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Please provide current and new password' });
+    }
+
+    // Get user with password
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error('Password change error:', err);
+    res.status(500).json({ message: 'Failed to change password', error: err.message });
+  }
+};
+
+// @desc Update account settings (preferences and notifications)
+// @route PUT /api/auth/settings
+// @access Private
+// Get user settings
+export const getSettings = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('notificationPreferences preferences');
+
+    res.json({
+      success: true,
+      notifications: user.notificationPreferences || {},
+      preferences: user.preferences || {
+        language: 'en',
+        timezone: 'GMT+1',
+        currency: 'MAD',
+        dateFormat: 'DD/MM/YYYY',
+        theme: 'light'
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+export const updateSettings = async (req, res) => {
+  try {
+    const { notifications, preferences } = req.body;
+
+    const updates = {};
+    if (notifications) updates.notificationPreferences = notifications;
+    if (preferences) updates.preferences = preferences;
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      updates,
+      { new: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      message: 'Settings updated successfully',
+      user
+    });
+  } catch (err) {
+    console.error('Settings update error:', err);
+    res.status(500).json({ message: 'Failed to update settings', error: err.message });
+  }
+};

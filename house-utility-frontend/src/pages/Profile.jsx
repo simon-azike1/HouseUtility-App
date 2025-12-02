@@ -203,7 +203,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('/api/auth/update-profile', profileData, {
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/auth/profile`, profileData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -245,7 +245,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put('/api/auth/change-password',
+      await axios.put(`${import.meta.env.VITE_API_URL}/auth/change-password`,
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword

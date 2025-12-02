@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const plans = [
   {
@@ -51,6 +52,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      <DarkModeToggle />
 
       {/* Hero Section */}
       <section className="relative text-white pt-24 pb-32 overflow-hidden">

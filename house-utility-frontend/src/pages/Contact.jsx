@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -77,6 +78,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      <DarkModeToggle />
 
       {/* Hero Section */}
       <section className="relative text-white pt-24 pb-32 overflow-hidden">

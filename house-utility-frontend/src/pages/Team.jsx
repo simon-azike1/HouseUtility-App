@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Linkedin, Facebook, Mail, Globe } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Team = () => {
   const teamMembers = [
@@ -40,6 +41,7 @@ const Team = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      <DarkModeToggle />
 
       {/* Hero Section */}
       <section className="relative text-white pt-24 pb-32 overflow-hidden">

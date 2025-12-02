@@ -10,6 +10,9 @@ import {
   checkVerificationStatus,
   resendVerification,
   uploadProfilePicture,
+  changePassword,
+  getSettings,
+  updateSettings,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
@@ -28,6 +31,9 @@ router.get('/me', protect, getMe);
 router.get('/users', protect, getAllUsers);
 router.put('/profile', protect, updateProfile);
 router.post('/upload-profile-picture', protect, upload.single('profilePicture'), uploadProfilePicture);
+router.put('/change-password', protect, changePassword);
+router.get('/settings', protect, getSettings);
+router.put('/settings', protect, updateSettings);
 router.get('/verification-status', checkVerificationStatus);
 router.post('/resend-verification', resendVerification);
 

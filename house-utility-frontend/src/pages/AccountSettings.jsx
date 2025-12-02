@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import axios from 'axios';
 import {
   Settings,
   Bell,
@@ -17,6 +19,7 @@ import {
 
 const AccountSettings = () => {
   const { user } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
   const [message, setMessage] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
 
@@ -37,8 +40,42 @@ const AccountSettings = () => {
     timezone: 'GMT+1',
     currency: 'MAD',
     dateFormat: 'DD/MM/YYYY',
-    theme: 'light'
+    theme: darkMode ? 'dark' : 'light'
   });
+
+  // Load user preferences on mount
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/auth/settings`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        if (response.data.notifications) {
+          setNotifications(response.data.notifications);
+        }
+        if (response.data.preferences) {
+          setPreferences(response.data.preferences);
+        }
+      } catch (error) {
+        console.error('Failed to load preferences:', error);
+      }
+    };
+
+    loadPreferences();
+  }, []);
+
+  // Sync theme preference with dark mode context
+  useEffect(() => {
+    setPreferences(prev => ({
+      ...prev,
+      theme: darkMode ? 'dark' : 'light'
+    }));
+  }, [darkMode]);
 
   const handleNotificationChange = (key) => {
     setNotifications(prev => ({
@@ -52,6 +89,14 @@ const AccountSettings = () => {
       ...prev,
       [key]: value
     }));
+
+    // If theme is changed, toggle dark mode
+    if (key === 'theme') {
+      const shouldBeDark = value === 'dark';
+      if (shouldBeDark !== darkMode) {
+        toggleDarkMode();
+      }
+    }
   };
 
   const handleSaveSettings = async () => {
@@ -59,8 +104,17 @@ const AccountSettings = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/auth/settings`,
+        {
+          notifications,
+          preferences
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
       setMessage({
         type: 'success',
@@ -71,7 +125,7 @@ const AccountSettings = () => {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: 'Failed to save settings'
+        text: error.response?.data?.message || 'Failed to save settings'
       });
     } finally {
       setLoading(false);
