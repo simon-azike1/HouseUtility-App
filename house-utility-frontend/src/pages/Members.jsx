@@ -1,11 +1,13 @@
 // src/pages/Members.jsx
 import { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from "../components/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
 import api from "/services/api"; // your axios instance (baseURL = /api)
 import { Crown, User } from "lucide-react";
 
 export default function Members() {
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,7 @@ export default function Members() {
     return (
       <DashboardLayout>
         <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500 text-lg animate-pulse">Loading members...</div>
+          <div className="text-gray-500 text-lg animate-pulse">{t('common.loading')}</div>
         </div>
       </DashboardLayout>
     );
@@ -101,9 +103,9 @@ export default function Members() {
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-indigo-700">Household Members</h2>
+              <h2 className="text-3xl font-bold text-indigo-700">{t('members.title')}</h2>
               <p className="text-sm text-gray-500 mt-1">
-                {members.length} member{members.length !== 1 ? "s" : ""} in this household
+                {members.length} {members.length !== 1 ? t('members.members') : t('members.member')}
               </p>
             </div>
           </div>
@@ -116,7 +118,7 @@ export default function Members() {
 
           {members.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
-              <p className="text-lg">No members found</p>
+              <p className="text-lg">{t('members.noMembers')}</p>
               <p className="text-sm text-gray-400">Once users join the household they'll appear here.</p>
             </div>
           ) : (
@@ -175,7 +177,7 @@ export default function Members() {
                       }`}
                     >
                       {/* Display "ADMIN" for both 'admin' and 'owner' roles */}
-                      {(member.role === "admin" || member.role === "owner") ? "ADMIN" : member.role ? member.role.toUpperCase() : "MEMBER"}
+                      {(member.role === "admin" || member.role === "owner") ? t('members.admin').toUpperCase() : t('members.member').toUpperCase()}
                     </span>
 
                     {isMe && (

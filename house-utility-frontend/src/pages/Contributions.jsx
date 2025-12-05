@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
+import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
 
 const Contributions = () => {
+  const { t } = useTranslation();
+  const { formatCurrency, formatDate } = usePreferences();
   const [contributions, setContributions] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +47,7 @@ const Contributions = () => {
   const fetchContributions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/contributions', {
+      const response = await axios.get('/contributions', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setContributions(response.data.data);
@@ -58,7 +62,7 @@ const Contributions = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/contributions/stats', {
+      const response = await axios.get('/contributions/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(response.data.data);
@@ -76,12 +80,12 @@ const Contributions = () => {
       
       if (editingId) {
         // Update existing contribution
-        await axios.put(`/api/contributions/${editingId}`, formData, {
+        await axios.put(`/contributions/${editingId}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
         // Create new contribution
-        await axios.post('/api/contributions', formData, {
+        await axios.post('/contributions', formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -124,7 +128,7 @@ const Contributions = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/api/contributions/${id}`, {
+      await axios.delete(`/contributions/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchContributions();
@@ -157,8 +161,8 @@ const Contributions = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Contributions</h1>
-          <p className="text-gray-600 mt-1">Track your household contributions</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('contributions.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('contributions.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -167,7 +171,7 @@ const Contributions = () => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span>Add Contribution</span>
+          <span>{t('contributions.addNew')}</span>
         </button>
       </div>
 
@@ -176,40 +180,40 @@ const Contributions = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Total Contributions</span>
+              <span className="text-gray-600 text-sm font-medium">{t('contributions.totalContributions')}</span>
               <span className="text-2xl">💰</span>
             </div>
-            <p className="text-3xl font-bold text-indigo-600">${stats.total.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-1">{stats.count} transactions</p>
+            <p className="text-3xl font-bold text-indigo-600">{formatCurrency(stats.total)}</p>
+            <p className="text-xs text-gray-500 mt-1">{stats.count} {t('contributions.transactions')}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">This Month</span>
+              <span className="text-gray-600 text-sm font-medium">{t('contributions.thisMonth')}</span>
               <span className="text-2xl">📅</span>
             </div>
-            <p className="text-3xl font-bold text-green-600">${stats.thisMonth.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-1">Current period</p>
+            <p className="text-3xl font-bold text-green-600">{formatCurrency(stats.thisMonth)}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('contributions.currentPeriod')}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Last Month</span>
+              <span className="text-gray-600 text-sm font-medium">{t('contributions.lastMonth')}</span>
               <span className="text-2xl">📊</span>
             </div>
-            <p className="text-3xl font-bold text-blue-600">${stats.lastMonth.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-1">Previous period</p>
+            <p className="text-3xl font-bold text-blue-600">{formatCurrency(stats.lastMonth)}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('contributions.previousPeriod')}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Average</span>
+              <span className="text-gray-600 text-sm font-medium">{t('contributions.average')}</span>
               <span className="text-2xl">📈</span>
             </div>
             <p className="text-3xl font-bold text-purple-600">
-              ${stats.count > 0 ? (stats.total / stats.count).toFixed(2) : '0.00'}
+              {formatCurrency(stats.count > 0 ? (stats.total / stats.count) : 0)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">Per transaction</p>
+            <p className="text-xs text-gray-500 mt-1">{t('contributions.perTransaction')}</p>
           </div>
         </div>
       )}
@@ -217,7 +221,7 @@ const Contributions = () => {
       {/* Contributions List */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900">Recent Contributions</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t('contributions.recentContributions')}</h2>
         </div>
 
         {error && (
@@ -229,13 +233,13 @@ const Contributions = () => {
         {contributions.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-6xl mb-4">💰</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No contributions yet</h3>
-            <p className="text-gray-600 mb-6">Start tracking your household contributions</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('contributions.noContributions')}</h3>
+            <p className="text-gray-600 mb-6">{t('contributions.startTracking')}</p>
             <button
               onClick={() => setShowModal(true)}
               className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"
             >
-              Add Your First Contribution
+              {t('contributions.addFirst')}
             </button>
           </div>
         ) : (
@@ -243,19 +247,19 @@ const Contributions = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.date')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.description')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.category')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.payment')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.amount')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {contributions.map((contribution) => (
                   <tr key={contribution._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(contribution.contributionDate).toLocaleDateString()}
+                      {formatDate(contribution.contributionDate)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       <div className="font-medium">{contribution.description}</div>
@@ -276,20 +280,20 @@ const Contributions = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
-                      ${contribution.amount.toFixed(2)}
+                      {formatCurrency(contribution.amount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => handleEdit(contribution)}
                         className="text-indigo-600 hover:text-indigo-900 mr-4"
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(contribution._id)}
                         className="text-red-600 hover:text-red-900"
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </td>
                   </tr>
@@ -307,7 +311,7 @@ const Contributions = () => {
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {editingId ? 'Edit Contribution' : 'Add New Contribution'}
+                  {editingId ? t('contributions.editContribution') : t('contributions.addNewContribution')}
                 </h2>
                 <button
                   onClick={() => {
@@ -335,7 +339,7 @@ const Contributions = () => {
                 {/* Amount */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Amount *
+                    {t('contributions.amount')} *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-500">$</span>
@@ -354,7 +358,7 @@ const Contributions = () => {
                 {/* Date */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Date *
+                    {t('contributions.date')} *
                   </label>
                   <input
                     type="date"
@@ -369,7 +373,7 @@ const Contributions = () => {
               {/* Description */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Description *
+                  {t('contributions.description')} *
                 </label>
                 <input
                   type="text"
@@ -385,7 +389,7 @@ const Contributions = () => {
                 {/* Category */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category *
+                    {t('contributions.category')} *
                   </label>
                   <select
                     required
@@ -404,7 +408,7 @@ const Contributions = () => {
                 {/* Payment Method */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Payment Method *
+                    {t('contributions.paymentMethod')} *
                   </label>
                   <select
                     required
@@ -424,7 +428,7 @@ const Contributions = () => {
               {/* Notes */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Notes (Optional)
+                  {t('contributions.notes')}
                 </label>
                 <textarea
                   value={formData.notes}
@@ -446,13 +450,13 @@ const Contributions = () => {
                   }}
                   className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg shadow-indigo-500/30"
                 >
-                  {editingId ? 'Update Contribution' : 'Add Contribution'}
+                  {editingId ? t('common.save') : t('common.add')}
                 </button>
               </div>
             </form>

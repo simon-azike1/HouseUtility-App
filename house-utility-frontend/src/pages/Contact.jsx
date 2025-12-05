@@ -4,8 +4,10 @@ import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-reac
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import DarkModeToggle from '../components/DarkModeToggle';
+import { useTranslation } from 'react-i18next';
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,7 +34,7 @@ const Contact = () => {
     setTimeout(() => {
       setStatus({
         type: 'success',
-        message: 'Thank you for reaching out! We\'ll get back to you within 24 hours.'
+        message: t('contact.successMessage')
       });
       setFormData({
         name: '',
@@ -48,7 +50,7 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: Mail,
-      title: 'Email',
+      title: t('contact.email'),
       content: 'azikeshinye@gmail.com',
       link: 'mailto:azikeshinye@gmail.com',
       color: 'from-blue-500 to-blue-600',
@@ -57,7 +59,7 @@ const Contact = () => {
     },
     {
       icon: Phone,
-      title: 'Phone',
+      title: t('contact.phone'),
       content: '+212 751-780853 / +234 813-353-6151',
       link: 'tel:+212751780853',
       color: 'from-green-500 to-green-600',
@@ -66,7 +68,7 @@ const Contact = () => {
     },
     {
       icon: MapPin,
-      title: 'Office',
+      title: t('contact.office'),
       content: 'Bab Cheffa, Sale, Rabat, Morocco',
       link: null,
       color: 'from-purple-500 to-purple-600',
@@ -76,7 +78,7 @@ const Contact = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <DarkModeToggle />
 
@@ -101,10 +103,10 @@ const Contact = () => {
             className="text-center"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6">
-              Get in <span className="bg-gradient-to-r from-blue-300 to-green-300 bg-clip-text text-transparent">Touch</span>
+              {t('contact.getIn')} <span className="bg-gradient-to-r from-blue-300 to-green-300 bg-clip-text text-transparent">{t('contact.touch')}</span>
             </h1>
             <p className="text-xl sm:text-2xl text-gray-200 max-w-3xl mx-auto">
-              We'd love to hear from you. Let's start a conversation.
+              {t('contact.subtitle')}
             </p>
           </motion.div>
         </div>
@@ -118,7 +120,7 @@ const Contact = () => {
       </section>
 
       {/* Contact Information Cards */}
-      <section className="py-12 bg-gray-50 -mt-16 relative z-10">
+      <section className="py-12 bg-gray-50 dark:bg-gray-900 -mt-16 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {contactInfo.map((info, index) => {
@@ -130,21 +132,21 @@ const Contact = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
                 >
-                  <div className={`inline-flex items-center justify-center w-14 h-14 ${info.iconBg} rounded-xl mb-4`}>
+                  <div className={`inline-flex items-center justify-center w-14 h-14 ${info.iconBg} dark:bg-opacity-20 rounded-xl mb-4`}>
                     <Icon className={`w-7 h-7 ${info.iconColor}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{info.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{info.title}</h3>
                   {info.link ? (
                     <a
                       href={info.link}
-                      className={`text-gray-600 hover:bg-gradient-to-r ${info.color} hover:bg-clip-text hover:text-transparent transition-all`}
+                      className={`text-gray-600 dark:text-gray-400 hover:bg-gradient-to-r ${info.color} hover:bg-clip-text hover:text-transparent transition-all`}
                     >
                       {info.content}
                     </a>
                   ) : (
-                    <p className="text-gray-600">{info.content}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{info.content}</p>
                   )}
                 </motion.div>
               );
@@ -154,7 +156,7 @@ const Contact = () => {
       </section>
 
       {/* Main Content Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Contact Form - Takes 3 columns */}
@@ -165,9 +167,9 @@ const Contact = () => {
               transition={{ duration: 0.6 }}
               className="lg:col-span-3"
             >
-              <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Send a Message</h3>
-                <p className="text-gray-600 mb-8">We'll respond as soon as possible</p>
+              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 md:p-10">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('contact.sendMessage')}</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-8">{t('contact.respondSoon')}</p>
 
                 {status.message && (
                   <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${
@@ -187,8 +189,8 @@ const Contact = () => {
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-bold text-gray-700 mb-2">
-                        Full Name *
+                      <label htmlFor="name" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        {t('contact.fullName')} *
                       </label>
                       <input
                         type="text"
@@ -197,14 +199,14 @@ const Contact = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-blue-500 outline-none transition-all"
-                        placeholder="Your name"
+                        className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 outline-none transition-all"
+                        placeholder={t('contact.namePlaceholder')}
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-2">
-                        Email Address *
+                      <label htmlFor="email" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        {t('contact.emailAddress')} *
                       </label>
                       <input
                         type="email"
@@ -213,16 +215,16 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-blue-500 outline-none transition-all"
-                        placeholder="you@example.com"
+                        className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 outline-none transition-all"
+                        placeholder={t('contact.emailPlaceholder')}
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-bold text-gray-700 mb-2">
-                        Phone Number
+                      <label htmlFor="phone" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        {t('contact.phoneNumber')}
                       </label>
                       <input
                         type="tel"
@@ -230,14 +232,14 @@ const Contact = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-blue-500 outline-none transition-all"
-                        placeholder="+212 xxx-xxxxxx"
+                        className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 outline-none transition-all"
+                        placeholder={t('contact.phonePlaceholder')}
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-bold text-gray-700 mb-2">
-                        Subject *
+                      <label htmlFor="subject" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        {t('contact.subject')} *
                       </label>
                       <input
                         type="text"
@@ -246,15 +248,15 @@ const Contact = () => {
                         value={formData.subject}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-blue-500 outline-none transition-all"
-                        placeholder="What's this about?"
+                        className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 outline-none transition-all"
+                        placeholder={t('contact.subjectPlaceholder')}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-bold text-gray-700 mb-2">
-                      Your Message *
+                    <label htmlFor="message" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                      {t('contact.yourMessage')} *
                     </label>
                     <textarea
                       id="message"
@@ -263,8 +265,8 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       rows="6"
-                      className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-blue-500 outline-none transition-all resize-none"
-                      placeholder="Tell us about your project or question..."
+                      className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 outline-none transition-all resize-none"
+                      placeholder={t('contact.messagePlaceholder')}
                     />
                   </div>
 
@@ -276,12 +278,12 @@ const Contact = () => {
                     {loading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Sending...
+                        {t('contact.sending')}
                       </>
                     ) : (
                       <>
                         <Send className="w-5 h-5" />
-                        Send Message
+                        {t('contact.sendMessageButton')}
                       </>
                     )}
                   </button>
@@ -299,59 +301,59 @@ const Contact = () => {
             >
               {/* Why Choose Us */}
               <div className="bg-gradient-to-br from-blue-600 to-green-500 rounded-3xl p-8 text-white">
-                <h3 className="text-2xl font-bold mb-4">Why Work With Us?</h3>
+                <h3 className="text-2xl font-bold mb-4">{t('contact.whyWorkWithUs')}</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <span>24-hour response time</span>
+                    <span>{t('contact.responseTime')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <span>Expert technical support</span>
+                    <span>{t('contact.expertSupport')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <span>Transparent communication</span>
+                    <span>{t('contact.transparentComm')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <span>Quality-focused solutions</span>
+                    <span>{t('contact.qualitySolutions')}</span>
                   </li>
                 </ul>
               </div>
 
               {/* Business Hours */}
-              <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Availability</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('contact.availability')}</h3>
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                    <span className="text-gray-600">Mon - Fri</span>
-                    <span className="font-semibold text-gray-900">9:00 AM - 6:00 PM</span>
+                  <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">{t('contact.monFri')}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">9:00 AM - 6:00 PM</span>
                   </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                    <span className="text-gray-600">Saturday</span>
-                    <span className="font-semibold text-gray-900">10:00 AM - 4:00 PM</span>
+                  <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">{t('contact.saturday')}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">10:00 AM - 4:00 PM</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Sunday</span>
-                    <span className="font-semibold text-red-600">Closed</span>
+                    <span className="text-gray-600 dark:text-gray-400">{t('contact.sunday')}</span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">{t('contact.closed')}</span>
                   </div>
                 </div>
-                <p className="mt-4 text-xs text-gray-500">
-                  * Times are in GMT+1 (Morocco Time)
+                <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                  {t('contact.timezone')}
                 </p>
               </div>
 
               {/* Direct Contact */}
-              <div className="bg-blue-50 rounded-3xl p-8 border border-blue-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Need Immediate Help?</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  For urgent inquiries, reach out directly:
+              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-3xl p-8 border border-blue-100 dark:border-blue-900">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('contact.needHelp')}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  {t('contact.urgentInquiries')}
                 </p>
                 <div className="space-y-2">
                   <a
                     href="tel:+212751780853"
-                    className="flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                    className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
                     <Phone className="w-4 h-4" />
                     +212 751-780853
@@ -360,10 +362,10 @@ const Contact = () => {
                     href="https://my-new-portfolio-8zg5.vercel.app/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                    className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
                     <Send className="w-4 h-4" />
-                    Visit Website
+                    {t('contact.visitWebsite')}
                   </a>
                 </div>
               </div>

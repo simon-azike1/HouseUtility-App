@@ -4,53 +4,55 @@ import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import DarkModeToggle from '../components/DarkModeToggle';
-
-const plans = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    description: 'Perfect for individuals getting started',
-    features: [
-      { text: 'Up to 5 household members', included: true },
-      { text: 'Basic expense tracking', included: true },
-      { text: 'Monthly reports', included: true },
-      { text: 'Mobile app access', included: true },
-      { text: 'Email support', included: true },
-      { text: 'Advanced analytics', included: false },
-      { text: 'Priority support', included: false },
-      { text: 'Custom categories', included: false }
-    ],
-    cta: 'Get Started Free',
-    highlighted: true,
-    icon: Users,
-    color: 'from-blue-600 to-green-500'
-  }
-  // Pro and Enterprise plans coming soon
-];
-
-const faqs = [
-  {
-    question: 'Is UTIL really free?',
-    answer: 'Yes! Our free plan is 100% free forever with no hidden costs. You get all essential features to manage your household finances.'
-  },
-  {
-    question: 'Do I need a credit card to sign up?',
-    answer: 'No credit card required! Simply create an account with your email and start managing your household right away.'
-  },
-  {
-    question: 'How many household members can I add?',
-    answer: 'The free plan allows up to 5 household members, which is perfect for most families and shared living situations.'
-  },
-  {
-    question: 'Will there be paid plans in the future?',
-    answer: 'We are working on Pro and Enterprise plans with advanced features. However, the free plan will always remain available with core functionality.'
-  }
-];
+import { useTranslation } from 'react-i18next';
 
 export default function Pricing() {
+  const { t } = useTranslation();
+
+  const plans = [
+    {
+      name: t('pricing.freePlan'),
+      price: '$0',
+      period: t('pricing.forever'),
+      description: t('pricing.freeDescription'),
+      features: [
+        { text: t('pricing.feature1'), included: true },
+        { text: t('pricing.feature2'), included: true },
+        { text: t('pricing.feature3'), included: true },
+        { text: t('pricing.feature4'), included: true },
+        { text: t('pricing.feature5'), included: true },
+        { text: t('pricing.feature6'), included: false },
+        { text: t('pricing.feature7'), included: false },
+        { text: t('pricing.feature8'), included: false }
+      ],
+      cta: t('pricing.getStartedFree'),
+      highlighted: true,
+      icon: Users,
+      color: 'from-blue-600 to-green-500'
+    }
+    // Pro and Enterprise plans coming soon
+  ];
+
+  const faqs = [
+    {
+      question: t('pricing.faq1Question'),
+      answer: t('pricing.faq1Answer')
+    },
+    {
+      question: t('pricing.faq2Question'),
+      answer: t('pricing.faq2Answer')
+    },
+    {
+      question: t('pricing.faq3Question'),
+      answer: t('pricing.faq3Answer')
+    },
+    {
+      question: t('pricing.faq4Question'),
+      answer: t('pricing.faq4Answer')
+    }
+  ];
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <DarkModeToggle />
 
@@ -75,20 +77,20 @@ export default function Pricing() {
             className="text-center"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6">
-              Start Managing Your Household <span className="bg-gradient-to-r from-blue-300 to-green-300 bg-clip-text text-transparent">For Free</span>
+              {t('pricing.heroTitle')} <span className="bg-gradient-to-r from-blue-300 to-green-300 bg-clip-text text-transparent">{t('pricing.heroTitleHighlight')}</span>
             </h1>
             <p className="text-xl sm:text-2xl text-gray-200 max-w-3xl mx-auto mb-8">
-              Get started with UTIL's free plan. Track expenses, manage bills, and achieve financial transparency.
+              {t('pricing.heroSubtitle')}
             </p>
             <div className="flex items-center justify-center gap-2 text-sm text-green-300">
               <Check className="w-5 h-5" />
-              <span>100% Free forever</span>
+              <span>{t('pricing.freeForever')}</span>
               <span className="mx-2">•</span>
               <Check className="w-5 h-5" />
-              <span>No credit card required</span>
+              <span>{t('pricing.noCreditCard')}</span>
               <span className="mx-2">•</span>
               <Check className="w-5 h-5" />
-              <span>Get started in minutes</span>
+              <span>{t('pricing.startInMinutes')}</span>
             </div>
           </motion.div>
         </div>
@@ -102,7 +104,7 @@ export default function Pricing() {
       </section>
 
       {/* Pricing Cards */}
-      <section className="py-20 bg-gray-50 -mt-16 relative z-10">
+      <section className="py-20 bg-gray-50 dark:bg-gray-900 -mt-16 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-lg mx-auto">
             {plans.map((plan, index) => {
@@ -114,12 +116,12 @@ export default function Pricing() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="relative bg-white rounded-3xl shadow-lg overflow-hidden transition-all duration-300 border-2 border-blue-500 shadow-2xl"
+                  className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden transition-all duration-300 border-2 border-blue-500 dark:border-blue-600 shadow-2xl"
                 >
                   {/* Highlighted Badge */}
                   {plan.highlighted && (
                     <div className="absolute top-0 right-0 bg-gradient-to-r from-blue-600 to-green-500 text-white text-xs font-bold px-4 py-1 rounded-bl-2xl">
-                      FREE FOREVER
+                      {t('pricing.freeForeverBadge')}
                     </div>
                   )}
 
@@ -130,8 +132,8 @@ export default function Pricing() {
                     </div>
 
                     {/* Plan Name */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                    <p className="text-gray-600 mb-6 h-12">{plan.description}</p>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{plan.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 h-12">{plan.description}</p>
 
                     {/* Price */}
                     <div className="mb-6">
@@ -158,16 +160,16 @@ export default function Pricing() {
 
                     {/* Features */}
                     <div className="space-y-4">
-                      <p className="text-sm font-bold text-gray-900 uppercase tracking-wider">Features</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{t('pricing.features')}</p>
                       <ul className="space-y-3">
                         {plan.features.map((feature, i) => (
                           <li key={i} className="flex items-start gap-3">
                             {feature.included ? (
                               <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <X className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" />
+                              <X className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0 mt-0.5" />
                             )}
-                            <span className={feature.included ? 'text-gray-700' : 'text-gray-400'}>
+                            <span className={feature.included ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}>
                               {feature.text}
                             </span>
                           </li>
@@ -183,7 +185,7 @@ export default function Pricing() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -192,8 +194,8 @@ export default function Pricing() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-gray-600">Everything you need to know about our pricing</p>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t('pricing.faqTitle')}</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400">{t('pricing.faqSubtitle')}</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -204,13 +206,13 @@ export default function Pricing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-gray-50 rounded-2xl p-6 border border-gray-100"
+                className="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6 border border-gray-100 dark:border-gray-600"
               >
                 <div className="flex items-start gap-3 mb-3">
-                  <HelpCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <h3 className="text-lg font-bold text-gray-900">{faq.question}</h3>
+                  <HelpCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">{faq.question}</h3>
                 </div>
-                <p className="text-gray-600 leading-relaxed ml-8">{faq.answer}</p>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed ml-8">{faq.answer}</p>
               </motion.div>
             ))}
           </div>
@@ -222,12 +224,12 @@ export default function Pricing() {
             transition={{ duration: 0.6 }}
             className="text-center mt-12"
           >
-            <p className="text-gray-600 mb-4">Still have questions?</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{t('pricing.stillHaveQuestions')}</p>
             <Link
               to="/contact"
               className="inline-block bg-gradient-to-r from-blue-600 to-green-500 text-white px-8 py-3 rounded-xl font-bold hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              Contact Us
+              {t('pricing.contactUs')}
             </Link>
           </motion.div>
         </div>
@@ -243,16 +245,16 @@ export default function Pricing() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Ready to Take Control of Your Household Finances?
+              {t('pricing.ctaTitle')}
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              Join UTIL today and start managing your household finances the smart way. 100% free, forever.
+              {t('pricing.ctaSubtitle')}
             </p>
             <Link
               to="/register"
               className="inline-block bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl"
             >
-              Get Started Free
+              {t('pricing.getStartedFree')}
             </Link>
           </motion.div>
         </div>

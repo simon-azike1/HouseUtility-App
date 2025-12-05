@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
 import {
   Settings,
@@ -20,6 +21,7 @@ import {
 const AccountSettings = () => {
   const { user } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
+  const { updatePreferences } = usePreferences();
   const [message, setMessage] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
 
@@ -48,12 +50,11 @@ const AccountSettings = () => {
     const loadPreferences = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/auth/settings`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
+        const response = await axios.get('/auth/settings', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log('AccountSettings - Loaded preferences:', response.data);
 
         if (response.data.notifications) {
           setNotifications(response.data.notifications);
@@ -105,8 +106,8 @@ const AccountSettings = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}/auth/settings`,
+      const response = await axios.put(
+        '/auth/settings',
         {
           notifications,
           preferences
@@ -115,6 +116,12 @@ const AccountSettings = () => {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
+
+      console.log('Settings saved successfully:', response.data);
+      console.log('Updating PreferencesContext with:', preferences);
+
+      // Update the global preferences context
+      updatePreferences(preferences);
 
       setMessage({
         type: 'success',

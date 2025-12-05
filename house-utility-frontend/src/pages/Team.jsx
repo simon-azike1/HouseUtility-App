@@ -3,14 +3,17 @@ import { Linkedin, Facebook, Mail, Globe } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import DarkModeToggle from '../components/DarkModeToggle';
+import { useTranslation } from 'react-i18next';
 
 const Team = () => {
+  const { t } = useTranslation();
+
   const teamMembers = [
     {
       name: 'Simon Azike',
-      role: 'Founder',
+      role: t('team.founderRole'),
       image: '/team/simon-azike.PNG',
-      bio: 'Passionate about simplifying financial management for families through transparency and accountability',
+      bio: t('team.founderBio'),
       linkedin: 'https://linkedin.com/in/simonzik',
       facebook: 'https://web.facebook.com/simon.azike/',
       website: 'https://my-new-portfolio-8zg5.vercel.app/',
@@ -18,9 +21,9 @@ const Team = () => {
     },
     {
       name: 'Keyinde Oluwafisayo',
-      role: 'Marketer',
+      role: t('team.marketerRole'),
       image: '/team/keyinde-oluwafisayo.jpg',
-      bio: 'Connecting UTIL with households worldwide and building meaningful relationships',
+      bio: t('team.marketerBio'),
       linkedin: 'https://www.linkedin.com/in/marcelina-adebisi-0393b037a/',
       facebook: 'https://web.facebook.com/marcelinaadebisi',
       website: 'https://mercel-life.vercel.app/',
@@ -28,9 +31,9 @@ const Team = () => {
     },
     {
       name: 'Quadri Kobiowu',
-      role: 'Software Developer',
+      role: t('team.developerRole'),
       image: '/team/quadri-kobiowu.png',
-      bio: 'Building robust and scalable solutions that make household finance management effortless',
+      bio: t('team.developerBio'),
       linkedin: 'https://www.linkedin.com/in/quadri-kobiowu-955313233/',
       facebook: 'https://web.facebook.com/abudulquadri.kobiowu',
       website: 'https://quadrikobiowu.vercel.app/',
@@ -39,7 +42,7 @@ const Team = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <DarkModeToggle />
 
@@ -64,10 +67,10 @@ const Team = () => {
             className="text-center"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6">
-              Meet the <span className="bg-gradient-to-r from-blue-300 to-green-300 bg-clip-text text-transparent">Team</span>
+              {t('team.heroTitle')} <span className="bg-gradient-to-r from-blue-300 to-green-300 bg-clip-text text-transparent">{t('team.heroTitleHighlight')}</span>
             </h1>
             <p className="text-xl sm:text-2xl text-gray-200 max-w-3xl mx-auto">
-              The passionate people behind UTIL, dedicated to making household financial management simple
+              {t('team.heroSubtitle')}
             </p>
           </motion.div>
         </div>
@@ -81,7 +84,7 @@ const Team = () => {
       </section>
 
       {/* Team Grid */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {teamMembers.map((member, index) => (
@@ -91,7 +94,7 @@ const Team = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
               >
                 {/* Profile Image */}
                 <div className="relative h-72 overflow-hidden">
@@ -142,9 +145,9 @@ const Team = () => {
 
                 {/* Member Info */}
                 <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-blue-600 font-semibold mb-3">{member.role}</p>
-                  <p className="text-gray-600 leading-relaxed">{member.bio}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{member.name}</h3>
+                  <p className="text-blue-600 dark:text-blue-400 font-semibold mb-3">{member.role}</p>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{member.bio}</p>
                 </div>
               </motion.div>
             ))}
@@ -153,7 +156,7 @@ const Team = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -162,32 +165,32 @@ const Team = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Drives Us</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Our core values that guide everything we do
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t('team.valuesTitle')}</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              {t('team.valuesSubtitle')}
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
               {
-                title: 'Innovation',
-                description: 'Constantly pushing boundaries to create better solutions',
+                title: t('team.innovationTitle'),
+                description: t('team.innovationDesc'),
                 color: 'from-blue-500 to-blue-600'
               },
               {
-                title: 'Transparency',
-                description: 'Open and honest in all our interactions',
+                title: t('team.transparencyTitle'),
+                description: t('team.transparencyDesc'),
                 color: 'from-green-500 to-green-600'
               },
               {
-                title: 'Collaboration',
-                description: 'Working together to achieve amazing things',
+                title: t('team.collaborationTitle'),
+                description: t('team.collaborationDesc'),
                 color: 'from-purple-500 to-purple-600'
               },
               {
-                title: 'Excellence',
-                description: 'Committed to delivering the highest quality',
+                title: t('team.excellenceTitle'),
+                description: t('team.excellenceDesc'),
                 color: 'from-pink-500 to-pink-600'
               }
             ].map((value, index) => (
@@ -202,8 +205,8 @@ const Team = () => {
                 <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-r ${value.color} flex items-center justify-center text-white text-3xl font-bold`}>
                   {value.title.charAt(0)}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{value.title}</h3>
-                <p className="text-gray-600">{value.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{value.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{value.description}</p>
               </motion.div>
             ))}
           </div>
@@ -220,16 +223,16 @@ const Team = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Want to Join Our Team?
+              {t('team.ctaTitle')}
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              We're always looking for talented people who share our passion
+              {t('team.ctaSubtitle')}
             </p>
             <a
               href="mailto:careers@util.com"
               className="inline-block bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl"
             >
-              View Open Positions
+              {t('team.viewPositions')}
             </a>
           </motion.div>
         </div>

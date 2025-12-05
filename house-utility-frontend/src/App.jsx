@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { PreferencesProvider } from './context/PreferencesContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/LandingPage';
 import Login from './pages/Login';
@@ -173,9 +174,11 @@ function App() {
   return (
     <Router>
       <ThemeProvider>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
+        <PreferencesProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </PreferencesProvider>
       </ThemeProvider>
     </Router>
   );

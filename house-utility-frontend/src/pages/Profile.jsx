@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import axios from 'axios';
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 const Profile = () => {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
@@ -65,7 +67,7 @@ const Profile = () => {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('/api/household', {
+        const response = await axios.get('/household', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setHousehold(response.data.data);
@@ -101,7 +103,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('/api/household/join',
+      const response = await axios.post('/household/join',
         { inviteCode: joinCode.trim().toUpperCase() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -128,7 +130,7 @@ const Profile = () => {
     setMembersLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/household/members', {
+      const response = await axios.get('/household/members', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMembers(response.data.data || []);
@@ -203,7 +205,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/auth/profile`, profileData, {
+      const response = await axios.put('/auth/profile', profileData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -245,7 +247,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${import.meta.env.VITE_API_URL}/auth/change-password`,
+      await axios.put('/auth/change-password',
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
@@ -301,7 +303,7 @@ const Profile = () => {
       formData.append('profilePicture', file);
 
       const token = localStorage.getItem('token');
-      const response = await axios.post('/api/auth/upload-profile-picture', formData, {
+      const response = await axios.post('/auth/upload-profile-picture', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -354,7 +356,7 @@ const Profile = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Account Settings</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('settings.title')}</h1>
           <p className="text-gray-600">Manage your profile and security settings</p>
         </motion.div>
 

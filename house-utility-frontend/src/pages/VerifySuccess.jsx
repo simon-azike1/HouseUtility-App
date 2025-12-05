@@ -26,7 +26,7 @@ const VerifySuccess = () => {
         console.log('🔑 Token received, fetching user data...');
 
         // Fetch user data with the token
-        const response = await axios.get('/api/auth/me', {
+        const response = await axios.get('/auth/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
 

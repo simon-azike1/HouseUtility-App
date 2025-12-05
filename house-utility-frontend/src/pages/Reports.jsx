@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
+import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
 import {
   Chart as ChartJS,
@@ -29,6 +31,8 @@ ChartJS.register(
 );
 
 const Reports = () => {
+  const { t } = useTranslation();
+  const { formatCurrency, formatDate } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -54,12 +58,12 @@ const Reports = () => {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [contributions, expenses, bills, contribStats, expenseStats, billStats] = await Promise.all([
-        axios.get('/api/contributions', { headers }),
-        axios.get('/api/expenses', { headers }),
-        axios.get('/api/bills', { headers }),
-        axios.get('/api/contributions/stats', { headers }),
-        axios.get('/api/expenses/stats', { headers }),
-        axios.get('/api/bills/stats', { headers })
+        axios.get('/contributions', { headers }),
+        axios.get('/expenses', { headers }),
+        axios.get('/bills', { headers }),
+        axios.get('/contributions/stats', { headers }),
+        axios.get('/expenses/stats', { headers }),
+        axios.get('/bills/stats', { headers })
       ]);
 
       setData({
@@ -326,8 +330,8 @@ const Reports = () => {
     <DashboardLayout>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Reports & Analytics</h1>
-        <p className="text-gray-600">Visual insights into your household finances</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('reports.title')}</h1>
+        <p className="text-gray-600">{t('reports.subtitle')}</p>
       </div>
 
       {/* Date Range Filter */}
@@ -335,7 +339,7 @@ const Reports = () => {
         <div className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Start Date
+              {t('reports.startDate')}
             </label>
             <input
               type="date"
@@ -346,7 +350,7 @@ const Reports = () => {
           </div>
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              End Date
+              {t('reports.endDate')}
             </label>
             <input
               type="date"
@@ -359,7 +363,7 @@ const Reports = () => {
             onClick={fetchAllData}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
           >
-            Apply Filter
+            {t('reports.applyFilter')}
           </button>
         </div>
       </div>
@@ -368,38 +372,38 @@ const Reports = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium opacity-90">Total Contributions</span>
+            <span className="text-sm font-medium opacity-90">{t('reports.totalContributions')}</span>
             <span className="text-2xl">💰</span>
           </div>
-          <p className="text-3xl font-bold">${totalContributions.toFixed(2)}</p>
+          <p className="text-3xl font-bold">{formatCurrency(totalContributions)}</p>
           <p className="text-xs opacity-75 mt-1">{data.contributionStats?.count || 0} transactions</p>
         </div>
 
         <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium opacity-90">Total Expenses</span>
+            <span className="text-sm font-medium opacity-90">{t('reports.totalExpenses')}</span>
             <span className="text-2xl">💸</span>
           </div>
-          <p className="text-3xl font-bold">${totalExpenses.toFixed(2)}</p>
+          <p className="text-3xl font-bold">{formatCurrency(totalExpenses)}</p>
           <p className="text-xs opacity-75 mt-1">{data.expenseStats?.count || 0} transactions</p>
         </div>
 
         <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium opacity-90">Total Bills</span>
+            <span className="text-sm font-medium opacity-90">{t('reports.totalBills')}</span>
             <span className="text-2xl">📋</span>
           </div>
-          <p className="text-3xl font-bold">${totalBills.toFixed(2)}</p>
+          <p className="text-3xl font-bold">{formatCurrency(totalBills)}</p>
           <p className="text-xs opacity-75 mt-1">{data.billStats?.count || 0} bills</p>
         </div>
 
         <div className={`bg-gradient-to-br ${balance >= 0 ? 'from-blue-500 to-blue-600' : 'from-orange-500 to-orange-600'} rounded-2xl p-6 text-white shadow-lg`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium opacity-90">Balance</span>
+            <span className="text-sm font-medium opacity-90">{t('reports.balance')}</span>
             <span className="text-2xl">{balance >= 0 ? '✅' : '⚠️'}</span>
           </div>
-          <p className="text-3xl font-bold">${Math.abs(balance).toFixed(2)}</p>
-          <p className="text-xs opacity-75 mt-1">{balance >= 0 ? 'Surplus' : 'Deficit'}</p>
+          <p className="text-3xl font-bold">{formatCurrency(Math.abs(balance))}</p>
+          <p className="text-xs opacity-75 mt-1">{balance >= 0 ? t('reports.surplus') : t('reports.deficit')}</p>
         </div>
       </div>
 
@@ -407,7 +411,7 @@ const Reports = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Monthly Trend Chart */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Monthly Spending Trend</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.monthlyTrend')}</h3>
           <div className="h-80">
             <Line data={getMonthlyTrendData()} options={chartOptions} />
           </div>
@@ -415,7 +419,7 @@ const Reports = () => {
 
         {/* Contributions vs Expenses */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Contributions vs Expenses</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.contributionsVsExpenses')}</h3>
           <div className="h-80">
             <Bar data={getComparisonData()} options={chartOptions} />
           </div>
@@ -423,24 +427,24 @@ const Reports = () => {
 
         {/* Expense Category Distribution */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Expense by Category</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.expenseByCategory')}</h3>
           <div className="h-80 flex items-center justify-center">
             {Object.keys(data.expenseStats?.byCategory || {}).length > 0 ? (
               <Pie data={getExpenseCategoryData()} options={chartOptions} />
             ) : (
-              <p className="text-gray-500">No expense data available</p>
+              <p className="text-gray-500">{t('reports.noData')}</p>
             )}
           </div>
         </div>
 
         {/* Bill Status */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Bill Status Distribution</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.billStatus')}</h3>
           <div className="h-80 flex items-center justify-center">
             {data.billStats && (data.billStats.pendingAmount > 0 || data.billStats.paidAmount > 0 || data.billStats.overdueAmount > 0) ? (
               <Doughnut data={getBillStatusData()} options={chartOptions} />
             ) : (
-              <p className="text-gray-500">No bill data available</p>
+              <p className="text-gray-500">{t('reports.noData')}</p>
             )}
           </div>
         </div>
@@ -448,29 +452,29 @@ const Reports = () => {
 
       {/* Detailed Statistics */}
       <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">Detailed Statistics</h3>
-        
+        <h3 className="text-xl font-bold text-gray-900 mb-6">{t('reports.detailedStats')}</h3>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Contributions Details */}
           <div>
             <h4 className="font-semibold text-gray-700 mb-3 flex items-center">
               <span className="text-xl mr-2">💰</span>
-              Contributions
+              {t('contributions.title')}
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">This Month:</span>
+                <span className="text-gray-600">{t('reports.thisMonth')}:</span>
                 <span className="font-semibold">${data.contributionStats?.thisMonth.toFixed(2) || '0.00'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Last Month:</span>
+                <span className="text-gray-600">{t('reports.lastMonth')}:</span>
                 <span className="font-semibold">${data.contributionStats?.lastMonth.toFixed(2) || '0.00'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Average:</span>
+                <span className="text-gray-600">{t('reports.avgContribution')}:</span>
                 <span className="font-semibold">
-                  ${data.contributionStats?.count > 0 
-                    ? (data.contributionStats.total / data.contributionStats.count).toFixed(2) 
+                  ${data.contributionStats?.count > 0
+                    ? (data.contributionStats.total / data.contributionStats.count).toFixed(2)
                     : '0.00'}
                 </span>
               </div>
@@ -481,19 +485,19 @@ const Reports = () => {
           <div>
             <h4 className="font-semibold text-gray-700 mb-3 flex items-center">
               <span className="text-xl mr-2">💸</span>
-              Expenses
+              {t('expenses.title')}
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">This Month:</span>
+                <span className="text-gray-600">{t('reports.thisMonth')}:</span>
                 <span className="font-semibold">${data.expenseStats?.thisMonth.toFixed(2) || '0.00'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Last Month:</span>
+                <span className="text-gray-600">{t('reports.lastMonth')}:</span>
                 <span className="font-semibold">${data.expenseStats?.lastMonth.toFixed(2) || '0.00'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">This Year:</span>
+                <span className="text-gray-600">{t('reports.thisYear')}:</span>
                 <span className="font-semibold">${data.expenseStats?.thisYear.toFixed(2) || '0.00'}</span>
               </div>
             </div>
@@ -503,23 +507,23 @@ const Reports = () => {
           <div>
             <h4 className="font-semibold text-gray-700 mb-3 flex items-center">
               <span className="text-xl mr-2">📋</span>
-              Bills
+              {t('bills.title')}
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Pending:</span>
+                <span className="text-gray-600">{t('reports.pending')}:</span>
                 <span className="font-semibold text-yellow-600">
                   ${data.billStats?.pendingAmount.toFixed(2) || '0.00'} ({data.billStats?.pending || 0})
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Overdue:</span>
+                <span className="text-gray-600">{t('reports.overdue')}:</span>
                 <span className="font-semibold text-red-600">
                   ${data.billStats?.overdueAmount.toFixed(2) || '0.00'} ({data.billStats?.overdue || 0})
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Paid:</span>
+                <span className="text-gray-600">{t('reports.paid')}:</span>
                 <span className="font-semibold text-green-600">
                   ${data.billStats?.paidAmount.toFixed(2) || '0.00'} ({data.billStats?.paid || 0})
                 </span>
@@ -533,9 +537,9 @@ const Reports = () => {
       <div className="bg-gradient-to-r from-indigo-500 to-blue-600 rounded-2xl p-8 text-white shadow-xl">
         <div className="mb-6">
           <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
-            📄 Export Your Financial Reports
+            📄 {t('reports.exportReports')}
           </h3>
-          <p className="text-indigo-100">Download professional PDF reports for your records</p>
+          <p className="text-indigo-100">{t('reports.exportDesc')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -552,7 +556,7 @@ const Reports = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                 </svg>
-                <span>Expenses Report</span>
+                <span>{t('reports.expensesReport')}</span>
               </>
             )}
           </button>
@@ -570,7 +574,7 @@ const Reports = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Bills Report</span>
+                <span>{t('reports.billsReport')}</span>
               </>
             )}
           </button>
@@ -588,7 +592,7 @@ const Reports = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Complete Report</span>
+                <span>{t('reports.fullReport')}</span>
               </>
             )}
           </button>

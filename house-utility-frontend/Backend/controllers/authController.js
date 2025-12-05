@@ -325,14 +325,38 @@ export const getMe = async (req, res) => {
 // @access Private
 export const getAllUsers = async (req, res) => {
   try {
-    // Fetch all users excluding passwords
-    const users = await User.find().select('-password');
+    const currentUser = await User.findById(req.user.id);
+
+    if (!currentUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let users;
+
+    // If user is admin, return all users
+    if (currentUser.role === 'admin') {
+      users = await User.find()
+        .select('-password')
+        .populate('household', 'name inviteCode');
+    }
+    // If user has household, return household members
+    else if (currentUser.household) {
+      users = await User.find({ household: currentUser.household })
+        .select('-password')
+        .populate('household', 'name inviteCode');
+    }
+    // Otherwise return just the current user
+    else {
+      users = [currentUser];
+    }
+
     res.status(200).json({
       success: true,
       count: users.length,
       users,
     });
   } catch (err) {
+    console.error('Get all users error:', err);
     res.status(500).json({ message: err.message });
   }
 };

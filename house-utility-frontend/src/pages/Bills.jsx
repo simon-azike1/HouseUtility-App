@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
+import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
 
 const Bills = () => {
+  const { t } = useTranslation();
+  const { formatCurrency, formatDate } = usePreferences();
   const [bills, setBills] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,9 +55,9 @@ const Bills = () => {
   const fetchBills = async () => {
     try {
       const token = localStorage.getItem('token');
-      const url = filterStatus 
-        ? `/api/bills?status=${filterStatus}`
-        : '/api/bills';
+      const url = filterStatus
+        ? `/bills?status=${filterStatus}`
+        : '/bills';
       
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` }
@@ -70,7 +74,7 @@ const Bills = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/bills/stats', {
+      const response = await axios.get('/bills/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(response.data.data);
@@ -90,11 +94,11 @@ const Bills = () => {
       const payload = { ...formData, amount: Number(formData.amount) };
 
       if (editingId) {
-        await axios.put(`/api/bills/${editingId}`, payload, {
+        await axios.put(`/bills/${editingId}`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post('/api/bills', payload, {
+        await axios.post('/bills', payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -150,7 +154,7 @@ const Bills = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/api/bills/${id}` , {
+      await axios.delete(`/bills/${id}` , {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchBills();
@@ -165,8 +169,8 @@ const Bills = () => {
     try {
       const token = localStorage.getItem('token');
       const reference = prompt('Enter payment reference (optional):');
-      
-      await axios.post(`/api/bills/${id}/pay`, 
+
+      await axios.post(`/bills/${id}/pay`,
         { paymentReference: reference },
         { headers: { Authorization: `Bearer ${token}` }}
       );
@@ -208,7 +212,7 @@ const Bills = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Bills & Due Dates</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('bills.title')}</h1>
           <p className="text-gray-600 mt-1">Manage and track your recurring bills</p>
         </div>
         <button
@@ -218,7 +222,7 @@ const Bills = () => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span>Add Bill</span>
+          <span>{t('bills.addNew')}</span>
         </button>
       </div>
 
@@ -239,7 +243,7 @@ const Bills = () => {
               <span className="text-gray-600 text-sm font-medium">Pending</span>
               <span className="text-2xl">⏳</span>
             </div>
-            <p className="text-3xl font-bold text-yellow-600">${stats.pendingAmount.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-yellow-600">{formatCurrency(stats.pendingAmount)}</p>
             <p className="text-xs text-gray-500 mt-1">{stats.pending} bills</p>
           </div>
 
@@ -248,7 +252,7 @@ const Bills = () => {
               <span className="text-gray-600 text-sm font-medium">Overdue</span>
               <span className="text-2xl">⚠️</span>
             </div>
-            <p className="text-3xl font-bold text-red-600">${stats.overdueAmount.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-red-600">{formatCurrency(stats.overdueAmount)}</p>
             <p className="text-xs text-gray-500 mt-1">{stats.overdue} bills</p>
           </div>
 
@@ -257,7 +261,7 @@ const Bills = () => {
               <span className="text-gray-600 text-sm font-medium">This Month</span>
               <span className="text-2xl">📅</span>
             </div>
-            <p className="text-3xl font-bold text-purple-600">${stats.thisMonth.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-purple-600">{formatCurrency(stats.thisMonth)}</p>
             <p className="text-xs text-gray-500 mt-1">Due this month</p>
           </div>
         </div>
@@ -269,12 +273,12 @@ const Bills = () => {
           <button
             onClick={() => setFilterStatus('')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-              filterStatus === '' 
-                ? 'bg-indigo-600 text-white' 
+              filterStatus === ''
+                ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            All
+            {t('common.all')}
           </button>
           {['pending', 'paid', 'overdue', 'cancelled'].map((status) => (
             <button
@@ -286,7 +290,7 @@ const Bills = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {status}
+              {t(`common.${status}`)}
             </button>
           ))}
         </div>
@@ -307,13 +311,13 @@ const Bills = () => {
         {bills.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-6xl mb-4">📅</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No bills yet</h3>
-            <p className="text-gray-600 mb-6">Start tracking your bills and never miss a payment</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('bills.noBills')}</h3>
+            <p className="text-gray-600 mb-6">{t('bills.createFirst')}</p>
             <button
               onClick={() => setShowModal(true)}
               className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"
             >
-              Add Your First Bill
+              {t('bills.addNew')}
             </button>
           </div>
         ) : (
@@ -346,7 +350,7 @@ const Bills = () => {
 
                   {/* Amount */}
                   <p className="text-3xl font-bold text-indigo-600 mb-3">
-                    ${Number(bill.amount ?? 0).toFixed(2)}
+                    {formatCurrency(Number(bill.amount ?? 0))}
                   </p>
 
                   {/* Due Date */}
@@ -355,7 +359,7 @@ const Bills = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span className="text-sm text-gray-600">
-                      Due: {bill.dueDate && !isNaN(new Date(bill.dueDate)) ? new Date(bill.dueDate).toLocaleDateString() : 'N/A'}
+                      Due: {bill.dueDate && !isNaN(new Date(bill.dueDate)) ? formatDate(bill.dueDate) : 'N/A'}
                     </span>
                     {bill.status === 'pending' && daysUntil !== null && daysUntil >= 0 && (
                       <span className={`text-xs font-semibold ${
@@ -385,20 +389,20 @@ const Bills = () => {
                         onClick={() => handleMarkAsPaid(bill._id)}
                         className="flex-1 bg-green-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
                       >
-                        Mark Paid
+                        {t('common.paid')}
                       </button>
                     )}
                     <button
                       onClick={() => handleEdit(bill)}
                       className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
                     >
-                      Edit
+                      {t('common.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(bill._id)}
                       className="px-4 bg-red-50 text-red-600 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 </div>
@@ -444,7 +448,7 @@ const Bills = () => {
                 {/* Title */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Bill Title *
+                    {t('bills.billTitle')} *
                   </label>
                   <input
                     type="text"
@@ -459,7 +463,7 @@ const Bills = () => {
                 {/* Amount */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Amount *
+                    {t('bills.amount')} *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-500">$</span>
@@ -478,7 +482,7 @@ const Bills = () => {
                 {/* Due Date */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Due Date *
+                    {t('bills.dueDate')} *
                   </label>
                   <input
                     type="date"
@@ -492,7 +496,7 @@ const Bills = () => {
                 {/* Category */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category *
+                    {t('bills.category')} *
                   </label>
                   <select
                     required
@@ -604,7 +608,7 @@ const Bills = () => {
                 {/* Description */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description (Optional)
+                    {t('bills.description')}
                   </label>
                   <textarea
                     value={formData.description}
@@ -628,13 +632,13 @@ const Bills = () => {
                   }}
                   className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg shadow-indigo-500/30"
                 >
-                  {editingId ? 'Update Bill' : 'Add Bill'}
+                  {editingId ? t('common.save') : t('common.add')}
                 </button>
               </div>
             </form>

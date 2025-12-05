@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from 'react-i18next';
 import { 
   DollarSign, 
   BarChart3, 
@@ -20,62 +21,64 @@ import Footer from "../components/Footer";
 import DarkModeToggle from "../components/DarkModeToggle";
 
 const Landing = () => {
+  const { t } = useTranslation();
+
   const features = [
-    { 
-      icon: DollarSign, 
-      title: "Contribution Tracking", 
-      description: "Monitor payments with complete transparency and automated reconciliation.", 
-      color: "from-blue-600 to-blue-700" 
+    {
+      icon: DollarSign,
+      title: t('landing.contributionTracking'),
+      description: t('landing.contributionDesc'),
+      color: "from-blue-600 to-blue-700"
     },
-    { 
-      icon: BarChart3, 
-      title: "Expense Management", 
-      description: "Categorize and analyze household expenses with intelligent insights.", 
-      color: "from-green-600 to-green-700" 
+    {
+      icon: BarChart3,
+      title: t('landing.expenseManagement'),
+      description: t('landing.expenseDesc'),
+      color: "from-green-600 to-green-700"
     },
-    { 
-      icon: Calendar, 
-      title: "Bill Scheduling", 
-      description: "Automated reminders and recurring payment management.", 
-      color: "from-purple-600 to-purple-700" 
+    {
+      icon: Calendar,
+      title: t('landing.billScheduling'),
+      description: t('landing.billSchedulingDesc'),
+      color: "from-purple-600 to-purple-700"
     },
-    { 
-      icon: TrendingUp, 
-      title: "Financial Analytics", 
-      description: "Advanced reporting with predictive spending analysis.", 
-      color: "from-orange-600 to-orange-700" 
+    {
+      icon: TrendingUp,
+      title: t('landing.financialAnalytics'),
+      description: t('landing.analyticsDesc'),
+      color: "from-orange-600 to-orange-700"
     },
-    { 
-      icon: Shield, 
-      title: "Enterprise Security", 
-      description: "Bank-level encryption with multi-factor authentication.", 
-      color: "from-red-600 to-red-700" 
+    {
+      icon: Shield,
+      title: t('landing.enterpriseSecurity'),
+      description: t('landing.securityDesc'),
+      color: "from-red-600 to-red-700"
     },
-    { 
-      icon: Users, 
-      title: "Team Collaboration", 
-      description: "Role-based access with real-time synchronization.", 
-      color: "from-indigo-600 to-indigo-700" 
+    {
+      icon: Users,
+      title: t('landing.teamCollaboration'),
+      description: t('landing.teamDesc'),
+      color: "from-indigo-600 to-indigo-700"
     },
   ];
 
   const steps = [
-    { 
-      icon: Home, 
-      title: "Setup Your Household", 
-      description: "Create your household profile and invite members with customizable permissions.",
+    {
+      icon: Home,
+      title: t('landing.setupHousehold'),
+      description: t('landing.setupDesc'),
       color: "from-blue-600 to-blue-700"
     },
-    { 
-      icon: Receipt, 
-      title: "Track Transactions", 
-      description: "Record expenses, contributions, and bills with automated categorization.",
+    {
+      icon: Receipt,
+      title: t('landing.trackTransactions'),
+      description: t('landing.trackDesc'),
       color: "from-green-600 to-green-700"
     },
-    { 
-      icon: PieChart, 
-      title: "Analyze & Optimize", 
-      description: "Generate insights and optimize your household financial management.",
+    {
+      icon: PieChart,
+      title: t('landing.analyzeOptimize'),
+      description: t('landing.optimizeDesc'),
       color: "from-purple-600 to-purple-700"
     },
   ];
@@ -83,19 +86,19 @@ const Landing = () => {
   const testimonials = [
     {
       name: "Anthony Akwa",
-      role: "Household Member",
+      role: t('landing.householdMember'),
       content: "This platform transformed how we manage shared expenses. The transparency and automation saved us hours every month.",
       rating: 5
     },
     {
       name: "Eraste Akande",
-      role: "House Owner",
+      role: t('landing.houseOwner'),
       content: "Finally, a professional solution for household finances. The analytics help us make better spending decisions.",
       rating: 5
     },
     {
       name: "Simon Azike",
-      role: "Founder",
+      role: t('landing.founder'),
       content: "After managing shared expenses with spreadsheets and WhatsApp messages, I realized there has to be a better way. UTIL was born from a desperate need for transparency and accountability in household finances.",
       rating: 5
     }
@@ -137,11 +140,11 @@ const Landing = () => {
           transition={{ duration: 1 }}
         >
           <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-            Manage Your <span className="text-green-400">House Expenses</span> Effortlessly
+            {t('landing.heroTitle')} <span className="text-green-400">{t('landing.heroTitleHighlight')}</span> {t('landing.heroTitleEnd')}
           </h1>
 
           <p className="text-xl mb-10 leading-relaxed text-gray-100">
-            Simplify shared expenses, track contributions, and monitor bills all in one place.
+            {t('landing.heroSubtitle')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -149,13 +152,13 @@ const Landing = () => {
               to="/register"
               className="px-8 py-4 rounded-xl bg-gradient-to-r from-green-500 to-blue-600 font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 shadow-xl"
             >
-              Get Started
+              {t('landing.getStarted')}
             </Link>
-            <a 
-              href="#features" 
+            <a
+              href="#features"
               className="px-8 py-4 rounded-xl border-2 border-white/30 backdrop-blur-sm bg-white/10 font-semibold hover:bg-white/20 transition-all duration-300"
             >
-              Explore Features
+              {t('landing.exploreFeatures')}
             </a>
           </div>
         </motion.div>
@@ -277,10 +280,10 @@ const Landing = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Trusted by Professionals
+              {t('landing.testimonials')}
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              See what our users say about their experience
+              {t('landing.testimonialsSubtitle')}
             </p>
           </motion.div>
 
@@ -325,13 +328,13 @@ const Landing = () => {
       viewport={{ once: true }}
     >
       <h2 className="text-3xl font-bold text-white mb-8">
-        Ready to Get Started?
+        {t('landing.readyToStart')}
       </h2>
       <Link
         to="/register"
         className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-blue-600 font-semibold hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
       >
-        Get Started
+        {t('landing.getStarted')}
         <ArrowRight className="w-5 h-5" />
       </Link>
     </motion.div>

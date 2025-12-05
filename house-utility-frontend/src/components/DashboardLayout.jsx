@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -24,12 +26,16 @@ import {
   HelpCircle,
   Moon,
   Sun,
-  Zap
+  Zap,
+  Languages
 } from 'lucide-react';
 
 const DashboardLayout = ({ children }) => {
+  const { t, i18n } = useTranslation();
+  const { updatePreferences, preferences } = usePreferences();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -46,7 +52,7 @@ const DashboardLayout = ({ children }) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/notifications?limit=10`, {
+        const response = await axios.get('/notifications?limit=10', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -97,7 +103,7 @@ const DashboardLayout = ({ children }) => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `${import.meta.env.VITE_API_URL}/notifications/${notificationId}/read`,
+        `/notifications/${notificationId}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -153,7 +159,7 @@ const DashboardLayout = ({ children }) => {
     { name: 'Bills', href: '/bills', icon: Calendar, current: location.pathname === '/bills' },
     { name: 'Reports', href: '/reports', icon: Calendar, current: location.pathname === '/reports' },
     { name: 'Members', href: '/members', icon: Users, current: location.pathname === '/members' },
-    { name: 'Settings', href: '/settings', icon: Settings, current: location.pathname === '/settings' },
+    { name: 'Settings', href: '/account', icon: Settings, current: location.pathname === '/account' },
   ];
 
   const profileMenuItems = [
@@ -403,6 +409,70 @@ const DashboardLayout = ({ children }) => {
                 >
                   {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
+
+                {/* Language Switcher */}
+                <div className="relative">
+                  <button
+                    onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
+                    className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                    title="Change Language"
+                  >
+                    <Languages className="w-5 h-5" />
+                  </button>
+
+                  <AnimatePresence>
+                    {languageDropdownOpen && (
+                      <motion.div
+                        variants={{
+                          closed: { opacity: 0, y: -10, scale: 0.95 },
+                          open: { opacity: 1, y: 0, scale: 1 }
+                        }}
+                        initial="closed"
+                        animate="open"
+                        exit="closed"
+                        className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
+                      >
+                        {[
+                          { code: 'en', name: 'English', flag: '🇬🇧' },
+                          { code: 'fr', name: 'Français', flag: '🇫🇷' },
+                          { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+                          { code: 'es', name: 'Español', flag: '🇪🇸' }
+                        ].map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={async () => {
+                              i18n.changeLanguage(lang.code);
+                              updatePreferences({ language: lang.code });
+
+                              // Save to backend
+                              try {
+                                const token = localStorage.getItem('token');
+                                await axios.put('/auth/settings', {
+                                  preferences: { ...preferences, language: lang.code }
+                                }, {
+                                  headers: { Authorization: `Bearer ${token}` }
+                                });
+                              } catch (error) {
+                                console.error('Failed to save language preference:', error);
+                              }
+
+                              setLanguageDropdownOpen(false);
+                            }}
+                            className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 ${
+                              i18n.language === lang.code ? 'bg-gray-100 dark:bg-gray-700 font-semibold' : ''
+                            }`}
+                          >
+                            <span className="text-xl">{lang.flag}</span>
+                            <span className="text-gray-700 dark:text-gray-300">{lang.name}</span>
+                            {i18n.language === lang.code && (
+                              <span className="ml-auto text-blue-600 dark:text-blue-400">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Notifications */}
                 <div className="relative">

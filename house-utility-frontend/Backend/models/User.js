@@ -75,6 +75,60 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // User preferences
+  preferences: {
+    language: {
+      type: String,
+      default: 'en'
+    },
+    timezone: {
+      type: String,
+      default: 'GMT+1'
+    },
+    currency: {
+      type: String,
+      default: 'MAD'
+    },
+    dateFormat: {
+      type: String,
+      default: 'DD/MM/YYYY'
+    },
+    theme: {
+      type: String,
+      default: 'light'
+    }
+  },
+  // Notification preferences
+  notificationPreferences: {
+    emailNotifications: {
+      type: Boolean,
+      default: true
+    },
+    pushNotifications: {
+      type: Boolean,
+      default: false
+    },
+    billReminders: {
+      type: Boolean,
+      default: true
+    },
+    expenseAlerts: {
+      type: Boolean,
+      default: true
+    },
+    contributionUpdates: {
+      type: Boolean,
+      default: true
+    },
+    weeklyReport: {
+      type: Boolean,
+      default: false
+    },
+    monthlyReport: {
+      type: Boolean,
+      default: true
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now

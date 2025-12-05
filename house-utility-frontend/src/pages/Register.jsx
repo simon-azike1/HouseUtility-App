@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import DarkModeToggle from '../components/DarkModeToggle';
+import { useTranslation } from 'react-i18next';
 
 const Register = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const inviteCode = searchParams.get('inviteCode');
 
@@ -51,13 +53,13 @@ const Register = () => {
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('register.passwordsDoNotMatch'));
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('register.passwordMinLength'));
       setLoading(false);
       return;
     }
@@ -112,10 +114,10 @@ const Register = () => {
 
   const getStrengthText = () => {
     if (passwordStrength === 0) return '';
-    if (passwordStrength === 1) return 'Weak';
-    if (passwordStrength === 2) return 'Fair';
-    if (passwordStrength === 3) return 'Good';
-    return 'Strong';
+    if (passwordStrength === 1) return t('register.weak');
+    if (passwordStrength === 2) return t('register.fair');
+    if (passwordStrength === 3) return t('register.good');
+    return t('register.strong');
   };
 
   return (
@@ -128,12 +130,12 @@ const Register = () => {
             🏠
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {inviteCode ? 'Join Household' : 'Create Account'}
+            {inviteCode ? t('register.joinHousehold') : t('register.createAccount')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             {inviteCode
-              ? 'Create your account to join the household'
-              : 'Join us to manage your utilities effortlessly'
+              ? t('register.joinHouseholdSubtitle')
+              : t('register.joinSubtitle')
             }
           </p>
           {inviteCode && (
@@ -141,7 +143,7 @@ const Register = () => {
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              Invite Code: <span className="font-mono font-bold ml-1">{inviteCode}</span>
+              {t('register.inviteCode')}: <span className="font-mono font-bold ml-1">{inviteCode}</span>
             </div>
           )}
         </div>
@@ -160,12 +162,12 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name Field */}
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
+              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t('register.fullName')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
@@ -177,20 +179,20 @@ const Register = () => {
                   onChange={handleChange}
                   required
                   autoComplete="name"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="John Doe"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  placeholder={t('register.namePlaceholder')}
                 />
               </div>
             </div>
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t('register.emailAddress')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
@@ -202,20 +204,20 @@ const Register = () => {
                   onChange={handleChange}
                   required
                   autoComplete="email"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  placeholder={t('register.emailPlaceholder')}
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t('register.password')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -227,8 +229,8 @@ const Register = () => {
                   onChange={handleChange}
                   required
                   autoComplete="new-password"
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="••••••••"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  placeholder={t('register.passwordPlaceholder')}
                 />
                 <button
                   type="button"
@@ -256,14 +258,14 @@ const Register = () => {
                       <div
                         key={level}
                         className={`h-1 flex-1 rounded-full transition-all ${
-                          level <= passwordStrength ? getStrengthColor() : 'bg-gray-200'
+                          level <= passwordStrength ? getStrengthColor() : 'bg-gray-200 dark:bg-gray-600'
                         }`}
                       />
                     ))}
                   </div>
                   {passwordStrength > 0 && (
-                    <p className="text-xs text-gray-600">
-                      Password strength: <span className="font-semibold">{getStrengthText()}</span>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {t('register.passwordStrength')}: <span className="font-semibold">{getStrengthText()}</span>
                     </p>
                   )}
                 </div>
@@ -272,12 +274,12 @@ const Register = () => {
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t('register.confirmPassword')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -289,8 +291,8 @@ const Register = () => {
                   onChange={handleChange}
                   required
                   autoComplete="new-password"
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="••••••••"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  placeholder={t('register.passwordPlaceholder')}
                 />
                 <button
                   type="button"
@@ -313,9 +315,9 @@ const Register = () => {
               {/* Match Indicator */}
               {formData.confirmPassword && (
                 <p className={`mt-2 text-xs ${
-                  formData.password === formData.confirmPassword ? 'text-green-600' : 'text-red-600'
+                  formData.password === formData.confirmPassword ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`}>
-                  {formData.password === formData.confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
+                  {formData.password === formData.confirmPassword ? `✓ ${t('register.passwordsMatch')}` : `✗ ${t('register.passwordsDoNotMatch')}`}
                 </p>
               )}
             </div>
@@ -332,28 +334,28 @@ const Register = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Creating account...
+                  {t('register.creating')}
                 </span>
               ) : (
-                'Create Account'
+                t('register.createAccount')
               )}
             </button>
           </form>
 
           {/* Divider */}
           <div className="mt-8 text-center">
-            <p className="text-gray-600 text-sm">
-              Already have an account?{' '}
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              {t('register.haveAccount')}{' '}
               <Link to="/login" className="text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-                Sign in instead
+                {t('register.signIn')}
               </Link>
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-500 text-sm mt-8">
-          🔒 Your data is secure and encrypted
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8">
+          🔒 {t('register.dataSecure')}
         </p>
       </div>
     </div>

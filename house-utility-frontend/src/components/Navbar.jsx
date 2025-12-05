@@ -1,12 +1,18 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, Languages } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { usePreferences } from '../context/PreferencesContext';
+import axios from 'axios';
 
 const Navbar = () => {
+  const { t, i18n } = useTranslation();
+  const { updatePreferences, preferences } = usePreferences();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const location = useLocation();
 
   // Handle scroll effect for navbar background
@@ -29,6 +35,7 @@ const Navbar = () => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false);
         setActiveDropdown(null);
+        setLanguageDropdownOpen(false);
       }
     };
     document.addEventListener('keydown', handleEscape);
@@ -47,22 +54,22 @@ const Navbar = () => {
   // Navigation items with dropdown support
   const navigationItems = [
     {
-      label: 'About Us',
+      label: t('navbar.aboutUs'),
       href: '/our-story',
       isRoute: true,
       dropdown: [
-        { label: 'Our Story', href: '/our-story', isRoute: true },
-        { label: 'Team', href: '/team', isRoute: true }
+        { label: t('navbar.ourStory'), href: '/our-story', isRoute: true },
+        { label: t('navbar.team'), href: '/team', isRoute: true }
       ]
     },
     {
-      label: 'Services',
+      label: t('navbar.services'),
       href: '/services',
       isRoute: true
     },
-    { label: 'Contact Us', href: '/contact', isRoute: true },
+    { label: t('navbar.contactUs'), href: '/contact', isRoute: true },
     // { label: 'Blog', href: '/blog', isRoute: true },
-    { label: 'Pricing', href: '/pricing', isRoute: true }
+    { label: t('navbar.pricing'), href: '/pricing', isRoute: true }
   ];
 
   // Animation variants
@@ -295,12 +302,75 @@ const Navbar = () => {
 
             {/* Desktop Auth Items - FIXED */}
             <div className="hidden lg:flex items-center space-x-4">
+              {/* Language Switcher */}
+              <div className="relative">
+                <button
+                  onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
+                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                  title="Change Language"
+                >
+                  <Languages className="w-5 h-5" />
+                </button>
+
+                <AnimatePresence>
+                  {languageDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-50"
+                    >
+                      {[
+                        { code: 'en', name: 'English', flag: '🇬🇧' },
+                        { code: 'fr', name: 'Français', flag: '🇫🇷' },
+                        { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+                        { code: 'es', name: 'Español', flag: '🇪🇸' }
+                      ].map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={async () => {
+                            i18n.changeLanguage(lang.code);
+                            updatePreferences({ language: lang.code });
+
+                            // Save to backend if user is authenticated
+                            try {
+                              const token = localStorage.getItem('token');
+                              if (token) {
+                                await axios.put('/auth/settings', {
+                                  preferences: { ...preferences, language: lang.code }
+                                }, {
+                                  headers: { Authorization: `Bearer ${token}` }
+                                });
+                              }
+                            } catch (error) {
+                              console.error('Failed to save language preference:', error);
+                            }
+
+                            setLanguageDropdownOpen(false);
+                          }}
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
+                            i18n.language === lang.code ? 'bg-gray-100 font-semibold' : ''
+                          }`}
+                        >
+                          <span className="text-xl">{lang.flag}</span>
+                          <span className="text-gray-700">{lang.name}</span>
+                          {i18n.language === lang.code && (
+                            <span className="ml-auto text-blue-600">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Login Button */}
               <Link
                 to="/login"
                 className="text-gray-800 hover:text-blue-600 transition-all duration-200 font-medium relative px-4 py-2 rounded-lg hover:bg-blue-50 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-blue-500 after:to-green-500 after:transition-all after:duration-300 hover:after:w-full"
               >
-                Login
+                {t('navbar.login')}
               </Link>
 
               {/* Get Started Button */}
@@ -308,7 +378,7 @@ const Navbar = () => {
                 to="/register"
                 className="bg-gradient-to-r from-blue-600 to-green-500 text-white px-6 py-2.5 rounded-full font-semibold hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform"
               >
-                Get Started
+                {t('navbar.getStarted')}
               </Link>
             </div>
 
@@ -408,6 +478,51 @@ const Navbar = () => {
 
                   {/* Mobile Auth Items - FIXED */}
                   <motion.div className="mt-8 px-6 pt-6 border-t border-gray-700 space-y-4" variants={itemVariants}>
+                    {/* Mobile Language Switcher */}
+                    <motion.div variants={itemVariants}>
+                      <div className="mb-4">
+                        <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Language</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { code: 'en', name: 'English', flag: '🇬🇧' },
+                            { code: 'fr', name: 'Français', flag: '🇫🇷' },
+                            { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+                            { code: 'es', name: 'Español', flag: '🇪🇸' }
+                          ].map((lang) => (
+                            <button
+                              key={lang.code}
+                              onClick={async () => {
+                                i18n.changeLanguage(lang.code);
+                                updatePreferences({ language: lang.code });
+
+                                // Save to backend if user is authenticated
+                                try {
+                                  const token = localStorage.getItem('token');
+                                  if (token) {
+                                    await axios.put('/auth/settings', {
+                                      preferences: { ...preferences, language: lang.code }
+                                    }, {
+                                      headers: { Authorization: `Bearer ${token}` }
+                                    });
+                                  }
+                                } catch (error) {
+                                  console.error('Failed to save language preference:', error);
+                                }
+                              }}
+                              className={`flex items-center gap-2 py-2 px-3 rounded-lg border transition-all ${
+                                i18n.language === lang.code
+                                  ? 'bg-blue-600 border-blue-500 text-white'
+                                  : 'border-gray-600 text-gray-300 hover:border-blue-400 hover:bg-white/5'
+                              }`}
+                            >
+                              <span className="text-lg">{lang.flag}</span>
+                              <span className="text-xs font-medium">{lang.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+
                     {/* Mobile Login */}
                     <motion.div variants={itemVariants}>
                       <Link
@@ -415,7 +530,7 @@ const Navbar = () => {
                         onClick={closeMenu}
                         className="block text-white hover:text-blue-300 font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all text-center border border-gray-600 hover:border-blue-400"
                       >
-                        Login
+                        {t('navbar.login')}
                       </Link>
                     </motion.div>
 
@@ -426,7 +541,7 @@ const Navbar = () => {
                         onClick={closeMenu}
                         className="block bg-gradient-to-r from-blue-600 to-green-500 text-white text-center rounded-full font-semibold hover:from-blue-700 hover:to-green-600 py-3 px-6 transition-all shadow-lg hover:shadow-xl"
                       >
-                        Get Started
+                        {t('navbar.getStarted')}
                       </Link>
                     </motion.div>
                   </motion.div>

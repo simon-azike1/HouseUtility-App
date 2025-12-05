@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { usePreferences } from '../context/PreferencesContext';
 import DashboardLayout from '../components/DashboardLayout';
 import HouseholdSyncBanner from '../components/HouseholdSyncBanner';
 import axios from 'axios';
@@ -22,7 +24,9 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
+  const { formatCurrency, formatDate } = usePreferences();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
@@ -43,12 +47,12 @@ const Dashboard = () => {
 
       // Fetch all data in parallel
       const [contribStats, expenseStats, billStats, contributions, expenses, bills] = await Promise.all([
-        axios.get('/api/contributions/stats', { headers }),
-        axios.get('/api/expenses/stats', { headers }),
-        axios.get('/api/bills/stats', { headers }),
-        axios.get('/api/contributions', { headers }),
-        axios.get('/api/expenses', { headers }),
-        axios.get('/api/bills', { headers })
+        axios.get('/contributions/stats', { headers }),
+        axios.get('/expenses/stats', { headers }),
+        axios.get('/bills/stats', { headers }),
+        axios.get('/contributions', { headers }),
+        axios.get('/expenses', { headers }),
+        axios.get('/bills', { headers })
       ]);
 
       // Get upcoming bills (next 7 days)
@@ -71,7 +75,7 @@ const Dashboard = () => {
       contributions.data.data.slice(0, 2).forEach(item => {
         recentActivity.push({
           type: 'contribution',
-          message: `Added $${item.amount.toFixed(2)} contribution for ${item.description}`,
+          message: `Added ${formatCurrency(item.amount)} contribution for ${item.description}`,
           time: getTimeAgo(item.contributionDate),
           icon: DollarSign,
           color: 'text-green-600 bg-green-100'
@@ -82,7 +86,7 @@ const Dashboard = () => {
       expenses.data.data.slice(0, 2).forEach(item => {
         recentActivity.push({
           type: 'expense',
-          message: `${item.title} expense of $${item.amount.toFixed(2)} recorded`,
+          message: `${item.title} expense of ${formatCurrency(item.amount)} recorded`,
           time: getTimeAgo(item.expenseDate),
           icon: FileText,
           color: 'text-blue-600 bg-blue-100'
@@ -155,49 +159,49 @@ const Dashboard = () => {
   const expenseChange = calculateMonthlyChange(dashboardData.expenses.thisMonth, dashboardData.expenses.lastMonth);
 
   const stats = [
-    { 
-      title: 'Total Balance', 
-      value: `$${Math.abs(balance).toFixed(2)}`, 
-      change: balance >= 0 ? 'Surplus' : 'Deficit',
+    {
+      title: t('dashboard.totalBalance'),
+      value: formatCurrency(Math.abs(balance)),
+      change: balance >= 0 ? t('dashboard.surplus') : t('dashboard.deficit'),
       trend: balance >= 0 ? 'up' : 'down',
-      icon: DollarSign, 
-      bgColor: 'from-blue-500 to-blue-600', 
-      textColor: balance >= 0 ? 'text-blue-600' : 'text-red-600', 
+      icon: DollarSign,
+      bgColor: 'from-blue-500 to-blue-600',
+      textColor: balance >= 0 ? 'text-blue-600' : 'text-red-600',
       bgLight: balance >= 0 ? 'bg-blue-50' : 'bg-red-50',
-      description: 'current status'
+      description: t('dashboard.currentStatus')
     },
-    { 
-      title: 'Monthly Expenses', 
-      value: `$${dashboardData.expenses.thisMonth.toFixed(2)}`, 
-      change: expenseChange, 
+    {
+      title: t('dashboard.monthlyExpenses'),
+      value: formatCurrency(dashboardData.expenses.thisMonth),
+      change: expenseChange,
       trend: getTrendFromChange(expenseChange),
-      icon: BarChart3, 
-      bgColor: 'from-green-500 to-green-600', 
-      textColor: 'text-green-600', 
+      icon: BarChart3,
+      bgColor: 'from-green-500 to-green-600',
+      textColor: 'text-green-600',
       bgLight: 'bg-green-50',
-      description: 'this month'
+      description: t('dashboard.thisMonth')
     },
-    { 
-      title: 'Pending Bills', 
-      value: dashboardData.bills.pending.toString(), 
-      change: `$${dashboardData.bills.pendingAmount.toFixed(2)}`, 
+    {
+      title: t('dashboard.pendingBills'),
+      value: dashboardData.bills.pending.toString(),
+      change: formatCurrency(dashboardData.bills.pendingAmount),
       trend: dashboardData.bills.overdue > 0 ? 'down' : 'neutral',
-      icon: Calendar, 
-      bgColor: 'from-orange-500 to-orange-600', 
-      textColor: 'text-orange-600', 
+      icon: Calendar,
+      bgColor: 'from-orange-500 to-orange-600',
+      textColor: 'text-orange-600',
       bgLight: 'bg-orange-50',
-      description: dashboardData.bills.overdue > 0 ? `${dashboardData.bills.overdue} overdue` : 'on track'
+      description: dashboardData.bills.overdue > 0 ? `${dashboardData.bills.overdue} ${t('dashboard.overdue')}` : t('dashboard.onTrack')
     },
-    { 
-      title: 'Contributions', 
-      value: `$${dashboardData.contributions.thisMonth.toFixed(2)}`, 
-      change: `${dashboardData.contributions.count} total`, 
+    {
+      title: t('dashboard.contributions'),
+      value: formatCurrency(dashboardData.contributions.thisMonth),
+      change: `${dashboardData.contributions.count} ${t('common.total')}`,
       trend: 'up',
-      icon: Users, 
-      bgColor: 'from-purple-500 to-purple-600', 
-      textColor: 'text-purple-600', 
+      icon: Users,
+      bgColor: 'from-purple-500 to-purple-600',
+      textColor: 'text-purple-600',
       bgLight: 'bg-purple-50',
-      description: 'this month'
+      description: t('dashboard.thisMonth')
     },
   ];
 
@@ -311,9 +315,9 @@ const Dashboard = () => {
             <div className="flex items-center gap-3 mb-4">
               <div>
                 <h2 className="text-3xl font-bold">
-                  Welcome back, {user?.name?.split(' ')[0]}! 
+                  {t('dashboard.welcome')}, {user?.name?.split(' ')[0]}!
                 </h2>
-                <p className="text-blue-100 text-lg">Here's your household overview for today</p>
+                <p className="text-blue-100 text-lg">{t('dashboard.overview')}</p>
               </div>
             </div>
             
@@ -435,7 +439,7 @@ const Dashboard = () => {
                           <p className="font-semibold text-gray-900 dark:text-white">{bill.title}</p>
                           <p className="text-sm text-gray-600 dark:text-gray-400">{formatDaysUntil(bill.dueDate)}</p>
                         </div>
-                        <p className="font-bold text-lg text-gray-900 dark:text-white">${bill.amount.toFixed(2)}</p>
+                        <p className="font-bold text-lg text-gray-900 dark:text-white">{formatCurrency(bill.amount)}</p>
                       </div>
                     </motion.div>
                   );

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import DarkModeToggle from '../components/DarkModeToggle';
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -71,8 +73,8 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-4xl rounded-2xl mb-4 shadow-lg shadow-blue-500/30 dark:shadow-blue-500/20">
             🏠
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-600 dark:text-gray-400">Sign in to manage your utilities</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('login.welcomeBack')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('login.signInSubtitle')}</p>
         </div>
 
         {/* Login Form Card */}
@@ -103,7 +105,7 @@ const Login = () => {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    Verify Your Email Now
+                    {t('login.verifyEmailNow')}
                   </button>
                 )}
               </div>
@@ -114,7 +116,7 @@ const Login = () => {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
+                {t('login.emailAddress')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -131,7 +133,7 @@ const Login = () => {
                   required
                   autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="you@example.com"
+                  placeholder={t('login.emailPlaceholder')}
                 />
               </div>
             </div>
@@ -139,7 +141,7 @@ const Login = () => {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Password
+                {t('login.password')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -156,7 +158,7 @@ const Login = () => {
                   required
                   autoComplete="current-password"
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="••••••••"
+                  placeholder={t('login.passwordPlaceholder')}
                 />
                 <button
                   type="button"
@@ -180,7 +182,7 @@ const Login = () => {
             {/* Forgot Password Link */}
             <div className="flex items-center justify-end">
               <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                Forgot password?
+                {t('login.forgotPassword')}
               </Link>
             </div>
 
@@ -196,10 +198,10 @@ const Login = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Signing in...
+                  {t('login.signingIn')}
                 </span>
               ) : (
-                'Sign In'
+                t('login.signIn')
               )}
             </button>
           </form>
@@ -207,9 +209,9 @@ const Login = () => {
           {/* Divider */}
           <div className="mt-8 text-center">
             <p className="text-gray-600 text-sm">
-              Don't have an account?{' '}
+              {t('login.noAccount')}{' '}
               <Link to="/register" className="text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-                Create one now
+                {t('login.createAccount')}
               </Link>
             </p>
           </div>
@@ -217,7 +219,7 @@ const Login = () => {
 
         {/* Footer */}
         <p className="text-center text-gray-500 text-sm mt-8">
-          🔒 Your credentials are secure and encrypted
+          🔒 {t('login.credentialsSecure')}
         </p>
       </div>
     </div>

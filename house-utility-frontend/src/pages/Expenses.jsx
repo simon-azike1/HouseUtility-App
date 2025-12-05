@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
+import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
 
 const Expenses = () => {
+  const { t } = useTranslation();
+  const { formatCurrency, formatDate } = usePreferences();
   const [expenses, setExpenses] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,9 +43,9 @@ const Expenses = () => {
   const fetchExpenses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const url = filterCategory 
-        ? `/api/expenses?category=${filterCategory}`
-        : '/api/expenses';
+      const url = filterCategory
+        ? `/expenses?category=${filterCategory}`
+        : '/expenses';
       
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` }
@@ -58,7 +62,7 @@ const Expenses = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/expenses/stats', {
+      const response = await axios.get('/expenses/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(response.data.data);
@@ -81,11 +85,11 @@ const Expenses = () => {
       };
 
       if (editingId) {
-        await axios.put(`/api/expenses/${editingId}`, data, {
+        await axios.put(`/expenses/${editingId}`, data, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post('/api/expenses', data, {
+        await axios.post('/expenses', data, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -128,7 +132,7 @@ const Expenses = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/api/expenses/${id}`, {
+      await axios.delete(`/expenses/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchExpenses();
@@ -157,8 +161,8 @@ const Expenses = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
-          <p className="text-gray-600 mt-1">Track and manage household expenses</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('expenses.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('expenses.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -167,7 +171,7 @@ const Expenses = () => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span>Add Expense</span>
+          <span>{t('expenses.addNew')}</span>
         </button>
       </div>
 
@@ -176,38 +180,38 @@ const Expenses = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Total Expenses</span>
+              <span className="text-gray-600 text-sm font-medium">{t('expenses.totalExpenses')}</span>
               <span className="text-2xl">💸</span>
             </div>
-            <p className="text-3xl font-bold text-red-600">${stats.total.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-1">{stats.count} transactions</p>
+            <p className="text-3xl font-bold text-red-600">{formatCurrency(stats.total)}</p>
+            <p className="text-xs text-gray-500 mt-1">{stats.count} {t('expenses.transactions')}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">This Month</span>
+              <span className="text-gray-600 text-sm font-medium">{t('expenses.thisMonth')}</span>
               <span className="text-2xl">📅</span>
             </div>
-            <p className="text-3xl font-bold text-orange-600">${stats.thisMonth.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-1">Current period</p>
+            <p className="text-3xl font-bold text-orange-600">{formatCurrency(stats.thisMonth)}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('expenses.currentPeriod')}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Last Month</span>
+              <span className="text-gray-600 text-sm font-medium">{t('expenses.lastMonth')}</span>
               <span className="text-2xl">📊</span>
             </div>
-            <p className="text-3xl font-bold text-purple-600">${stats.lastMonth.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-1">Previous period</p>
+            <p className="text-3xl font-bold text-purple-600">{formatCurrency(stats.lastMonth)}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('expenses.previousPeriod')}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">This Year</span>
+              <span className="text-gray-600 text-sm font-medium">{t('expenses.thisYear')}</span>
               <span className="text-2xl">📈</span>
             </div>
-            <p className="text-3xl font-bold text-blue-600">${stats.thisYear.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-1">Annual total</p>
+            <p className="text-3xl font-bold text-blue-600">{formatCurrency(stats.thisYear)}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('expenses.annualTotal')}</p>
           </div>
         </div>
       )}
@@ -218,12 +222,12 @@ const Expenses = () => {
           <button
             onClick={() => setFilterCategory('')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-              filterCategory === '' 
-                ? 'bg-indigo-600 text-white' 
+              filterCategory === ''
+                ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            All
+            {t('common.all')}
           </button>
           {categories.map((cat) => (
             <button
@@ -245,7 +249,7 @@ const Expenses = () => {
       {/* Expenses List */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900">Recent Expenses</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t('expenses.recentExpenses')}</h2>
         </div>
 
         {error && (
@@ -257,13 +261,13 @@ const Expenses = () => {
         {expenses.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-6xl mb-4">💸</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No expenses yet</h3>
-            <p className="text-gray-600 mb-6">Start tracking your household expenses</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('expenses.noExpenses')}</h3>
+            <p className="text-gray-600 mb-6">{t('expenses.startTracking')}</p>
             <button
               onClick={() => setShowModal(true)}
               className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"
             >
-              Add Your First Expense
+              {t('expenses.addFirst')}
             </button>
           </div>
         ) : (
@@ -281,7 +285,7 @@ const Expenses = () => {
                       <div>
                         <h3 className="font-semibold text-gray-900">{expense.title}</h3>
                         <p className="text-xs text-gray-500">
-                          {new Date(expense.expenseDate).toLocaleDateString()}
+                          {formatDate(expense.expenseDate)}
                         </p>
                       </div>
                     </div>
@@ -291,7 +295,7 @@ const Expenses = () => {
                   </div>
 
                   <p className="text-2xl font-bold text-red-600 mb-2">
-                    ${expense.amount.toFixed(2)}
+                    {formatCurrency(expense.amount)}
                   </p>
 
                   {expense.description && (
@@ -301,19 +305,19 @@ const Expenses = () => {
                   )}
 
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-500">Paid by: {expense.paidBy}</span>
+                    <span className="text-xs text-gray-500">{t('expenses.paidBy')}: {expense.paidBy}</span>
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleEdit(expense)}
                         className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(expense._id)}
                         className="text-red-600 hover:text-red-900 text-sm font-medium"
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </div>
                   </div>
@@ -344,7 +348,7 @@ const Expenses = () => {
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {editingId ? 'Edit Expense' : 'Add New Expense'}
+                  {editingId ? t('expenses.editExpense') : t('expenses.addNewExpense')}
                 </h2>
                 <button
                   onClick={() => {
@@ -372,7 +376,7 @@ const Expenses = () => {
                 {/* Title */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Title *
+                    {t('expenses.expenseTitle')} *
                   </label>
                   <input
                     type="text"
@@ -387,7 +391,7 @@ const Expenses = () => {
                 {/* Amount */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Amount *
+                    {t('expenses.amount')} *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-500">$</span>
@@ -406,7 +410,7 @@ const Expenses = () => {
                 {/* Date */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Date *
+                    {t('expenses.date')} *
                   </label>
                   <input
                     type="date"
@@ -420,7 +424,7 @@ const Expenses = () => {
                 {/* Category */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category *
+                    {t('expenses.category')} *
                   </label>
                   <select
                     required
@@ -439,7 +443,7 @@ const Expenses = () => {
                 {/* Paid By */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Paid By *
+                    {t('expenses.paidBy')} *
                   </label>
                   <input
                     type="text"
@@ -455,7 +459,7 @@ const Expenses = () => {
               {/* Description */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Description (Optional)
+                  {t('expenses.description')}
                 </label>
                 <textarea
                   value={formData.description}
@@ -469,7 +473,7 @@ const Expenses = () => {
               {/* Tags */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Tags (Optional)
+                  {t('expenses.tags')}
                 </label>
                 <input
                   type="text"
@@ -492,13 +496,13 @@ const Expenses = () => {
                   }}
                   className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg shadow-indigo-500/30"
                 >
-                  {editingId ? 'Update Expense' : 'Add Expense'}
+                  {editingId ? t('common.save') : t('common.add')}
                 </button>
               </div>
             </form>
