@@ -1,6 +1,6 @@
 # House Utility App
 
-A full-stack web application for managing household utilities, expenses, bills, and contributions.
+UTIL is a comprehensive household utility management platform designed to bring transparency, accountability, and efficiency to shared living expenses. Born from a real-world frustration experienced by university students managing shared apartment costs
 
 ## Project Structure
 
