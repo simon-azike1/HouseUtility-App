@@ -415,10 +415,11 @@ const Bills = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-2xl w-full my-8">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white rounded-2xl max-w-lg w-full my-8 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-white p-4 border-b border-gray-200 rounded-t-2xl z-10">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900">
                   {editingId ? 'Edit Bill' : 'Add New Bill'}
                 </h2>
                 <button
@@ -430,198 +431,182 @@ const Bills = () => {
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="p-4 space-y-4">
               {error && (
-                <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+                <div className="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded">
                   {error}
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Essential Fields */}
+              <div className="space-y-4">
                 {/* Title */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('bills.billTitle')} *
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('bills.billTitle')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="e.g., Electricity Bill"
                   />
                 </div>
 
-                {/* Amount */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('bills.amount')} *
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-3 text-gray-500">$</span>
+                {/* Amount & Due Date */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('bills.amount')} <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="number"
                       step="0.01"
                       required
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                       placeholder="0.00"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('bills.dueDate')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.dueDate}
+                      onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     />
                   </div>
                 </div>
 
-                {/* Due Date */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('bills.dueDate')} *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.dueDate}
-                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  />
+                {/* Category & Payment Method */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('bills.category')} <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat.value} value={cat.value}>
+                          {cat.icon} {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Payment
+                    </label>
+                    <select
+                      value={formData.paymentMethod}
+                      onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    >
+                      <option value="bank_transfer">Bank</option>
+                      <option value="cash">Cash</option>
+                      <option value="card">Card</option>
+                      <option value="mobile_money">Mobile</option>
+                      <option value="auto_debit">Auto</option>
+                    </select>
+                  </div>
                 </div>
 
-                {/* Category */}
+                {/* Vendor (optional) */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('bills.category')} *
-                  </label>
-                  <select
-                    required
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.icon} {cat.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Payment Method */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Payment Method
-                  </label>
-                  <select
-                    value={formData.paymentMethod}
-                    onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  >
-                    <option value="cash">💵 Cash</option>
-                    <option value="bank_transfer">🏦 Bank Transfer</option>
-                    <option value="mobile_money">📱 Mobile Money</option>
-                    <option value="card">💳 Card</option>
-                    <option value="auto_debit">🔄 Auto Debit</option>
-                    <option value="other">💰 Other</option>
-                  </select>
-                </div>
-
-                {/* Vendor */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Vendor/Company
                   </label>
                   <input
                     type="text"
                     value={formData.vendor}
                     onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                    placeholder="e.g., Power Company"
-                  />
-                </div>
-
-                {/* Account Number */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Account Number
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.accountNumber}
-                    onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="Optional"
                   />
                 </div>
 
-                {/* Reminder Days */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Remind me (days before)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.reminderDays}
-                    onChange={(e) => setFormData({ ...formData, reminderDays: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  />
-                </div>
-
-                {/* Recurring */}
-                <div className="md:col-span-2">
-                  <label className="flex items-center space-x-3 cursor-pointer">
+                {/* Recurring Options */}
+                <div className="bg-gray-50 rounded-lg p-3 space-y-3">
+                  <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.isRecurring}
                       onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
-                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     />
-                    <span className="text-sm font-semibold text-gray-700">This is a recurring bill</span>
+                    <span className="text-sm font-medium text-gray-700">Recurring bill</span>
                   </label>
+
+                  {formData.isRecurring && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Interval
+                        </label>
+                        <select
+                          value={formData.recurringInterval}
+                          onChange={(e) => setFormData({ ...formData, recurringInterval: e.target.value })}
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        >
+                          <option value="weekly">Weekly</option>
+                          <option value="monthly">Monthly</option>
+                          <option value="quarterly">Quarterly</option>
+                          <option value="yearly">Yearly</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Remind (days)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={formData.reminderDays}
+                          onChange={(e) => setFormData({ ...formData, reminderDays: e.target.value })}
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Recurring Interval */}
-                {formData.isRecurring && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Recurring Interval
-                    </label>
-                    <select
-                      value={formData.recurringInterval}
-                      onChange={(e) => setFormData({ ...formData, recurringInterval: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                    >
-                      <option value="weekly">Weekly</option>
-                      <option value="monthly">Monthly</option>
-                      <option value="quarterly">Quarterly</option>
-                      <option value="yearly">Yearly</option>
-                    </select>
-                  </div>
-                )}
-
                 {/* Description */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('bills.description')}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Notes
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows="3"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
-                    placeholder="Add any additional notes..."
+                    rows="2"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
+                    placeholder="Optional notes..."
                   ></textarea>
                 </div>
               </div>
 
               {/* Buttons */}
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end space-x-2 pt-2 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => {
@@ -630,13 +615,13 @@ const Bills = () => {
                     setError('');
                     resetForm();
                   }}
-                  className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors text-sm"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg shadow-indigo-500/30"
+                  className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-blue-700 transition-all shadow-md text-sm"
                 >
                   {editingId ? t('common.save') : t('common.add')}
                 </button>

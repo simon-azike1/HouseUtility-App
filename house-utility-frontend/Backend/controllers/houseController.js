@@ -215,7 +215,14 @@ export const removeMember = async (req, res) => {
   try {
     const { userId } = req.params;
 
+    console.log('🗑️ Remove member request:', {
+      requestingUser: req.user.id,
+      targetUser: userId,
+      householdId: req.user.household
+    });
+
     if (!req.user.household) {
+      console.log('❌ User has no household');
       return res.status(400).json({
         success: false,
         message: 'User does not belong to any household'
@@ -224,14 +231,21 @@ export const removeMember = async (req, res) => {
 
     const household = await Household.findById(req.user.household);
     if (!household) {
+      console.log('❌ Household not found');
       return res.status(404).json({
         success: false,
         message: 'Household not found'
       });
     }
 
+    console.log('📋 Current household members:', household.members.map(m => ({
+      userId: m.user.toString(),
+      role: m.role
+    })));
+
     // Check if user is admin (support both 'admin' and 'owner' for backward compatibility)
     if (!household.isAdmin(req.user.id) && req.user.householdRole !== 'owner') {
+      console.log('❌ User is not admin');
       return res.status(403).json({
         success: false,
         message: 'Only household admins can remove members'
@@ -240,27 +254,45 @@ export const removeMember = async (req, res) => {
 
     // Don't allow removing admin or owner
     const member = household.members.find(m => m.user.toString() === userId);
-    if (member && (member.role === 'admin' || member.role === 'owner')) {
+    if (!member) {
+      console.log('❌ Member not found in household');
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found in household'
+      });
+    }
+
+    if (member.role === 'admin' || member.role === 'owner') {
+      console.log('❌ Cannot remove admin/owner');
       return res.status(403).json({
         success: false,
         message: 'Cannot remove household admin'
       });
     }
 
-    // Remove member
+    // Remove member from household
+    console.log('✅ Removing member from household...');
     await household.removeMember(userId);
+    console.log('✅ Member removed from household');
 
     // Update user
-    await User.findByIdAndUpdate(userId, {
-      household: null,
-      householdRole: null
-    });
+    console.log('✅ Updating user document...');
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        household: null,
+        householdRole: null
+      },
+      { new: true }
+    );
+    console.log('✅ User updated:', updatedUser ? 'success' : 'user not found');
 
     res.json({
       success: true,
       message: 'Member removed successfully'
     });
   } catch (error) {
+    console.error('❌ Remove member error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

@@ -142,14 +142,18 @@ const Profile = () => {
       return;
     }
 
+    console.log('🗑️ Removing member:', memberId);
     setActionLoading(memberId);
     try {
-      await api.delete(`/household/members/${memberId}`);
+      const response = await api.delete(`/household/members/${memberId}`);
+      console.log('✅ Remove member response:', response.data);
 
       setMessage({ type: 'success', text: 'Member removed successfully!' });
       fetchMembers(); // Refresh members list
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
+      console.error('❌ Remove member error:', error);
+      console.error('Error response:', error.response?.data);
       setMessage({
         type: 'error',
         text: error.response?.data?.message || 'Failed to remove member'

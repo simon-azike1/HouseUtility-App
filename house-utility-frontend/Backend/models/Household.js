@@ -51,7 +51,20 @@ householdSchema.methods.addMember = function(userId, role = 'member') {
 
 // ✅ NEW: Remove member from household
 householdSchema.methods.removeMember = function(userId) {
-  this.members = this.members.filter(m => m.user.toString() !== userId.toString());
+  console.log('🔍 Before removal - Members count:', this.members.length);
+  console.log('🔍 Removing user:', userId.toString());
+
+  const initialLength = this.members.length;
+  this.members = this.members.filter(m => {
+    const memberUserId = m.user.toString();
+    const shouldKeep = memberUserId !== userId.toString();
+    console.log(`  Member ${memberUserId}: ${shouldKeep ? 'KEEP' : 'REMOVE'}`);
+    return shouldKeep;
+  });
+
+  console.log('🔍 After removal - Members count:', this.members.length);
+  console.log('🔍 Members removed:', initialLength - this.members.length);
+
   return this.save();
 };
 
