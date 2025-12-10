@@ -247,12 +247,12 @@ const Contributions = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.date')}</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.description')}</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.category')}</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.payment')}</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contributions.amount')}</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('common.actions')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -338,27 +338,24 @@ const Contributions = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Amount */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('contributions.amount')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Amount <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-3 text-gray-500">$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      value={formData.amount}
-                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                      placeholder="0.00"
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    placeholder="0.00"
+                  />
                 </div>
 
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('contributions.date')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -372,8 +369,8 @@ const Contributions = () => {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('contributions.description')} *
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -381,15 +378,15 @@ const Contributions = () => {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  placeholder="e.g., Monthly rent payment"
+                  placeholder="e.g., Monthly Rent Payment"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('contributions.category')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
@@ -407,8 +404,8 @@ const Contributions = () => {
 
                 {/* Payment Method */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('contributions.paymentMethod')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Method <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
@@ -427,8 +424,8 @@ const Contributions = () => {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('contributions.notes')}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Additional Notes
                 </label>
                 <textarea
                   value={formData.notes}

@@ -450,7 +450,7 @@ const Bills = () => {
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('bills.billTitle')} <span className="text-red-500">*</span>
+                    Bill Title <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -466,7 +466,7 @@ const Bills = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('bills.amount')} <span className="text-red-500">*</span>
+                      Amount <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -481,7 +481,7 @@ const Bills = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('bills.dueDate')} <span className="text-red-500">*</span>
+                      Due Date <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -497,7 +497,7 @@ const Bills = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('bills.category')} <span className="text-red-500">*</span>
+                      Category <span className="text-red-500">*</span>
                     </label>
                     <select
                       required
@@ -515,18 +515,18 @@ const Bills = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Payment
+                      Payment Method
                     </label>
                     <select
                       value={formData.paymentMethod}
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     >
-                      <option value="bank_transfer">Bank</option>
+                      <option value="bank_transfer">Bank Transfer</option>
                       <option value="cash">Cash</option>
                       <option value="card">Card</option>
-                      <option value="mobile_money">Mobile</option>
-                      <option value="auto_debit">Auto</option>
+                      <option value="mobile_money">Mobile Money</option>
+                      <option value="auto_debit">Auto Debit</option>
                     </select>
                   </div>
                 </div>
@@ -541,7 +541,7 @@ const Bills = () => {
                     value={formData.vendor}
                     onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                    placeholder="Optional"
+                    placeholder="e.g., Electric Company"
                   />
                 </div>
 
@@ -554,14 +554,14 @@ const Bills = () => {
                       onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
                       className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">Recurring bill</span>
+                    <span className="text-sm font-medium text-gray-700">Recurring Bill</span>
                   </label>
 
                   {formData.isRecurring && (
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Interval
+                          Repeat Interval
                         </label>
                         <select
                           value={formData.recurringInterval}
@@ -576,7 +576,7 @@ const Bills = () => {
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Remind (days)
+                          Reminder (days before)
                         </label>
                         <input
                           type="number"
@@ -593,14 +593,14 @@ const Bills = () => {
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Notes
+                    Additional Notes
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows="2"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
-                    placeholder="Optional notes..."
+                    placeholder="Add any additional notes..."
                   ></textarea>
                 </div>
               </div>

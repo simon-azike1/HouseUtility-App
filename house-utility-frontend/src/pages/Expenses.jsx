@@ -375,8 +375,8 @@ const Expenses = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Title */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('expenses.expenseTitle')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Expense Title <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -384,33 +384,30 @@ const Expenses = () => {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                    placeholder="e.g., Electric bill payment"
+                    placeholder="e.g., Grocery Shopping"
                   />
                 </div>
 
                 {/* Amount */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('expenses.amount')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Amount <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-3 text-gray-500">$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      value={formData.amount}
-                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                      placeholder="0.00"
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    placeholder="0.00"
+                  />
                 </div>
 
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('expenses.date')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -423,8 +420,8 @@ const Expenses = () => {
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('expenses.category')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
@@ -442,8 +439,8 @@ const Expenses = () => {
 
                 {/* Paid By */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('expenses.paidBy')} *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Paid By <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -451,15 +448,15 @@ const Expenses = () => {
                     value={formData.paidBy}
                     onChange={(e) => setFormData({ ...formData, paidBy: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                    placeholder="Who paid for this?"
+                    placeholder="Enter name"
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('expenses.description')}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
                 </label>
                 <textarea
                   value={formData.description}
@@ -472,17 +469,17 @@ const Expenses = () => {
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('expenses.tags')}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tags
                 </label>
                 <input
                   type="text"
                   value={formData.tags}
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  placeholder="urgent, shared, monthly (comma separated)"
+                  placeholder="e.g., urgent, shared, monthly"
                 />
-                <p className="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+                <p className="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
               </div>
 
               {/* Buttons */}
