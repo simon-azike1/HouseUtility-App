@@ -1,4 +1,4 @@
-import { Check, X, Users, HelpCircle } from 'lucide-react';
+import { Check, X, Users, HelpCircle, Zap, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
@@ -26,11 +26,50 @@ export default function Pricing() {
         { text: t('pricing.feature8'), included: false }
       ],
       cta: t('pricing.getStartedFree'),
-      highlighted: true,
+      highlighted: false,
       icon: Users,
       color: 'from-blue-600 to-green-500'
+    },
+    {
+      name: t('pricing.proPlan'),
+      price: '$9.99',
+      period: t('pricing.perMonth'),
+      description: t('pricing.proDescription'),
+      features: [
+        { text: t('pricing.feature1'), included: true },
+        { text: t('pricing.feature2'), included: true },
+        { text: t('pricing.feature3'), included: true },
+        { text: t('pricing.feature4'), included: true },
+        { text: t('pricing.feature5'), included: true },
+        { text: t('pricing.feature6'), included: true },
+        { text: t('pricing.feature7'), included: true },
+        { text: t('pricing.feature8'), included: false }
+      ],
+      cta: t('pricing.comingSoon'),
+      highlighted: true,
+      icon: Zap,
+      color: 'from-purple-600 to-pink-500'
+    },
+    {
+      name: t('pricing.enterprisePlan'),
+      price: '$24.99',
+      period: t('pricing.perMonth'),
+      description: t('pricing.enterpriseDescription'),
+      features: [
+        { text: t('pricing.feature1'), included: true },
+        { text: t('pricing.feature2'), included: true },
+        { text: t('pricing.feature3'), included: true },
+        { text: t('pricing.feature4'), included: true },
+        { text: t('pricing.feature5'), included: true },
+        { text: t('pricing.feature6'), included: true },
+        { text: t('pricing.feature7'), included: true },
+        { text: t('pricing.feature8'), included: true }
+      ],
+      cta: t('pricing.comingSoon'),
+      highlighted: false,
+      icon: Building2,
+      color: 'from-orange-600 to-red-500'
     }
-    // Pro and Enterprise plans coming soon
   ];
 
   const faqs = [
@@ -57,7 +96,7 @@ export default function Pricing() {
       <DarkModeToggle />
 
       {/* Hero Section */}
-      <section className="relative text-white pt-24 pb-32 overflow-hidden">
+      <section className="relative text-white pt-32 pb-40 overflow-hidden">
         {/* Background Image + Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -68,6 +107,12 @@ export default function Pricing() {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-green-900/90"></div>
         </div>
 
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-green-400/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+        </div>
+
         {/* Hero Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -76,29 +121,62 @@ export default function Pricing() {
             transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6">
-              {t('pricing.heroTitle')} <span className="bg-gradient-to-r from-blue-300 to-green-300 bg-clip-text text-transparent">{t('pricing.heroTitleHighlight')}</span>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-block mb-6"
+            >
+              <span className="px-6 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-semibold">
+                {t('pricing.heroTitleHighlight')} Plan Available
+              </span>
+            </motion.div>
+
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold mb-6 leading-tight">
+              {t('pricing.heroTitle')} <br />
+              <span className="bg-gradient-to-r from-blue-300 via-green-300 to-blue-400 bg-clip-text text-transparent">
+                {t('pricing.heroTitleHighlight')}
+              </span>
             </h1>
-            <p className="text-xl sm:text-2xl text-gray-200 max-w-3xl mx-auto mb-8">
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-xl sm:text-2xl text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed"
+            >
               {t('pricing.heroSubtitle')}
-            </p>
-            <div className="flex items-center justify-center gap-2 text-sm text-green-300">
-              <Check className="w-5 h-5" />
-              <span>{t('pricing.freeForever')}</span>
-              <span className="mx-2">•</span>
-              <Check className="w-5 h-5" />
-              <span>{t('pricing.noCreditCard')}</span>
-              <span className="mx-2">•</span>
-              <Check className="w-5 h-5" />
-              <span>{t('pricing.startInMinutes')}</span>
-            </div>
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="flex flex-wrap items-center justify-center gap-6 text-sm"
+            >
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                <Check className="w-5 h-5 text-green-300" />
+                <span className="text-white font-medium">{t('pricing.noCreditCard')}</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                <Check className="w-5 h-5 text-green-300" />
+                <span className="text-white font-medium">{t('pricing.startInMinutes')}</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                <Check className="w-5 h-5 text-green-300" />
+                <span className="text-white font-medium">{t('pricing.freePlanAvailable')}</span>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
 
         {/* Decorative Elements */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="dark:hidden">
             <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#F9FAFB"/>
+          </svg>
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden dark:block">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#111827"/>
           </svg>
         </div>
       </section>
@@ -106,7 +184,7 @@ export default function Pricing() {
       {/* Pricing Cards */}
       <section className="py-20 bg-gray-50 dark:bg-gray-900 -mt-16 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-lg mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {plans.map((plan, index) => {
               const Icon = plan.icon;
               return (
@@ -116,12 +194,16 @@ export default function Pricing() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden transition-all duration-300 border-2 border-blue-500 dark:border-blue-600 shadow-2xl"
+                  className={`relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden transition-all duration-300 ${
+                    plan.highlighted
+                      ? 'border-2 border-purple-500 dark:border-purple-600 shadow-2xl'
+                      : 'border border-gray-200 dark:border-gray-700'
+                  }`}
                 >
                   {/* Highlighted Badge */}
                   {plan.highlighted && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-blue-600 to-green-500 text-white text-xs font-bold px-4 py-1 rounded-bl-2xl">
-                      {t('pricing.freeForeverBadge')}
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-xs font-bold px-4 py-1 rounded-bl-2xl">
+                      {t('pricing.popularBadge')}
                     </div>
                   )}
 
@@ -151,12 +233,21 @@ export default function Pricing() {
                     </div>
 
                     {/* CTA Button */}
-                    <Link
-                      to="/register"
-                      className="block w-full py-4 px-6 rounded-xl font-bold text-center transition-all duration-300 mb-8 bg-gradient-to-r from-blue-600 to-green-500 text-white hover:from-blue-700 hover:to-green-600 shadow-lg hover:shadow-xl transform hover:scale-105"
-                    >
-                      {plan.cta}
-                    </Link>
+                    {plan.name === t('pricing.freePlan') ? (
+                      <Link
+                        to="/register"
+                        className={`block w-full py-4 px-6 rounded-xl font-bold text-center transition-all duration-300 mb-8 bg-gradient-to-r ${plan.color} text-white hover:opacity-90 shadow-lg hover:shadow-xl transform hover:scale-105`}
+                      >
+                        {plan.cta}
+                      </Link>
+                    ) : (
+                      <button
+                        disabled
+                        className={`w-full py-4 px-6 rounded-xl font-bold text-center mb-8 bg-gradient-to-r ${plan.color} text-white opacity-60 cursor-not-allowed`}
+                      >
+                        {plan.cta}
+                      </button>
+                    )}
 
                     {/* Features */}
                     <div className="space-y-4">

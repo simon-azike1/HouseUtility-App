@@ -80,13 +80,26 @@ export const PreferencesProvider = ({ children }) => {
     };
 
     const symbol = currencySymbols[preferences.currency] || preferences.currency;
-    const formatted = `${symbol}${Number(amount).toFixed(2)}`;
+    const formattedAmount = Number(amount).toFixed(2);
+
+    // Language-specific currency formatting
+    // Arabic and some other languages put currency symbol after the amount
+    const symbolAfterLanguages = ['ar'];
+    const currentLanguage = preferences.language || i18n.language || 'en';
+
+    let formatted;
+    if (symbolAfterLanguages.includes(currentLanguage)) {
+      formatted = `${formattedAmount}.${symbol}`;
+    } else {
+      formatted = `${symbol}${formattedAmount}`;
+    }
 
     // Debug logging (remove in production)
     if (Math.random() < 0.01) { // Log 1% of calls to avoid spam
       console.log('formatCurrency:', {
         amount,
         currency: preferences.currency,
+        language: currentLanguage,
         symbol,
         formatted
       });
