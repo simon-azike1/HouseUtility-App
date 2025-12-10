@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
 import {
   Settings,
@@ -20,6 +21,7 @@ import {
 const AccountSettings = () => {
   const { user } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
+  const { updatePreferences: updateGlobalPreferences } = usePreferences();
   const [message, setMessage] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
 
@@ -115,6 +117,9 @@ const AccountSettings = () => {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
+
+      // Update the global preferences context so changes reflect immediately
+      updateGlobalPreferences(preferences);
 
       setMessage({
         type: 'success',

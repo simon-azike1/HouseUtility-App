@@ -13,12 +13,23 @@ export const usePreferences = () => {
 };
 
 export const PreferencesProvider = ({ children }) => {
-  const [preferences, setPreferences] = useState({
-    language: 'en',
-    timezone: 'GMT+1',
-    currency: 'MAD',
-    dateFormat: 'DD/MM/YYYY',
-    theme: 'light'
+  const [preferences, setPreferences] = useState(() => {
+    // Try to load from localStorage first for immediate access
+    const cached = localStorage.getItem('userPreferences');
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch (e) {
+        console.error('Failed to parse cached preferences:', e);
+      }
+    }
+    return {
+      language: 'en',
+      timezone: 'GMT+1',
+      currency: 'MAD',
+      dateFormat: 'DD/MM/YYYY',
+      theme: 'light'
+    };
   });
 
   const [loading, setLoading] = useState(true);
@@ -41,6 +52,8 @@ export const PreferencesProvider = ({ children }) => {
 
         if (response.data.preferences) {
           setPreferences(response.data.preferences);
+          // Cache in localStorage for faster access on reload
+          localStorage.setItem('userPreferences', JSON.stringify(response.data.preferences));
           // Sync language with i18n
           if (response.data.preferences.language) {
             i18n.changeLanguage(response.data.preferences.language);
@@ -58,10 +71,14 @@ export const PreferencesProvider = ({ children }) => {
 
   const updatePreferences = (newPreferences) => {
     console.log('Updating preferences to:', newPreferences);
-    setPreferences(prev => ({
-      ...prev,
+    const updated = {
+      ...preferences,
       ...newPreferences
-    }));
+    };
+    setPreferences(updated);
+
+    // Cache updated preferences in localStorage
+    localStorage.setItem('userPreferences', JSON.stringify(updated));
 
     // Sync language with i18n when language changes
     if (newPreferences.language) {
