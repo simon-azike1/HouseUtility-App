@@ -151,6 +151,9 @@ For production, see `house-utility-frontend/render.yaml` and `vercel.json` for R
 4. Commit and push
 5. Open a pull request
 
+<img width="1888" height="787" alt="image" src="https://github.com/user-attachments/assets/5ea1b707-e2c5-4243-9b29-55f5b6d96fe5" />
+
+
 ## License
 
 MIT
