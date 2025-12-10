@@ -217,25 +217,22 @@ const DashboardLayout = ({ children }) => {
           {/* Desktop Sidebar */}
           <div className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700">
             {/* Logo */}
-            <div className="flex items-center gap-4 px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+            <Link to="/" className="flex items-center gap-4 px-6 py-6 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30"></div>
-                <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                   <Zap className="w-6 h-6 text-white dark:text-black" />
                 </div>
               </div>
               <div>
-              <Link to="/" className="inline-block">
-  <h1 className="text-xl font-black bg-gradient-to-r from-black via-blue-600 to-green-600 dark:from-white dark:via-blue-400 dark:to-green-400 bg-clip-text text-transparent">
-    UTIL
-  </h1>
-</Link>
-
+                <h1 className="text-xl font-black bg-gradient-to-r from-black via-blue-600 to-green-600 dark:from-white dark:via-blue-400 dark:to-green-400 bg-clip-text text-transparent">
+                  UTIL
+                </h1>
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-widest uppercase">
                   Dashboard
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -300,10 +297,10 @@ const DashboardLayout = ({ children }) => {
               <div className="flex h-full flex-col">
                 {/* Mobile Logo */}
                 <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center gap-4">
+                  <Link to="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-4 hover:opacity-80 transition-opacity group">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30"></div>
-                      <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg">
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                      <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                         <Zap className="w-6 h-6 text-white dark:text-black" />
                       </div>
                     </div>
@@ -315,7 +312,7 @@ const DashboardLayout = ({ children }) => {
                         Dashboard
                       </p>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => setSidebarOpen(false)}
                     className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"

@@ -124,39 +124,39 @@ const Landing = () => {
       <Navbar />
       <DarkModeToggle />
 
-      {/* Simplified Hero Section */}
+      {/* Hero Section - Mobile Optimized */}
       <motion.section
-        className="relative flex items-center justify-center text-center text-white min-h-screen bg-cover bg-center"
+        className="relative flex items-center justify-center text-center text-white min-h-[85vh] sm:min-h-screen bg-cover bg-center"
         style={{ backgroundImage: "url('./images/house-dashboard.jpg')" }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70"></div>
         <motion.div
-          className="relative z-10 max-w-3xl px-4"
+          className="relative z-10 max-w-4xl px-4 sm:px-6 py-8 sm:py-0"
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
             {t('landing.heroTitle')} <span className="text-green-400">{t('landing.heroTitleHighlight')}</span> {t('landing.heroTitleEnd')}
           </h1>
 
-          <p className="text-xl mb-10 leading-relaxed text-gray-100">
+          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-10 leading-relaxed text-gray-100 max-w-2xl mx-auto">
             {t('landing.heroSubtitle')}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-md sm:max-w-none mx-auto">
             <Link
               to="/register"
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-green-500 to-blue-600 font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 shadow-xl"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-green-500 to-blue-600 font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 shadow-xl text-sm sm:text-base"
             >
               {t('landing.getStarted')}
             </Link>
             <a
               href="#features"
-              className="px-8 py-4 rounded-xl border-2 border-white/30 backdrop-blur-sm bg-white/10 font-semibold hover:bg-white/20 transition-all duration-300"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl border-2 border-white/30 backdrop-blur-sm bg-white/10 font-semibold hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
             >
               {t('landing.exploreFeatures')}
             </a>
