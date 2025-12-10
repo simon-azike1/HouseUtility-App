@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 
 const AccountSettings = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const { updatePreferences: updateGlobalPreferences } = usePreferences();
@@ -123,16 +125,18 @@ const AccountSettings = () => {
 
       setMessage({
         type: 'success',
-        text: 'Settings saved successfully!'
+        text: 'Settings saved successfully! Redirecting...'
       });
 
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      // Redirect to dashboard after 1.5 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
     } catch (error) {
       setMessage({
         type: 'error',
         text: error.response?.data?.message || 'Failed to save settings'
       });
-    } finally {
       setLoading(false);
     }
   };
