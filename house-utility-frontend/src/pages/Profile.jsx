@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
-import axios from 'axios';
+import api from '../../services/api';
 import { motion } from 'framer-motion';
 import {
   User,
@@ -66,10 +66,7 @@ const Profile = () => {
       }
 
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('/household', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/household');
         setHousehold(response.data.data);
       } catch (error) {
         console.error('Error fetching household data:', error);
@@ -102,10 +99,8 @@ const Profile = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('/household/join',
-        { inviteCode: joinCode.trim().toUpperCase() },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await api.post('/household/join',
+        { inviteCode: joinCode.trim().toUpperCase() }
       );
 
       setMessage({ type: 'success', text: 'Successfully joined household!' });
@@ -129,10 +124,7 @@ const Profile = () => {
 
     setMembersLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/household/members', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/household/members');
       setMembers(response.data.data || []);
     } catch (error) {
       console.error('Error fetching members:', error);
@@ -152,10 +144,7 @@ const Profile = () => {
 
     setActionLoading(memberId);
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/api/household/members/${memberId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete(`/household/members/${memberId}`);
 
       setMessage({ type: 'success', text: 'Member removed successfully!' });
       fetchMembers(); // Refresh members list
@@ -173,11 +162,7 @@ const Profile = () => {
   const handleChangeRole = async (memberId, newRole) => {
     setActionLoading(memberId);
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/household/members/${memberId}/role`,
-        { role: newRole },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/household/members/${memberId}/role`, { role: newRole });
 
       setMessage({ type: 'success', text: 'Member role updated successfully!' });
       fetchMembers(); // Refresh members list
@@ -204,10 +189,7 @@ const Profile = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.put('/auth/profile', profileData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.put('/auth/profile', profileData);
 
       // Update localStorage
       const updatedUser = { ...user, ...profileData };

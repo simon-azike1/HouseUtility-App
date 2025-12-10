@@ -66,8 +66,8 @@ const VerifyEmail = () => {
     const inviteCode = localStorage.getItem('pendingInviteCode');
 
     // ✅ CORRECT URL - No /undefined/
-    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    let redirectUrl = `${backendUrl}/auth/google/verify?email=${encodeURIComponent(email)}`;
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    let redirectUrl = `${backendUrl}/api/auth/google/verify?email=${encodeURIComponent(email)}`;
 
     // Add invite code if present
     if (inviteCode) {

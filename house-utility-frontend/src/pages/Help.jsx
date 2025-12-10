@@ -50,7 +50,7 @@ const Help = () => {
       category: 'Household Management',
       icon: Users,
       question: 'How do I invite family members to my household?',
-      answer: 'As an admin, go to your Profile page → Household tab. You\'ll find your invite code there. You can either copy the code or copy the full invite link to share with family members via email, text, or messaging apps. It is more advisable to copy the full invite link for better convenience and accuracy.'
+      answer: 'As an admin, go to your Profile page → Household tab. You\'ll find your invite code there. You can either copy the code or copy the full invite link to share with family members via email, text, or messaging apps, it is more advisable to copy the full invite link for better convenience and accuracy.'
     },
     {
       id: 5,
