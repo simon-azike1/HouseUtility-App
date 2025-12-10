@@ -490,63 +490,83 @@ const DashboardLayout = ({ children }) => {
 
                   <AnimatePresence>
                     {notificationsOpen && (
-                      <motion.div
-                        variants={dropdownVariants}
-                        initial="closed"
-                        animate="open"
-                        exit="closed"
-                        className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
-                      >
-                        <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
-                          <button
-                            onClick={() => setNotificationsOpen(false)}
-                            className="sm:hidden text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
-                        <div className="max-h-64 sm:max-h-80 overflow-y-auto">
-                          {loadingNotifications ? (
-                            <div className="px-3 sm:px-4 py-6 sm:py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                              Loading notifications...
-                            </div>
-                          ) : notifications.length === 0 ? (
-                            <div className="px-3 sm:px-4 py-6 sm:py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                              No notifications yet
-                            </div>
-                          ) : (
-                            notifications.map((notification) => (
-                              <div
-                                key={notification.id}
-                                className={`px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0 ${
-                                  !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/10' : ''
-                                }`}
-                                onClick={() => !notification.isRead && markNotificationAsRead(notification.id)}
-                              >
-                                <div className="flex items-start gap-2 sm:gap-3">
-                                  <div className={`w-2 h-2 rounded-full mt-1.5 sm:mt-2 flex-shrink-0 ${
-                                    notification.type === 'success' ? 'bg-green-500' :
-                                    notification.type === 'warning' ? 'bg-orange-500' :
-                                    notification.type === 'error' ? 'bg-red-500' :
-                                    'bg-blue-500'
-                                  }`}></div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">{notification.title}</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mt-0.5">{notification.message}</p>
-                                    <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500 mt-1">{notification.time}</p>
-                                  </div>
-                                  {!notification.isRead && (
-                                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 sm:mt-2 flex-shrink-0"></div>
-                                  )}
-                                </div>
+                      <>
+                        {/* Mobile backdrop overlay */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          onClick={() => setNotificationsOpen(false)}
+                          className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+                        />
+
+                        {/* Notification panel */}
+                        <motion.div
+                          variants={dropdownVariants}
+                          initial="closed"
+                          animate="open"
+                          exit="closed"
+                          className="fixed sm:absolute top-0 sm:top-auto right-0 bottom-0 sm:bottom-auto sm:mt-2 w-full sm:w-96 bg-white dark:bg-gray-800 sm:rounded-2xl shadow-xl border-0 sm:border border-gray-200 dark:border-gray-700 z-50"
+                        >
+                          {/* Header */}
+                          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800 z-10">
+                            <h3 className="text-base sm:text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                            <button
+                              onClick={() => setNotificationsOpen(false)}
+                              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+
+                          {/* Notification list */}
+                          <div className="overflow-y-auto h-[calc(100vh-60px)] sm:max-h-96">
+                            {loadingNotifications ? (
+                              <div className="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-3"></div>
+                                Loading notifications...
                               </div>
-                            ))
-                          )}
-                        </div>
-                      </motion.div>
+                            ) : notifications.length === 0 ? (
+                              <div className="px-4 py-12 text-center">
+                                <Bell className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                                <p className="text-sm text-gray-500 dark:text-gray-400">No notifications yet</p>
+                              </div>
+                            ) : (
+                              notifications.map((notification) => (
+                                <div
+                                  key={notification.id}
+                                  className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0 ${
+                                    !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+                                  }`}
+                                  onClick={() => {
+                                    if (!notification.isRead) markNotificationAsRead(notification.id);
+                                    setNotificationsOpen(false);
+                                  }}
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                                      notification.type === 'success' ? 'bg-green-500' :
+                                      notification.type === 'warning' ? 'bg-orange-500' :
+                                      notification.type === 'error' ? 'bg-red-500' :
+                                      'bg-blue-500'
+                                    }`}></div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.title}</p>
+                                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">{notification.message}</p>
+                                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{notification.time}</p>
+                                    </div>
+                                    {!notification.isRead && (
+                                      <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </motion.div>
+                      </>
                     )}
                   </AnimatePresence>
                 </div>
