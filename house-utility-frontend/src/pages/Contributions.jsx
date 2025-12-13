@@ -21,6 +21,8 @@ const Contributions = () => {
     notes: ''
   });
   const [error, setError] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const categories = [
     { value: 'rent', label: 'Rent', icon: '🏠' },
@@ -77,34 +79,42 @@ const Contributions = () => {
 
     try {
       const token = localStorage.getItem('token');
-      
+
       if (editingId) {
         // Update existing contribution
         await axios.put(`/contributions/${editingId}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        setSuccessMessage('Contribution updated successfully!');
       } else {
         // Create new contribution
         await axios.post('/contributions', formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        setSuccessMessage('Contribution added successfully!');
       }
+
+      // Show success animation
+      setShowSuccess(true);
 
       // Refresh data
       fetchContributions();
       fetchStats();
-      
-      // Reset form
-      setShowModal(false);
-      setEditingId(null);
-      setFormData({
-        amount: '',
-        description: '',
-        category: 'other',
-        paymentMethod: 'cash',
-        contributionDate: new Date().toISOString().split('T')[0],
-        notes: ''
-      });
+
+      // Close modal after animation
+      setTimeout(() => {
+        setShowModal(false);
+        setEditingId(null);
+        setShowSuccess(false);
+        setFormData({
+          amount: '',
+          description: '',
+          category: 'other',
+          paymentMethod: 'cash',
+          contributionDate: new Date().toISOString().split('T')[0],
+          notes: ''
+        });
+      }, 1500);
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to save contribution');
     }
@@ -161,8 +171,8 @@ const Contributions = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('contributions.title')}</h1>
-          <p className="text-gray-600 mt-1">{t('contributions.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('contributions.title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">{t('contributions.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -302,10 +312,26 @@ const Contributions = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+            {/* Success Overlay */}
+            {showSuccess && (
+              <div className="absolute inset-0 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center z-10 animate-fadeIn">
+                <div className="text-center">
+                  <div className="mb-4 animate-scaleIn">
+                    <svg className="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white animate-slideUp">
+                    {successMessage}
+                  </h3>
+                </div>
+              </div>
+            )}
+
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {editingId ? t('contributions.editContribution') : t('contributions.addNew')}
                 </h2>
                 <button
@@ -313,8 +339,9 @@ const Contributions = () => {
                     setShowModal(false);
                     setEditingId(null);
                     setError('');
+                    setShowSuccess(false);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -325,7 +352,7 @@ const Contributions = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               {error && (
-                <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-600 text-red-700 dark:text-red-400 text-sm">
                   {error}
                 </div>
               )}
@@ -333,7 +360,7 @@ const Contributions = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Amount */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Amount <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -342,14 +369,14 @@ const Contributions = () => {
                     required
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="0.00"
                   />
                 </div>
 
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -357,14 +384,14 @@ const Contributions = () => {
                     required
                     value={formData.contributionDate}
                     onChange={(e) => setFormData({ ...formData, contributionDate: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -372,7 +399,7 @@ const Contributions = () => {
                   required
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   placeholder="e.g., Monthly Rent Payment"
                 />
               </div>
@@ -380,14 +407,14 @@ const Contributions = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   >
                     {categories.map((cat) => (
                       <option key={cat.value} value={cat.value}>
@@ -399,14 +426,14 @@ const Contributions = () => {
 
                 {/* Payment Method */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Payment Method <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
                     value={formData.paymentMethod}
                     onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   >
                     {paymentMethods.map((method) => (
                       <option key={method.value} value={method.value}>
@@ -419,14 +446,14 @@ const Contributions = () => {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Additional Notes
                 </label>
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows="3"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
                   placeholder="Add any additional notes..."
                 ></textarea>
               </div>
@@ -439,8 +466,9 @@ const Contributions = () => {
                     setShowModal(false);
                     setEditingId(null);
                     setError('');
+                    setShowSuccess(false);
                   }}
-                  className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   {t('common.cancel')}
                 </button>

@@ -23,6 +23,8 @@ const Expenses = () => {
     tags: ''
   });
   const [error, setError] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const categories = [
     { value: 'utilities', label: 'Utilities', icon: '💡', color: 'bg-yellow-100 text-yellow-700' },
@@ -77,7 +79,7 @@ const Expenses = () => {
 
     try {
       const token = localStorage.getItem('token');
-      
+
       // Prepare data
       const data = {
         ...formData,
@@ -88,26 +90,36 @@ const Expenses = () => {
         await axios.put(`/expenses/${editingId}`, data, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        setSuccessMessage('Expense updated successfully!');
       } else {
         await axios.post('/expenses', data, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        setSuccessMessage('Expense added successfully!');
       }
 
+      // Show success animation
+      setShowSuccess(true);
+
+      // Refresh data
       fetchExpenses();
       fetchStats();
-      
-      setShowModal(false);
-      setEditingId(null);
-      setFormData({
-        title: '',
-        amount: '',
-        description: '',
-        category: 'other',
-        expenseDate: new Date().toISOString().split('T')[0],
-        paidBy: '',
-        tags: ''
-      });
+
+      // Close modal after animation
+      setTimeout(() => {
+        setShowModal(false);
+        setEditingId(null);
+        setShowSuccess(false);
+        setFormData({
+          title: '',
+          amount: '',
+          description: '',
+          category: 'other',
+          expenseDate: new Date().toISOString().split('T')[0],
+          paidBy: '',
+          tags: ''
+        });
+      }, 1500);
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to save expense');
     }
@@ -339,10 +351,26 @@ const Expenses = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+            {/* Success Overlay */}
+            {showSuccess && (
+              <div className="absolute inset-0 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center z-10 animate-fadeIn">
+                <div className="text-center">
+                  <div className="mb-4 animate-scaleIn">
+                    <svg className="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white animate-slideUp">
+                    {successMessage}
+                  </h3>
+                </div>
+              </div>
+            )}
+
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {editingId ? t('expenses.editExpense') : t('expenses.addNewExpense')}
                 </h2>
                 <button
@@ -350,8 +378,9 @@ const Expenses = () => {
                     setShowModal(false);
                     setEditingId(null);
                     setError('');
+                    setShowSuccess(false);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -362,7 +391,7 @@ const Expenses = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               {error && (
-                <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-600 text-red-700 dark:text-red-400 text-sm">
                   {error}
                 </div>
               )}
@@ -370,7 +399,7 @@ const Expenses = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Title */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Expense Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -378,14 +407,14 @@ const Expenses = () => {
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="e.g., Grocery Shopping"
                   />
                 </div>
 
                 {/* Amount */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Amount <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -394,14 +423,14 @@ const Expenses = () => {
                     required
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="0.00"
                   />
                 </div>
 
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -409,20 +438,20 @@ const Expenses = () => {
                     required
                     value={formData.expenseDate}
                     onChange={(e) => setFormData({ ...formData, expenseDate: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   />
                 </div>
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   >
                     {categories.map((cat) => (
                       <option key={cat.value} value={cat.value}>
@@ -434,7 +463,7 @@ const Expenses = () => {
 
                 {/* Paid By */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Paid By <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -442,7 +471,7 @@ const Expenses = () => {
                     required
                     value={formData.paidBy}
                     onChange={(e) => setFormData({ ...formData, paidBy: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="Enter name"
                   />
                 </div>
@@ -450,31 +479,31 @@ const Expenses = () => {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows="3"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
                   placeholder="Add any additional details..."
                 ></textarea>
               </div>
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Tags
                 </label>
                 <input
                   type="text"
                   value={formData.tags}
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   placeholder="e.g., urgent, shared, monthly"
                 />
-                <p className="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Separate multiple tags with commas</p>
               </div>
 
               {/* Buttons */}
@@ -485,8 +514,9 @@ const Expenses = () => {
                     setShowModal(false);
                     setEditingId(null);
                     setError('');
+                    setShowSuccess(false);
                   }}
-                  className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   {t('common.cancel')}
                 </button>
