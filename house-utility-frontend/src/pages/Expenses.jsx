@@ -178,40 +178,36 @@ const Expenses = () => {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('expenses.totalExpenses')}</span>
-              <span className="text-2xl">💸</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('expenses.totalExpenses')}</span>
             </div>
-            <p className="text-3xl font-bold text-red-600">{formatCurrency(stats.total)}</p>
-            <p className="text-xs text-gray-500 mt-1">{stats.count} {t('expenses.transactions')}</p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-400">{formatCurrency(stats.total)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stats.count} {t('expenses.transactions')}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('expenses.thisMonth')}</span>
-              <span className="text-2xl">📅</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('expenses.thisMonth')}</span>
             </div>
-            <p className="text-3xl font-bold text-orange-600">{formatCurrency(stats.thisMonth)}</p>
-            <p className="text-xs text-gray-500 mt-1">{t('expenses.currentPeriod')}</p>
+            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{formatCurrency(stats.thisMonth)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('expenses.currentPeriod')}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('expenses.lastMonth')}</span>
-              <span className="text-2xl">📊</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('expenses.lastMonth')}</span>
             </div>
-            <p className="text-3xl font-bold text-purple-600">{formatCurrency(stats.lastMonth)}</p>
-            <p className="text-xs text-gray-500 mt-1">{t('expenses.previousPeriod')}</p>
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(stats.lastMonth)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('expenses.previousPeriod')}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('expenses.thisYear')}</span>
-              <span className="text-2xl">📈</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('expenses.thisYear')}</span>
             </div>
-            <p className="text-3xl font-bold text-blue-600">{formatCurrency(stats.thisYear)}</p>
-            <p className="text-xs text-gray-500 mt-1">{t('expenses.annualTotal')}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(stats.thisYear)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('expenses.annualTotal')}</p>
           </div>
         </div>
       )}
@@ -260,9 +256,8 @@ const Expenses = () => {
 
         {expenses.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-6xl mb-4">💸</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('expenses.noExpenses')}</h3>
-            <p className="text-gray-600 mb-6">{t('expenses.startTracking')}</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('expenses.noExpenses')}</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{t('expenses.startTracking')}</p>
             <button
               onClick={() => setShowModal(true)}
               className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"

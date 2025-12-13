@@ -178,63 +178,58 @@ const Contributions = () => {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('contributions.totalContributions')}</span>
-              <span className="text-2xl">💰</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('contributions.totalContributions')}</span>
             </div>
-            <p className="text-3xl font-bold text-indigo-600">{formatCurrency(stats.total)}</p>
-            <p className="text-xs text-gray-500 mt-1">{stats.count} {t('contributions.transactions')}</p>
+            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{formatCurrency(stats.total)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stats.count} {t('contributions.transactions')}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('contributions.thisMonth')}</span>
-              <span className="text-2xl">📅</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('contributions.thisMonth')}</span>
             </div>
-            <p className="text-3xl font-bold text-green-600">{formatCurrency(stats.thisMonth)}</p>
-            <p className="text-xs text-gray-500 mt-1">{t('contributions.currentPeriod')}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(stats.thisMonth)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('contributions.currentPeriod')}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('contributions.lastMonth')}</span>
-              <span className="text-2xl">📊</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('contributions.lastMonth')}</span>
             </div>
-            <p className="text-3xl font-bold text-blue-600">{formatCurrency(stats.lastMonth)}</p>
-            <p className="text-xs text-gray-500 mt-1">{t('contributions.previousPeriod')}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(stats.lastMonth)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('contributions.previousPeriod')}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">{t('contributions.average')}</span>
-              <span className="text-2xl">📈</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{t('contributions.average')}</span>
             </div>
-            <p className="text-3xl font-bold text-purple-600">
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
               {formatCurrency(stats.count > 0 ? (stats.total / stats.count) : 0)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">{t('contributions.perTransaction')}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('contributions.perTransaction')}</p>
           </div>
         </div>
       )}
 
       {/* Contributions List */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900">{t('contributions.recentContributions')}</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('contributions.recentContributions')}</h2>
         </div>
 
         {error && (
-          <div className="p-4 bg-red-50 border-b border-red-200 text-red-700 text-sm">
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
 
         {contributions.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-6xl mb-4">💰</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('contributions.noContributions')}</h3>
-            <p className="text-gray-600 mb-6">{t('contributions.startTracking')}</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('contributions.noContributions')}</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{t('contributions.startTracking')}</p>
             <button
               onClick={() => setShowModal(true)}
               className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"
@@ -245,53 +240,53 @@ const Contributions = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Payment Method</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {contributions.map((contribution) => (
-                  <tr key={contribution._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <tr key={contribution._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       {formatDate(contribution.contributionDate)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                       <div className="font-medium">{contribution.description}</div>
                       {contribution.notes && (
-                        <div className="text-gray-500 text-xs mt-1">{contribution.notes}</div>
+                        <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">{contribution.notes}</div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
                         <span className="mr-1">{getCategoryIcon(contribution.category)}</span>
                         {contribution.category}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center text-sm text-gray-600">
+                      <span className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400">
                         <span className="mr-1">{getPaymentIcon(contribution.paymentMethod)}</span>
                         {contribution.paymentMethod.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 dark:text-green-400">
                       {formatCurrency(contribution.amount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => handleEdit(contribution)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-4"
                       >
                         {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(contribution._id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                       >
                         {t('common.delete')}
                       </button>

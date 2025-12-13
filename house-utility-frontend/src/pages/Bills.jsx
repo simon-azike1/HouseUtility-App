@@ -229,40 +229,36 @@ const Bills = () => {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Total Bills</span>
-              <span className="text-2xl">📋</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Bills</span>
             </div>
-            <p className="text-3xl font-bold text-indigo-600">{stats.count}</p>
-            <p className="text-xs text-gray-500 mt-1">All bills tracked</p>
+            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{stats.count}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All bills tracked</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Pending</span>
-              <span className="text-2xl">⏳</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Pending</span>
             </div>
-            <p className="text-3xl font-bold text-yellow-600">{formatCurrency(stats.pendingAmount)}</p>
-            <p className="text-xs text-gray-500 mt-1">{stats.pending} bills</p>
+            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{formatCurrency(stats.pendingAmount)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stats.pending} bills</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">Overdue</span>
-              <span className="text-2xl">⚠️</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Overdue</span>
             </div>
-            <p className="text-3xl font-bold text-red-600">{formatCurrency(stats.overdueAmount)}</p>
-            <p className="text-xs text-gray-500 mt-1">{stats.overdue} bills</p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-400">{formatCurrency(stats.overdueAmount)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stats.overdue} bills</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm font-medium">This Month</span>
-              <span className="text-2xl">📅</span>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="mb-2">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">This Month</span>
             </div>
-            <p className="text-3xl font-bold text-purple-600">{formatCurrency(stats.thisMonth)}</p>
-            <p className="text-xs text-gray-500 mt-1">Due this month</p>
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(stats.thisMonth)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Due this month</p>
           </div>
         </div>
       )}
@@ -310,9 +306,8 @@ const Bills = () => {
 
         {bills.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-6xl mb-4">📅</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('bills.noBills')}</h3>
-            <p className="text-gray-600 mb-6">{t('bills.createFirst')}</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('bills.noBills')}</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{t('bills.createFirst')}</p>
             <button
               onClick={() => setShowModal(true)}
               className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"
