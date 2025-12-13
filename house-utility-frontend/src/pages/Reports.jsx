@@ -54,9 +54,11 @@ const Reports = () => {
 
   const fetchAllData = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
 
+      // Fetch all data (we'll filter client-side since backend doesn't support date filtering)
       const [contributions, expenses, bills, contribStats, expenseStats, billStats] = await Promise.all([
         axios.get('/contributions', { headers }),
         axios.get('/expenses', { headers }),
@@ -66,10 +68,25 @@ const Reports = () => {
         axios.get('/bills/stats', { headers })
       ]);
 
+      // Filter data based on date range
+      const filterByDate = (items, dateField) => {
+        return items.filter(item => {
+          const itemDate = new Date(item[dateField]);
+          const start = new Date(dateRange.startDate);
+          const end = new Date(dateRange.endDate);
+          end.setHours(23, 59, 59, 999); // Include the entire end date
+          return itemDate >= start && itemDate <= end;
+        });
+      };
+
+      const filteredContributions = filterByDate(contributions.data.data || [], 'date');
+      const filteredExpenses = filterByDate(expenses.data.data || [], 'expenseDate');
+      const filteredBills = filterByDate(bills.data.data || [], 'dueDate');
+
       setData({
-        contributions: contributions.data.data || [],
-        expenses: expenses.data.data || [],
-        bills: bills.data.data || [],
+        contributions: filteredContributions,
+        expenses: filteredExpenses,
+        bills: filteredBills,
         contributionStats: contribStats.data.data,
         expenseStats: expenseStats.data.data,
         billStats: billStats.data.data
@@ -330,40 +347,48 @@ const Reports = () => {
     <DashboardLayout>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('reports.title')}</h1>
-        <p className="text-gray-600">{t('reports.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('reports.title')}</h1>
+        <p className="text-gray-600 dark:text-gray-400">{t('reports.subtitle')}</p>
       </div>
 
       {/* Date Range Filter */}
-      <div className="bg-white rounded-2xl p-6 mb-8 border border-gray-100 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-8 border border-gray-100 dark:border-gray-700 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               {t('reports.startDate')}
             </label>
             <input
               type="date"
               value={dateRange.startDate}
               onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
             />
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               {t('reports.endDate')}
             </label>
             <input
               type="date"
               value={dateRange.endDate}
               onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
             />
           </div>
           <button
             onClick={fetchAllData}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+            disabled={loading}
+            className={`px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {t('reports.applyFilter')}
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                {t('common.loading')}
+              </>
+            ) : (
+              t('reports.applyFilter')
+            )}
           </button>
         </div>
       </div>
@@ -410,41 +435,41 @@ const Reports = () => {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Monthly Trend Chart */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.monthlyTrend')}</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('reports.monthlyTrend')}</h3>
           <div className="h-80">
             <Line data={getMonthlyTrendData()} options={chartOptions} />
           </div>
         </div>
 
         {/* Contributions vs Expenses */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.contributionsVsExpenses')}</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('reports.contributionsVsExpenses')}</h3>
           <div className="h-80">
             <Bar data={getComparisonData()} options={chartOptions} />
           </div>
         </div>
 
         {/* Expense Category Distribution */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.expenseByCategory')}</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('reports.expenseByCategory')}</h3>
           <div className="h-80 flex items-center justify-center">
             {Object.keys(data.expenseStats?.byCategory || {}).length > 0 ? (
               <Pie data={getExpenseCategoryData()} options={chartOptions} />
             ) : (
-              <p className="text-gray-500">{t('reports.noData')}</p>
+              <p className="text-gray-500 dark:text-gray-400">{t('reports.noData')}</p>
             )}
           </div>
         </div>
 
         {/* Bill Status */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('reports.billStatus')}</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('reports.billStatus')}</h3>
           <div className="h-80 flex items-center justify-center">
             {data.billStats && (data.billStats.pendingAmount > 0 || data.billStats.paidAmount > 0 || data.billStats.overdueAmount > 0) ? (
               <Doughnut data={getBillStatusData()} options={chartOptions} />
             ) : (
-              <p className="text-gray-500">{t('reports.noData')}</p>
+              <p className="text-gray-500 dark:text-gray-400">{t('reports.noData')}</p>
             )}
           </div>
         </div>

@@ -40,6 +40,9 @@ const DashboardLayout = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const { user, logout } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
@@ -168,6 +171,84 @@ const DashboardLayout = ({ children }) => {
     { name: t('nav.privacySecurity'), icon: Shield, href: '/privacy' },
     { name: t('nav.helpSupport'), icon: HelpCircle, href: '/help' },
   ];
+
+  // Handle search functionality
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    const lowerQuery = query.toLowerCase();
+    const results = [];
+
+    // Search through navigation items
+    navigation.forEach(item => {
+      if (item.name.toLowerCase().includes(lowerQuery)) {
+        results.push({
+          type: 'page',
+          title: item.name,
+          description: `Navigate to ${item.name}`,
+          icon: item.icon,
+          action: () => {
+            navigate(item.href);
+            setShowSearchResults(false);
+            setSearchQuery('');
+          }
+        });
+      }
+    });
+
+    // Search through profile menu items
+    profileMenuItems.forEach(item => {
+      if (item.name.toLowerCase().includes(lowerQuery)) {
+        results.push({
+          type: 'page',
+          title: item.name,
+          description: `Go to ${item.name}`,
+          icon: item.icon,
+          action: () => {
+            navigate(item.href);
+            setShowSearchResults(false);
+            setSearchQuery('');
+          }
+        });
+      }
+    });
+
+    // Add quick action suggestions
+    const quickActions = [
+      { keyword: 'add contribution', title: 'Add Contribution', description: 'Record a new payment', icon: DollarSign, path: '/contributions' },
+      { keyword: 'add expense', title: 'Add Expense', description: 'Log household expense', icon: FileText, path: '/expenses' },
+      { keyword: 'add bill', title: 'Add Bill', description: 'Schedule a new bill', icon: Calendar, path: '/bills' },
+      { keyword: 'view reports', title: 'View Reports', description: 'Analytics dashboard', icon: Calendar, path: '/reports' },
+      { keyword: 'manage members', title: 'Manage Members', description: 'View household members', icon: Users, path: '/members' },
+      { keyword: 'dark mode', title: 'Toggle Dark Mode', description: 'Switch theme', icon: darkMode ? Sun : Moon, path: null, action: toggleDarkMode },
+      { keyword: 'logout', title: 'Logout', description: 'Sign out of your account', icon: LogOut, path: null, action: handleLogout }
+    ];
+
+    quickActions.forEach(action => {
+      if (action.keyword.includes(lowerQuery) || action.title.toLowerCase().includes(lowerQuery)) {
+        results.push({
+          type: 'action',
+          title: action.title,
+          description: action.description,
+          icon: action.icon,
+          action: action.action || (() => {
+            navigate(action.path);
+            setShowSearchResults(false);
+            setSearchQuery('');
+          })
+        });
+      }
+    });
+
+    setSearchResults(results);
+    setShowSearchResults(results.length > 0);
+  };
 
   // Animation variants
   const sidebarVariants = {
@@ -398,9 +479,52 @@ const DashboardLayout = ({ children }) => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    onFocus={() => searchQuery && setShowSearchResults(true)}
+                    onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
+                    placeholder={t('common.search') || 'Search...'}
                     className="block w-64 pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
+
+                  {/* Search Results Dropdown */}
+                  <AnimatePresence>
+                    {showSearchResults && searchResults.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto"
+                      >
+                        <div className="p-2">
+                          {searchResults.map((result, index) => {
+                            const IconComponent = result.icon;
+                            return (
+                              <button
+                                key={index}
+                                onClick={result.action}
+                                className="w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-start gap-3 group"
+                              >
+                                {IconComponent && (
+                                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <IconComponent className="w-5 h-5 text-white" />
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                    {result.title}
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                    {result.description}
+                                  </p>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
