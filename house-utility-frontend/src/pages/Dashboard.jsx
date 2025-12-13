@@ -206,32 +206,32 @@ const Dashboard = () => {
   ];
 
   const quickActions = [
-    { 
-      name: 'Add Contribution', 
-      icon: Plus, 
+    {
+      name: t('dashboard.addContribution'),
+      icon: Plus,
       color: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
-      description: 'Record new payment',
+      description: t('dashboard.recordNewPayment'),
       path: '/contributions'
     },
-    { 
-      name: 'Record Expense', 
-      icon: FileText, 
+    {
+      name: t('dashboard.recordExpense'),
+      icon: FileText,
       color: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
-      description: 'Log household expense',
+      description: t('dashboard.logHouseholdExpense'),
       path: '/expenses'
     },
-    { 
-      name: 'Add Bill', 
-      icon: Calendar, 
+    {
+      name: t('dashboard.addBill'),
+      icon: Calendar,
       color: 'bg-gradient-to-r from-gray-800 to-black hover:from-black hover:to-gray-900',
-      description: 'Schedule new bill',
+      description: t('dashboard.scheduleNewBill'),
       path: '/bills'
     },
-    { 
-      name: 'View Reports', 
-      icon: BarChart3, 
+    {
+      name: t('dashboard.viewReports'),
+      icon: BarChart3,
       color: 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
-      description: 'Analytics dashboard',
+      description: t('dashboard.analyticsDashboard'),
       path: '/reports'
     },
   ];
@@ -377,7 +377,7 @@ const Dashboard = () => {
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl flex items-center justify-center">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Quick Actions</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t('dashboard.quickActions')}</h3>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -415,7 +415,7 @@ const Dashboard = () => {
               <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Upcoming Bills</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('dashboard.upcomingBills')}</h3>
             </div>
             
             <div className="space-y-4">
@@ -446,12 +446,12 @@ const Dashboard = () => {
                 })
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-gray-500 dark:text-gray-400">No upcoming bills</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t('dashboard.noUpcomingBills')}</p>
                   <button
                     onClick={() => navigate('/bills')}
                     className="mt-4 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
                   >
-                    Add your first bill →
+                    {t('dashboard.addYourFirstBill')} →
                   </button>
                 </div>
               )}
@@ -468,7 +468,7 @@ const Dashboard = () => {
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
               <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Activity</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t('dashboard.recentActivity')}</h3>
           </div>
           
           <div className="space-y-4">
@@ -516,15 +516,20 @@ const Dashboard = () => {
                   <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
                     <Sparkles className="w-6 h-6 text-blue-400" />
                   </div>
-                  <h3 className="text-3xl font-bold">Building Something Amazing!</h3>
+                  <h3 className="text-3xl font-bold">{t('dashboard.buildingSomethingAmazing')}</h3>
                 </div>
-                
+
                 <p className="text-gray-300 mb-6 text-lg leading-relaxed">
-                  We're working on exciting new features to make household management even easier and more intuitive.
+                  {t('dashboard.buildingDescription')}
                 </p>
-                
+
                 <div className="grid grid-cols-2 gap-3">
-                  {['Smart Analytics', 'Auto Bill Reminders', 'Expense Insights', 'Mobile App'].map((feat, i) => (
+                  {[
+                    t('dashboard.smartAnalytics'),
+                    t('dashboard.autoBillReminders'),
+                    t('dashboard.expenseInsights'),
+                    t('dashboard.mobileApp')
+                  ].map((feat, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, scale: 0.8 }}

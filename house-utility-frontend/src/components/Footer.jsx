@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import {
-  Home,
   Mail,
   Phone,
   MapPin,
@@ -21,8 +20,12 @@ const Footer = () => {
           {/* Brand & Description */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Home className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                <img
+                  src="/images/logo.png"
+                  alt="UTIL Logo"
+                  className="w-10 h-10 object-contain brightness-150 contrast-125"
+                />
               </div>
               <span className="text-2xl font-bold text-white">UTIL</span>
             </div>

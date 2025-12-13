@@ -153,20 +153,20 @@ const DashboardLayout = ({ children }) => {
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, current: location.pathname === '/dashboard' },
-    { name: 'Contributions', href: '/contributions', icon: DollarSign, current: location.pathname === '/contributions' },
-    { name: 'Expenses', href: '/expenses', icon: FileText, current: location.pathname === '/expenses' },
-    { name: 'Bills', href: '/bills', icon: Calendar, current: location.pathname === '/bills' },
-    { name: 'Reports', href: '/reports', icon: Calendar, current: location.pathname === '/reports' },
-    { name: 'Members', href: '/members', icon: Users, current: location.pathname === '/members' },
-    { name: 'Settings', href: '/account', icon: Settings, current: location.pathname === '/account' },
+    { name: t('nav.dashboard'), href: '/dashboard', icon: Home, current: location.pathname === '/dashboard' },
+    { name: t('nav.contributions'), href: '/contributions', icon: DollarSign, current: location.pathname === '/contributions' },
+    { name: t('nav.expenses'), href: '/expenses', icon: FileText, current: location.pathname === '/expenses' },
+    { name: t('nav.bills'), href: '/bills', icon: Calendar, current: location.pathname === '/bills' },
+    { name: t('nav.reports'), href: '/reports', icon: Calendar, current: location.pathname === '/reports' },
+    { name: t('nav.members'), href: '/members', icon: Users, current: location.pathname === '/members' },
+    { name: t('nav.settings'), href: '/account', icon: Settings, current: location.pathname === '/account' },
   ];
 
   const profileMenuItems = [
-    { name: 'Your Profile', icon: User, href: '/profile' },
-    { name: 'Account Settings', icon: Settings, href: '/account' },
-    { name: 'Privacy & Security', icon: Shield, href: '/privacy' },
-    { name: 'Help & Support', icon: HelpCircle, href: '/help' },
+    { name: t('nav.profile'), icon: User, href: '/profile' },
+    { name: t('nav.accountSettings'), icon: Settings, href: '/account' },
+    { name: t('nav.privacySecurity'), icon: Shield, href: '/privacy' },
+    { name: t('nav.helpSupport'), icon: HelpCircle, href: '/help' },
   ];
 
   // Animation variants
@@ -220,8 +220,12 @@ const DashboardLayout = ({ children }) => {
             <Link to="/" className="flex items-center gap-4 px-6 py-6 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                  <Zap className="w-6 h-6 text-white dark:text-black" />
+                <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-gray-700 dark:via-gray-600 dark:to-gray-800 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden">
+                  <img
+                    src="/images/logo.png"
+                    alt="UTIL Logo"
+                    className="w-10 h-10 object-contain brightness-150 contrast-125 dark:brightness-200"
+                  />
                 </div>
               </div>
               <div>
@@ -300,8 +304,12 @@ const DashboardLayout = ({ children }) => {
                   <Link to="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-4 hover:opacity-80 transition-opacity group">
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                      <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-100 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                        <Zap className="w-6 h-6 text-white dark:text-black" />
+                      <div className="relative w-12 h-12 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-gray-700 dark:via-gray-600 dark:to-gray-800 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden">
+                        <img
+                          src="/images/logo.png"
+                          alt="UTIL Logo"
+                          className="w-10 h-10 object-contain brightness-150 contrast-125 dark:brightness-200"
+                        />
                       </div>
                     </div>
                     <div>

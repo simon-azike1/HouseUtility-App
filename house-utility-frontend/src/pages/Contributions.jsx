@@ -311,7 +311,7 @@ const Contributions = () => {
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {editingId ? t('contributions.editContribution') : t('contributions.addNewContribution')}
+                  {editingId ? t('contributions.editContribution') : t('contributions.addNew')}
                 </h2>
                 <button
                   onClick={() => {

@@ -12,9 +12,13 @@ const resources = {
         expenses: 'Expenses',
         contributions: 'Contributions',
         reports: 'Reports',
+        members: 'Members',
         household: 'Household',
         settings: 'Settings',
-        profile: 'Profile',
+        profile: 'Your Profile',
+        accountSettings: 'Account Settings',
+        privacySecurity: 'Privacy & Security',
+        helpSupport: 'Help & Support',
         logout: 'Logout'
       },
       // Dashboard
@@ -36,10 +40,22 @@ const resources = {
         recordExpense: 'Record Expense',
         addBill: 'Add Bill',
         viewReports: 'View Reports',
+        recordNewPayment: 'Record new payment',
+        logHouseholdExpense: 'Log household expense',
+        scheduleNewBill: 'Schedule new bill',
+        analyticsDashboard: 'Analytics dashboard',
         upcomingBills: 'Upcoming Bills',
         noBills: 'No upcoming bills',
+        noUpcomingBills: 'No upcoming bills',
+        addYourFirstBill: 'Add your first bill',
         recentActivity: 'Recent Activity',
-        noActivity: 'No recent activity'
+        noActivity: 'No recent activity',
+        buildingSomethingAmazing: 'Building Something Amazing!',
+        buildingDescription: "We're working on exciting new features to make household management even easier and more intuitive.",
+        smartAnalytics: 'Smart Analytics',
+        autoBillReminders: 'Auto Bill Reminders',
+        expenseInsights: 'Expense Insights',
+        mobileApp: 'Mobile App'
       },
       // Common
       common: {
@@ -125,6 +141,7 @@ const resources = {
       contributions: {
         title: 'Contributions',
         addNew: 'Add New Contribution',
+        editContribution: 'Edit Contribution',
         noContributions: 'No contributions yet',
         createFirst: 'Add your first contribution',
         contributor: 'Contributor',
@@ -513,9 +530,13 @@ const resources = {
         expenses: 'Dépenses',
         contributions: 'Contributions',
         reports: 'Rapports',
+        members: 'Membres',
         household: 'Ménage',
         settings: 'Paramètres',
-        profile: 'Profil',
+        profile: 'Votre Profil',
+        accountSettings: 'Paramètres du Compte',
+        privacySecurity: 'Confidentialité et Sécurité',
+        helpSupport: 'Aide et Support',
         logout: 'Déconnexion'
       },
       dashboard: {
@@ -536,10 +557,22 @@ const resources = {
         recordExpense: 'Enregistrer une Dépense',
         addBill: 'Ajouter une Facture',
         viewReports: 'Voir les Rapports',
+        recordNewPayment: 'Enregistrer un nouveau paiement',
+        logHouseholdExpense: 'Enregistrer une dépense du ménage',
+        scheduleNewBill: 'Programmer une nouvelle facture',
+        analyticsDashboard: 'Tableau de bord analytique',
         upcomingBills: 'Factures à Venir',
         noBills: 'Aucune facture à venir',
+        noUpcomingBills: 'Aucune facture à venir',
+        addYourFirstBill: 'Ajoutez votre première facture',
         recentActivity: 'Activité Récente',
-        noActivity: 'Aucune activité récente'
+        noActivity: 'Aucune activité récente',
+        buildingSomethingAmazing: 'Construire quelque chose d\'incroyable!',
+        buildingDescription: 'Nous travaillons sur de nouvelles fonctionnalités passionnantes pour rendre la gestion du ménage encore plus facile et intuitive.',
+        smartAnalytics: 'Analyses Intelligentes',
+        autoBillReminders: 'Rappels Automatiques de Factures',
+        expenseInsights: 'Aperçus des Dépenses',
+        mobileApp: 'Application Mobile'
       },
       common: {
         save: 'Enregistrer les Modifications',
@@ -620,6 +653,7 @@ const resources = {
       contributions: {
         title: 'Contributions',
         addNew: 'Ajouter une Contribution',
+        editContribution: 'Modifier la Contribution',
         noContributions: 'Aucune contribution',
         createFirst: 'Ajoutez votre première contribution',
         contributor: 'Contributeur',
@@ -1005,9 +1039,13 @@ const resources = {
         expenses: 'المصروفات',
         contributions: 'المساهمات',
         reports: 'التقارير',
+        members: 'الأعضاء',
         household: 'الأسرة',
         settings: 'الإعدادات',
-        profile: 'الملف الشخصي',
+        profile: 'ملفك الشخصي',
+        accountSettings: 'إعدادات الحساب',
+        privacySecurity: 'الخصوصية والأمان',
+        helpSupport: 'المساعدة والدعم',
         logout: 'تسجيل الخروج'
       },
       dashboard: {
@@ -1028,10 +1066,22 @@ const resources = {
         recordExpense: 'تسجيل مصروف',
         addBill: 'إضافة فاتورة',
         viewReports: 'عرض التقارير',
+        recordNewPayment: 'تسجيل دفعة جديدة',
+        logHouseholdExpense: 'تسجيل مصروف المنزل',
+        scheduleNewBill: 'جدولة فاتورة جديدة',
+        analyticsDashboard: 'لوحة التحليلات',
         upcomingBills: 'الفواتير القادمة',
         noBills: 'لا توجد فواتير قادمة',
+        noUpcomingBills: 'لا توجد فواتير قادمة',
+        addYourFirstBill: 'أضف فاتورتك الأولى',
         recentActivity: 'النشاط الأخير',
-        noActivity: 'لا يوجد نشاط حديث'
+        noActivity: 'لا يوجد نشاط حديث',
+        buildingSomethingAmazing: 'نبني شيئاً مذهلاً!',
+        buildingDescription: 'نحن نعمل على ميزات جديدة ومثيرة لجعل إدارة المنزل أسهل وأكثر سهولة.',
+        smartAnalytics: 'تحليلات ذكية',
+        autoBillReminders: 'تذكيرات تلقائية للفواتير',
+        expenseInsights: 'رؤى المصروفات',
+        mobileApp: 'تطبيق الجوال'
       },
       common: {
         save: 'حفظ التغييرات',
@@ -1112,6 +1162,7 @@ const resources = {
       contributions: {
         title: 'المساهمات',
         addNew: 'إضافة مساهمة جديدة',
+        editContribution: 'تعديل المساهمة',
         noContributions: 'لا توجد مساهمات',
         createFirst: 'أضف مساهمتك الأولى',
         contributor: 'المساهم',
@@ -1497,9 +1548,13 @@ const resources = {
         expenses: 'Gastos',
         contributions: 'Contribuciones',
         reports: 'Informes',
+        members: 'Miembros',
         household: 'Hogar',
         settings: 'Configuración',
-        profile: 'Perfil',
+        profile: 'Tu Perfil',
+        accountSettings: 'Configuración de la Cuenta',
+        privacySecurity: 'Privacidad y Seguridad',
+        helpSupport: 'Ayuda y Soporte',
         logout: 'Cerrar Sesión'
       },
       dashboard: {
@@ -1520,10 +1575,22 @@ const resources = {
         recordExpense: 'Registrar Gasto',
         addBill: 'Agregar Factura',
         viewReports: 'Ver Informes',
+        recordNewPayment: 'Registrar nuevo pago',
+        logHouseholdExpense: 'Registrar gasto del hogar',
+        scheduleNewBill: 'Programar nueva factura',
+        analyticsDashboard: 'Panel de análisis',
         upcomingBills: 'Próximas Facturas',
         noBills: 'No hay facturas próximas',
+        noUpcomingBills: 'No hay facturas próximas',
+        addYourFirstBill: 'Agrega tu primera factura',
         recentActivity: 'Actividad Reciente',
-        noActivity: 'No hay actividad reciente'
+        noActivity: 'No hay actividad reciente',
+        buildingSomethingAmazing: '¡Construyendo Algo Increíble!',
+        buildingDescription: 'Estamos trabajando en nuevas funciones emocionantes para hacer que la gestión del hogar sea aún más fácil e intuitiva.',
+        smartAnalytics: 'Análisis Inteligente',
+        autoBillReminders: 'Recordatorios Automáticos de Facturas',
+        expenseInsights: 'Perspectivas de Gastos',
+        mobileApp: 'Aplicación Móvil'
       },
       common: {
         save: 'Guardar Cambios',
@@ -1604,6 +1671,7 @@ const resources = {
       contributions: {
         title: 'Contribuciones',
         addNew: 'Agregar Nueva Contribución',
+        editContribution: 'Editar Contribución',
         noContributions: 'Sin contribuciones',
         createFirst: 'Agrega tu primera contribución',
         contributor: 'Contribuyente',

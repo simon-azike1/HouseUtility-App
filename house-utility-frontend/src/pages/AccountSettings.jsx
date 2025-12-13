@@ -152,7 +152,8 @@ const AccountSettings = () => {
     { code: 'MAD', name: 'Moroccan Dirham (MAD)', symbol: 'د.م.' },
     { code: 'USD', name: 'US Dollar (USD)', symbol: '$' },
     { code: 'EUR', name: 'Euro (EUR)', symbol: '€' },
-    { code: 'GBP', name: 'British Pound (GBP)', symbol: '£' }
+    { code: 'GBP', name: 'British Pound (GBP)', symbol: '£' },
+    { code: 'NGN', name: 'Nigerian Naira (NGN)', symbol: '₦' }
   ];
 
   const timezones = [

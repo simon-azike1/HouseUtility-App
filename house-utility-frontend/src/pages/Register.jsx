@@ -126,8 +126,12 @@ const Register = () => {
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-4xl rounded-2xl mb-4 shadow-lg shadow-blue-500/30 dark:shadow-blue-500/20">
-            🏠
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-black via-gray-800 to-gray-900 dark:from-gray-700 dark:via-gray-600 dark:to-gray-800 rounded-2xl mb-4 shadow-lg shadow-blue-500/30 dark:shadow-blue-500/20 overflow-hidden">
+            <img
+              src="/images/logo.png"
+              alt="UTIL Logo"
+              className="w-16 h-16 object-contain brightness-150 contrast-125 dark:brightness-200"
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {inviteCode ? t('register.joinHousehold') : t('register.createAccount')}

@@ -93,7 +93,8 @@ export const PreferencesProvider = ({ children }) => {
       MAD: 'د.م.',
       USD: '$',
       EUR: '€',
-      GBP: '£'
+      GBP: '£',
+      NGN: '₦'
     };
 
     const symbol = currencySymbols[preferences.currency] || preferences.currency;
