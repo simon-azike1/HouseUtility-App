@@ -232,16 +232,11 @@ const Profile = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.put('/auth/change-password',
-        {
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      // ✅ Use api instance which already has the token interceptor
+      await api.put('/auth/change-password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
 
       setMessage({ type: 'success', text: 'Password changed successfully!' });
       setPasswordData({
@@ -288,10 +283,9 @@ const Profile = () => {
       const formData = new FormData();
       formData.append('profilePicture', file);
 
-      const token = localStorage.getItem('token');
-      const response = await axios.post('/auth/upload-profile-picture', formData, {
+      // ✅ Use api instance which already has the token interceptor
+      const response = await api.post('/auth/upload-profile-picture', formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });

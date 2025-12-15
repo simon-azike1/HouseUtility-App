@@ -208,28 +208,28 @@ const Dashboard = () => {
   const quickActions = [
     {
       name: t('dashboard.addContribution'),
-      icon: Plus,
+      icon: null, // ✅ Use UTIL logo instead
       color: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
       description: t('dashboard.recordNewPayment'),
       path: '/contributions'
     },
     {
       name: t('dashboard.recordExpense'),
-      icon: FileText,
+      icon: null, // ✅ Use UTIL logo instead
       color: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
       description: t('dashboard.logHouseholdExpense'),
       path: '/expenses'
     },
     {
       name: t('dashboard.addBill'),
-      icon: Calendar,
+      icon: null, // ✅ Use UTIL logo instead
       color: 'bg-gradient-to-r from-gray-800 to-black hover:from-black hover:to-gray-900',
       description: t('dashboard.scheduleNewBill'),
       path: '/bills'
     },
     {
       name: t('dashboard.viewReports'),
-      icon: BarChart3,
+      icon: null, // ✅ Use UTIL logo instead
       color: 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
       description: t('dashboard.analyticsDashboard'),
       path: '/reports'
@@ -382,7 +382,6 @@ const Dashboard = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {quickActions.map((action, index) => {
-                const IconComponent = action.icon;
                 return (
                   <motion.button
                     key={index}
@@ -393,7 +392,14 @@ const Dashboard = () => {
                     className={`${action.color} text-white p-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl group`}
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <IconComponent className="w-8 h-8 group-hover:scale-110 transition-transform" />
+                      {/* ✅ UTIL Logo instead of icon */}
+                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform">
+                        <img
+                          src="/images/logo.png"
+                          alt="UTIL"
+                          className="w-8 h-8 object-contain brightness-150 contrast-125"
+                        />
+                      </div>
                       <ArrowUpRight className="w-5 h-5 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                     </div>
                     <div className="text-left">
