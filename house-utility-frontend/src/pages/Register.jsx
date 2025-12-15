@@ -23,6 +23,14 @@ const Register = () => {
 
   const { register } = useAuth();
 
+  // ✅ Clear any stale localStorage data on mount to prevent caching issues
+  useEffect(() => {
+    // Only clear token and user, keep pendingVerificationEmail and pendingInviteCode if they exist
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    console.log('🧹 Cleared stale auth data from localStorage');
+  }, []);
+
   const calculatePasswordStrength = (password) => {
     let strength = 0;
     if (password.length >= 8) strength++;
