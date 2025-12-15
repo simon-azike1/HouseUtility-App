@@ -27,6 +27,7 @@ import PrivacySecurity from './pages/PrivacySecurity';
 import LegalPrivacy from './pages/LegalPrivacy';
 import LegalTerms from './pages/LegalTerms';
 import LegalCookies from './pages/LegalCookies';
+import Onboarding from './pages/Onboarding';
 
 // Redirect authenticated users away from auth pages
 const PublicRoute = ({ children }) => {
@@ -72,6 +73,16 @@ function AppRoutes() {
       {/* ✅ Email Verification Routes */}
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/verify-success" element={<VerifySuccess />} />
+
+      {/* ✅ Onboarding Route - Must be before dashboard */}
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Protected Pages */}
       <Route

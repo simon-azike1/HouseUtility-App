@@ -24,6 +24,7 @@ const resources = {
       // Dashboard
       dashboard: {
         welcome: 'Welcome back',
+        welcomeFirst: 'Welcome',
         overview: "Here's your household overview for today",
         totalBalance: 'Total Balance',
         monthlyExpenses: 'Monthly Expenses',
@@ -119,7 +120,9 @@ const resources = {
       // Expenses
       expenses: {
         title: 'Expenses',
+        subtitle: 'Track and manage your household expenses',
         addNew: 'Add New Expense',
+        recentExpenses: 'Recent Expenses',
         noExpenses: 'No expenses yet',
         createFirst: 'Start tracking your expenses',
         expenseTitle: 'Expense Title',
@@ -133,17 +136,26 @@ const resources = {
         entertainment: 'Entertainment',
         utilities: 'Utilities',
         other: 'Other',
+        totalExpenses: 'Total Expenses',
         totalSpent: 'Total Spent',
         thisMonth: 'This Month',
-        lastMonth: 'Last Month'
+        lastMonth: 'Last Month',
+        thisYear: 'This Year',
+        transactions: 'transactions',
+        currentPeriod: 'current period',
+        previousPeriod: 'previous period',
+        annualTotal: 'annual total'
       },
       // Contributions
       contributions: {
         title: 'Contributions',
+        subtitle: 'Track and manage household contributions',
         addNew: 'Add New Contribution',
         editContribution: 'Edit Contribution',
         noContributions: 'No contributions yet',
-        createFirst: 'Add your first contribution',
+        startTracking: 'Start tracking your contributions',
+        addFirst: 'Add First Contribution',
+        recentContributions: 'Recent Contributions',
         contributor: 'Contributor',
         amount: 'Amount',
         date: 'Date',
@@ -151,8 +163,13 @@ const resources = {
         actions: 'Actions',
         totalContributions: 'Total Contributions',
         thisMonth: 'This Month',
+        lastMonth: 'Last Month',
         members: 'Members',
-        average: 'Average per Member'
+        average: 'Average per Member',
+        transactions: 'transactions',
+        currentPeriod: 'current period',
+        previousPeriod: 'previous period',
+        perTransaction: 'per transaction'
       },
       // Reports
       reports: {
@@ -541,6 +558,7 @@ const resources = {
       },
       dashboard: {
         welcome: 'Bon retour',
+        welcomeFirst: 'Bienvenue',
         overview: 'Voici votre aperçu du ménage pour aujourd\'hui',
         totalBalance: 'Solde Total',
         monthlyExpenses: 'Dépenses Mensuelles',
@@ -632,7 +650,9 @@ const resources = {
       },
       expenses: {
         title: 'Dépenses',
+        subtitle: 'Suivez et gérez vos dépenses domestiques',
         addNew: 'Ajouter une Dépense',
+        recentExpenses: 'Dépenses Récentes',
         noExpenses: 'Aucune dépense',
         createFirst: 'Commencez à suivre vos dépenses',
         expenseTitle: 'Titre de la Dépense',
@@ -646,16 +666,25 @@ const resources = {
         entertainment: 'Divertissement',
         utilities: 'Services Publics',
         other: 'Autre',
+        totalExpenses: 'Total des Dépenses',
         totalSpent: 'Total Dépensé',
         thisMonth: 'Ce Mois',
-        lastMonth: 'Mois Dernier'
+        lastMonth: 'Mois Dernier',
+        thisYear: 'Cette Année',
+        transactions: 'transactions',
+        currentPeriod: 'période actuelle',
+        previousPeriod: 'période précédente',
+        annualTotal: 'total annuel'
       },
       contributions: {
         title: 'Contributions',
+        subtitle: 'Suivez et gérez les contributions du ménage',
         addNew: 'Ajouter une Contribution',
         editContribution: 'Modifier la Contribution',
         noContributions: 'Aucune contribution',
-        createFirst: 'Ajoutez votre première contribution',
+        startTracking: 'Commencez à suivre vos contributions',
+        addFirst: 'Ajouter Première Contribution',
+        recentContributions: 'Contributions Récentes',
         contributor: 'Contributeur',
         amount: 'Montant',
         date: 'Date',
@@ -663,8 +692,13 @@ const resources = {
         actions: 'Actions',
         totalContributions: 'Total des Contributions',
         thisMonth: 'Ce Mois',
+        lastMonth: 'Mois Dernier',
         members: 'Membres',
-        average: 'Moyenne par Membre'
+        average: 'Moyenne par Membre',
+        transactions: 'transactions',
+        currentPeriod: 'période actuelle',
+        previousPeriod: 'période précédente',
+        perTransaction: 'par transaction'
       },
       reports: {
         title: 'Rapports et Analyses',
@@ -1050,6 +1084,7 @@ const resources = {
       },
       dashboard: {
         welcome: 'مرحباً بعودتك',
+        welcomeFirst: 'مرحباً',
         overview: 'إليك نظرة عامة على أسرتك لهذا اليوم',
         totalBalance: 'الرصيد الإجمالي',
         monthlyExpenses: 'المصروفات الشهرية',
@@ -1141,7 +1176,9 @@ const resources = {
       },
       expenses: {
         title: 'المصروفات',
+        subtitle: 'تتبع وإدارة مصروفات منزلك',
         addNew: 'إضافة مصروف جديد',
+        recentExpenses: 'المصروفات الأخيرة',
         noExpenses: 'لا توجد مصروفات',
         createFirst: 'ابدأ بتتبع مصروفاتك',
         expenseTitle: 'عنوان المصروف',
@@ -1155,16 +1192,25 @@ const resources = {
         entertainment: 'ترفيه',
         utilities: 'خدمات',
         other: 'أخرى',
+        totalExpenses: 'إجمالي المصروفات',
         totalSpent: 'إجمالي الإنفاق',
         thisMonth: 'هذا الشهر',
-        lastMonth: 'الشهر الماضي'
+        lastMonth: 'الشهر الماضي',
+        thisYear: 'هذه السنة',
+        transactions: 'معاملات',
+        currentPeriod: 'الفترة الحالية',
+        previousPeriod: 'الفترة السابقة',
+        annualTotal: 'المجموع السنوي'
       },
       contributions: {
         title: 'المساهمات',
+        subtitle: 'تتبع وإدارة مساهمات الأسرة',
         addNew: 'إضافة مساهمة جديدة',
         editContribution: 'تعديل المساهمة',
         noContributions: 'لا توجد مساهمات',
-        createFirst: 'أضف مساهمتك الأولى',
+        startTracking: 'ابدأ في تتبع مساهماتك',
+        addFirst: 'إضافة المساهمة الأولى',
+        recentContributions: 'المساهمات الأخيرة',
         contributor: 'المساهم',
         amount: 'المبلغ',
         date: 'التاريخ',
@@ -1172,8 +1218,13 @@ const resources = {
         actions: 'الإجراءات',
         totalContributions: 'إجمالي المساهمات',
         thisMonth: 'هذا الشهر',
+        lastMonth: 'الشهر الماضي',
         members: 'الأعضاء',
-        average: 'المتوسط لكل عضو'
+        average: 'المتوسط لكل عضو',
+        transactions: 'معاملات',
+        currentPeriod: 'الفترة الحالية',
+        previousPeriod: 'الفترة السابقة',
+        perTransaction: 'لكل معاملة'
       },
       reports: {
         title: 'التقارير والتحليلات',
@@ -1559,6 +1610,7 @@ const resources = {
       },
       dashboard: {
         welcome: 'Bienvenido de nuevo',
+        welcomeFirst: 'Bienvenido',
         overview: 'Aquí está tu resumen del hogar para hoy',
         totalBalance: 'Balance Total',
         monthlyExpenses: 'Gastos Mensuales',
@@ -1650,7 +1702,9 @@ const resources = {
       },
       expenses: {
         title: 'Gastos',
+        subtitle: 'Rastrea y administra los gastos de tu hogar',
         addNew: 'Agregar Nuevo Gasto',
+        recentExpenses: 'Gastos Recientes',
         noExpenses: 'Sin gastos',
         createFirst: 'Comienza a seguir tus gastos',
         expenseTitle: 'Título del Gasto',
@@ -1664,16 +1718,25 @@ const resources = {
         entertainment: 'Entretenimiento',
         utilities: 'Servicios',
         other: 'Otro',
+        totalExpenses: 'Total de Gastos',
         totalSpent: 'Total Gastado',
         thisMonth: 'Este Mes',
-        lastMonth: 'Mes Pasado'
+        lastMonth: 'Mes Pasado',
+        thisYear: 'Este Año',
+        transactions: 'transacciones',
+        currentPeriod: 'período actual',
+        previousPeriod: 'período anterior',
+        annualTotal: 'total anual'
       },
       contributions: {
         title: 'Contribuciones',
+        subtitle: 'Rastrea y gestiona las contribuciones del hogar',
         addNew: 'Agregar Nueva Contribución',
         editContribution: 'Editar Contribución',
         noContributions: 'Sin contribuciones',
-        createFirst: 'Agrega tu primera contribución',
+        startTracking: 'Comienza a rastrear tus contribuciones',
+        addFirst: 'Agregar Primera Contribución',
+        recentContributions: 'Contribuciones Recientes',
         contributor: 'Contribuyente',
         amount: 'Monto',
         date: 'Fecha',
@@ -1681,8 +1744,13 @@ const resources = {
         actions: 'Acciones',
         totalContributions: 'Total de Contribuciones',
         thisMonth: 'Este Mes',
+        lastMonth: 'Mes Pasado',
         members: 'Miembros',
-        average: 'Promedio por Miembro'
+        average: 'Promedio por Miembro',
+        transactions: 'transacciones',
+        currentPeriod: 'período actual',
+        previousPeriod: 'período anterior',
+        perTransaction: 'por transacción'
       },
       reports: {
         title: 'Informes y Análisis',

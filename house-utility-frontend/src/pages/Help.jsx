@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import {
   HelpCircle,
@@ -16,10 +17,13 @@ import {
   Home,
   CreditCard,
   Settings,
-  ShieldCheck
+  ShieldCheck,
+  PlayCircle,
+  Video
 } from 'lucide-react';
 
 const Help = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
 
@@ -225,6 +229,35 @@ const Help = () => {
               placeholder="Search for help..."
               className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-lg shadow-sm"
             />
+          </div>
+        </motion.div>
+
+        {/* Onboarding Video Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="bg-gradient-to-br from-indigo-600 to-blue-600 rounded-2xl p-8 border border-indigo-100 shadow-lg"
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex-shrink-0">
+                <Video className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Onboarding Tutorial Video</h2>
+                <p className="text-indigo-100 text-base leading-relaxed">
+                  Watch our comprehensive tutorial to learn how to use UTIL effectively. Perfect for new users or anyone who needs a refresher on the platform's features.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/onboarding')}
+              className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 transition-all shadow-lg hover:scale-105 whitespace-nowrap"
+            >
+              <PlayCircle className="w-5 h-5" />
+              Watch Tutorial
+            </button>
           </div>
         </motion.div>
 

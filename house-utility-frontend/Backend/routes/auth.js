@@ -36,6 +36,16 @@ router.get('/settings', protect, getSettings);
 router.put('/settings', protect, updateSettings);
 router.get('/verification-status', checkVerificationStatus);
 router.post('/resend-verification', resendVerification);
+router.put('/complete-onboarding', protect, async (req, res) => {
+  try {
+    const user = await import('../models/User.js').then(m => m.default);
+    await user.findByIdAndUpdate(req.user.id, { hasCompletedOnboarding: true });
+    res.json({ success: true, message: 'Onboarding completed' });
+  } catch (error) {
+    console.error('Error completing onboarding:', error);
+    res.status(500).json({ success: false, message: 'Failed to complete onboarding' });
+  }
+});
 
 // ============================================
 // ✅ GOOGLE OAUTH ROUTES WITH ENVIRONMENT VARIABLES

@@ -16,11 +16,12 @@ export const register = async (req, res) => {
     }
 
     // ✅ Create unverified user
-    const user = await User.create({ 
-      name, 
-      email, 
+    const user = await User.create({
+      name,
+      email,
       password,
-      isVerified: false // Explicitly set as unverified
+      isVerified: false, // Explicitly set as unverified
+      hasCompletedOnboarding: false // ✅ New users must watch onboarding
     });
 
     // ✅ Don't generate token yet - user needs to verify first
@@ -66,6 +67,18 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    // ✅ For existing users created before onboarding feature, set hasCompletedOnboarding to true
+    if (user.hasCompletedOnboarding === undefined || user.hasCompletedOnboarding === null) {
+      user.hasCompletedOnboarding = true;
+    }
+
+    // ✅ Track if this is first login (for welcome message)
+    const isFirstLogin = !user.lastLogin;
+
+    // ✅ Update last login time
+    user.lastLogin = new Date();
+    await user.save();
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     res.json({
@@ -79,6 +92,8 @@ export const login = async (req, res) => {
         isVerified: user.isVerified,
         household: user.household,
         householdRole: user.householdRole,
+        hasCompletedOnboarding: user.hasCompletedOnboarding, // ✅ Include in response
+        isFirstLogin: isFirstLogin, // ✅ Flag for welcome message
       }
     });
   } catch (err) {

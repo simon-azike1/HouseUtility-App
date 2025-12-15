@@ -371,7 +371,7 @@ const Expenses = () => {
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {editingId ? t('expenses.editExpense') : t('expenses.addNewExpense')}
+                  {editingId ? 'Edit Expense' : t('expenses.addNew')}
                 </h2>
                 <button
                   onClick={() => {

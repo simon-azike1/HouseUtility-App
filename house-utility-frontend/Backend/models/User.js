@@ -53,6 +53,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  hasCompletedOnboarding: {
+    type: Boolean,
+    default: true  // ✅ Default true for existing users
+  },
+  lastLogin: {
+    type: Date,
+    default: null  // ✅ Track last login for welcome messages
+  },
   googleId: {
     type: String,
     sparse: true,

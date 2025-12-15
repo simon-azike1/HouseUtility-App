@@ -315,7 +315,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-3 mb-4">
               <div>
                 <h2 className="text-3xl font-bold">
-                  {t('dashboard.welcome')}, {user?.name?.split(' ')[0]}!
+                  {user?.isFirstLogin ? t('dashboard.welcomeFirst') : t('dashboard.welcome')}, {user?.name?.split(' ')[0]}!
                 </h2>
                 <p className="text-blue-100 text-lg">{t('dashboard.overview')}</p>
               </div>

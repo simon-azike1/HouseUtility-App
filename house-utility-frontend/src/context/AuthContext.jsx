@@ -148,6 +148,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     refreshUser, // ✅ Expose refresh function
+    updateUser: setUser, // ✅ Allow manual user updates
     isAuthenticated: !!user,
   };
 
