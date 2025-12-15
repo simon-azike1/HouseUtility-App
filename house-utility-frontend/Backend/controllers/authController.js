@@ -451,18 +451,18 @@ export const changePassword = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check current password
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    // Check current password using the model's comparePassword method
+    const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
 
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    // ✅ Set new password - the pre-save hook will hash it automatically
+    // Don't hash manually here to avoid double-hashing
+    user.password = newPassword;
     await user.save();
 
-    res.json({ message: 'Password changed successfully' });
+    res.json({ success: true, message: 'Password changed successfully' });
   } catch (err) {
     console.error('Password change error:', err);
     res.status(500).json({ message: 'Failed to change password', error: err.message });
