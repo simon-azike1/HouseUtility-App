@@ -310,7 +310,9 @@ const resources = {
         credentialsSecure: 'Your credentials are secure and encrypted',
         verifyEmailNow: 'Verify Your Email Now',
         emailPlaceholder: 'you@example.com',
-        passwordPlaceholder: '••••••••'
+        passwordPlaceholder: '••••••••',
+        orContinueWith: "or continue with email",
+        
       },
       // Register Page
       register: {

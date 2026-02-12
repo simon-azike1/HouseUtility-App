@@ -11,69 +11,54 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
-      passReqToCallback: true  // ✅ This passes req to the callback
+      callbackURL:
+        process.env.GOOGLE_CALLBACK_URL ||
+        "http://localhost:5000/api/auth/google/callback",
+      passReqToCallback: true,
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('🔍 PASSPORT STRATEGY EXECUTED');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
-        console.log('📦 Google Profile:', JSON.stringify(profile, null, 2));
-        console.log('📧 Session email:', req.session?.pendingVerificationEmail);
-        // Extract email from Google profile
-        const googleEmail = profile.emails?.[0]?.value || profile._json?.email;
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        console.log("🔍 PASSPORT STRATEGY EXECUTED");
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+        const googleEmail =
+          profile.emails?.[0]?.value || profile._json?.email;
 
         if (!googleEmail) {
-          console.error('❌ No email in Google profile!');
-          return done(null, false, { message: 'No email from Google' });
+          console.error("❌ No email returned by Google");
+          return done(null, false);
         }
 
-        console.log('✅ Google email extracted:', googleEmail);
+        console.log("✅ Google email:", googleEmail);
 
-        // Get pending email from session
-        const pendingEmail = req.session?.pendingVerificationEmail;
-        
-        console.log('✅ Pending email from session:', pendingEmail);
+        // 🔥 IMPORTANT FIX:
+        // If pending email exists, use it
+        // Otherwise fall back to Google email (Yahoo-safe)
+        const pendingEmail =
+          req.session?.pendingVerificationEmail || googleEmail;
 
-        // Create user object to pass to callback
+        console.log("✅ Final email used:", pendingEmail);
+
         const user = {
-          googleProfile: profile,
+          provider: "google",
+          providerId: profile.id,
+          email: pendingEmail,          // ← Yahoo works here
           googleEmail: googleEmail,
-          pendingEmail: pendingEmail,
           displayName: profile.displayName,
-          id: profile.id
+          avatar: profile.photos?.[0]?.value,
+          emailVerified: true,           // ← Google already verified it
         };
 
-        console.log('✅ User object created:', JSON.stringify(user, null, 2));
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log("✅ User object:", user);
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         return done(null, user);
-
       } catch (error) {
-        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.error('❌ PASSPORT STRATEGY ERROR:');
-        console.error(error);
-        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.error("❌ PASSPORT ERROR:", error);
         return done(error, null);
       }
     }
   )
 );
-
-// Serialize user
-passport.serializeUser((user, done) => {
-  console.log('📝 Serializing user:', user);
-  done(null, user);
-});
-
-// Deserialize user
-passport.deserializeUser((user, done) => {
-  console.log('📖 Deserializing user:', user);
-  done(null, user);
-});
-
-console.log('✅ Passport configured successfully');
-
 export default passport;

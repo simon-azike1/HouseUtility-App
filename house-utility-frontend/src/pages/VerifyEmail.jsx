@@ -1,14 +1,27 @@
-// frontend/src/pages/VerifyEmail.jsx - FIXED
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { authAPI } from '../../services/api';
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [status, setStatus] = useState('idle'); // idle, verifying, success, error
+  const [message, setMessage] = useState('');
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
+    // ✅ CHECK FOR TOKEN FIRST (email link verification)
+    const token = searchParams.get('token');
+    
+    if (token) {
+      // Token-based verification (from email link)
+      verifyEmailWithToken(token);
+      return;
+    }
+
+    // ✅ FALLBACK TO GOOGLE OAUTH FLOW
     // Get email from URL params or localStorage
     const urlEmail = searchParams.get('email');
     const storedEmail = localStorage.getItem('pendingVerificationEmail');
@@ -53,7 +66,58 @@ const VerifyEmail = () => {
     }
   }, [searchParams]);
 
-  // ✅ FIXED: Correct redirect URL with invite code support
+  // ✅ TOKEN-BASED VERIFICATION (from email link)
+  // ✅ TOKEN-BASED VERIFICATION (from email link)
+  const verifyEmailWithToken = async (token) => {
+    setStatus('verifying');
+    try {
+      // ✅ Get invite code from localStorage
+      const inviteCode = localStorage.getItem('pendingInviteCode');
+      
+      console.log('🔍 Verifying with token:', token);
+      console.log('📝 Invite code:', inviteCode || 'none');
+      
+      // ✅ Send both token AND inviteCode
+      const response = await authAPI.verifyEmail(token, inviteCode);
+      
+      setStatus('success');
+      setMessage(response.data.message);
+      setEmail(response.data.email || '');
+      
+      // ✅ Clean up invite code from localStorage
+      localStorage.removeItem('pendingInviteCode');
+      
+      // Redirect to login after 3 seconds
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (err) {
+      setStatus('error');
+      setMessage(err.response?.data?.message || 'Verification failed');
+      const emailParam = searchParams.get('email');
+      if (emailParam) setEmail(emailParam);
+    }
+  };
+
+  // ✅ RESEND VERIFICATION EMAIL
+  const resendVerification = async () => {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    setResending(true);
+    try {
+      const response = await authAPI.resendVerification(email);
+      setMessage(response.data.message);
+      setError('');
+      alert('Verification email sent! Please check your inbox.');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to resend email');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // ✅ GOOGLE OAUTH VERIFICATION
   const handleVerifyWithGoogle = () => {
     if (!email) {
       setError('Email not found. Please register again.');
@@ -62,41 +126,121 @@ const VerifyEmail = () => {
 
     console.log('🚀 Starting verification for:', email);
 
-    // Get invite code from localStorage
     const inviteCode = localStorage.getItem('pendingInviteCode');
-
-    // ✅ CORRECT URL - No /undefined/
     const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     let redirectUrl = `${backendUrl}/api/auth/google/verify?email=${encodeURIComponent(email)}`;
 
-    // Add invite code if present
     if (inviteCode) {
       redirectUrl += `&inviteCode=${encodeURIComponent(inviteCode)}`;
       console.log('📝 Including invite code:', inviteCode);
     }
 
     console.log('🔗 Redirecting to:', redirectUrl);
-
-    // Redirect to backend Google OAuth route
     window.location.href = redirectUrl;
   };
 
+  // ✅ RENDER: Token verification in progress
+  if (status === 'verifying') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-6"></div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Verifying Your Email</h2>
+            <p className="text-gray-600 dark:text-gray-400">Please wait while we verify your email address...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ RENDER: Verification successful
+  if (status === 'success') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Email Verified! 🎉</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{message}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">Redirecting to login in 3 seconds...</p>
+            
+            <Link 
+              to="/login"
+              className="mt-6 inline-block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all"
+            >
+              Go to Login Now
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ RENDER: Token verification failed - show resend option
+  if (status === 'error') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Verification Failed</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
+            
+            <div className="space-y-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              />
+              <button
+                onClick={resendVerification}
+                disabled={resending}
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {resending ? 'Sending...' : 'Resend Verification Email'}
+              </button>
+              
+              <Link 
+                to="/login"
+                className="block text-center text-blue-600 dark:text-blue-400 hover:underline text-sm"
+              >
+                Back to Login
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ RENDER: Default - Google OAuth verification flow
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-green-600 text-white text-4xl rounded-2xl mb-4 shadow-lg shadow-blue-500/30">
             📧
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
-          <p className="text-gray-600">
-            We need to verify that you own this email address
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Verify Your Email</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Check your email for a verification link, or verify with Google
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-400 rounded-lg">
               <div className="flex">
                 <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -107,16 +251,16 @@ const VerifyEmail = () => {
           )}
 
           <div className="mb-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-gray-700 mb-1">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
                 <strong>Registered email:</strong>
               </p>
-              <p className="text-lg font-semibold text-blue-600 break-all">
+              <p className="text-lg font-semibold text-blue-600 dark:text-blue-400 break-all">
                 {email || 'Loading...'}
               </p>
             </div>
 
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 mb-6">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -124,8 +268,8 @@ const VerifyEmail = () => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-yellow-700">
-                    <strong>Important:</strong> Sign in with Google using the <strong>same email address</strong> you registered with.
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                    <strong>Check your email</strong> for a verification link, or use Google to verify instantly.
                   </p>
                 </div>
               </div>
@@ -135,7 +279,7 @@ const VerifyEmail = () => {
           <button
             onClick={handleVerifyWithGoogle}
             disabled={!email}
-            className="w-full bg-white border-2 border-gray-300 text-gray-700 py-3.5 rounded-xl font-semibold hover:bg-gray-50 hover:border-blue-500 transition-all duration-200 shadow-sm flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-3.5 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-blue-500 transition-all duration-200 shadow-sm flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed mb-4"
           >
             <svg className="w-6 h-6" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -146,17 +290,25 @@ const VerifyEmail = () => {
             Verify with Google
           </button>
 
+          <button
+            onClick={resendVerification}
+            disabled={resending || !email}
+            className="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-3 rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {resending ? 'Sending...' : 'Resend Verification Email'}
+          </button>
+
           <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate('/register')}
-              className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+            <Link
+              to="/register"
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               ← Back to registration
-            </button>
+            </Link>
           </div>
         </div>
 
-        <p className="text-center text-gray-500 text-sm mt-8">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8">
           🔒 Your data is secure and encrypted
         </p>
       </div>

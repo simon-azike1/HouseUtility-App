@@ -19,7 +19,11 @@ export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   getMe: () => api.get("/auth/me"),
   updateProfile: (data) => api.put("/auth/me", data),
-  getAllUsers: () => api.get("/auth/users"), // fallback for members list
+  getAllUsers: () => api.get("/auth/users"),
+  
+  // ✅ Email Verification - UPDATED TO ACCEPT INVITE CODE
+  verifyEmail: (token, inviteCode) => api.post("/auth/verify-email", { token, inviteCode }),
+  resendVerification: (email) => api.post("/auth/resend-verification", { email }),
 };
 
 // ✅ Household API

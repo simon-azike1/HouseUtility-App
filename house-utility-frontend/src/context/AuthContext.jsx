@@ -131,6 +131,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  
   // Logout method
   const logout = () => {
     localStorage.removeItem('token');
@@ -140,11 +141,22 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/';
   };
 
+  // ✅ GOOGLE LOGIN METHOD
+  const loginWithGoogle = () => {
+    // Redirect to backend Google OAuth endpoint
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    window.location.href = `${backendUrl}/api/auth/google`;
+    
+    // Return success immediately since we're redirecting
+    return { success: true };
+  };
+
   const value = {
     user,
     loading,
     error,
     login,
+    loginWithGoogle, // ✅ ADD THIS
     register,
     logout,
     refreshUser, // ✅ Expose refresh function

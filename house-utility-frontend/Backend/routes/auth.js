@@ -9,6 +9,7 @@ import {
   updateProfile,
   checkVerificationStatus,
   resendVerification,
+  // verifyEmailWithToken,
   uploadProfilePicture,
   changePassword,
   getSettings,
@@ -16,6 +17,7 @@ import {
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
+import { verifyEmailWithToken } from '../controllers/authController.js';
 
 const router = express.Router();
 
@@ -36,6 +38,7 @@ router.get('/settings', protect, getSettings);
 router.put('/settings', protect, updateSettings);
 router.get('/verification-status', checkVerificationStatus);
 router.post('/resend-verification', resendVerification);
+router.post('/verify-email', verifyEmailWithToken); 
 router.put('/complete-onboarding', protect, async (req, res) => {
   try {
     const user = await import('../models/User.js').then(m => m.default);
@@ -46,6 +49,84 @@ router.put('/complete-onboarding', protect, async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to complete onboarding' });
   }
 });
+
+
+
+
+
+// ============================================
+// ✅ GOOGLE OAUTH ROUTES WITH ENVIRONMENT VARIABLES
+// ============================================
+
+// ✅ NEW: Google OAuth for Login (not verification)
+router.get('/google', (req, res, next) => {
+  console.log('🚀 Starting Google OAuth login...');
+  
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false
+  })(req, res, next);
+});
+
+// ✅ NEW: Google OAuth callback for Login
+router.get('/google/callback/login',
+  passport.authenticate('google', { 
+    session: false,
+    failureRedirect: `${getFrontendUrl()}/login?error=Google authentication failed`
+  }),
+  async (req, res) => {
+    try {
+      const frontendUrl = getFrontendUrl();
+      console.log('✅ Google login callback successful');
+      
+      const googleEmail = req.user?.googleEmail;
+      
+      if (!googleEmail) {
+        console.error('❌ No Google email');
+        return res.redirect(`${frontendUrl}/login?error=No email from Google`);
+      }
+
+      // Find or create user
+      const User = (await import('../models/User.js')).default;
+      let user = await User.findOne({ email: googleEmail });
+
+      if (!user) {
+        // Create new user with Google
+        user = await User.create({
+          name: req.user.displayName,
+          email: googleEmail,
+          googleId: req.user.providerId,
+          isVerified: true, // Google emails are verified
+          avatar: req.user.avatar,
+        });
+        console.log('✅ New user created via Google:', user.email);
+      } else {
+        // Update existing user
+        if (!user.googleId) {
+          user.googleId = req.user.providerId;
+          user.isVerified = true;
+          await user.save();
+        }
+        console.log('✅ Existing user logged in via Google:', user.email);
+      }
+
+      // Generate JWT token
+      const jwt = (await import('jsonwebtoken')).default;
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+      // Redirect to frontend with token
+      res.redirect(`${frontendUrl}/login?token=${token}`);
+
+    } catch (error) {
+      console.error('❌ Google login callback error:', error);
+      const frontendUrl = getFrontendUrl();
+      res.redirect(`${frontendUrl}/login?error=Authentication failed`);
+    }
+  }
+);
+
+
+
 
 // ============================================
 // ✅ GOOGLE OAUTH ROUTES WITH ENVIRONMENT VARIABLES

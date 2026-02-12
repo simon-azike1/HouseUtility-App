@@ -53,6 +53,16 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // ✅ ADD THESE TWO FIELDS:
+  verificationToken: {
+    type: String,
+    default: null
+  },
+  verificationExpires: {
+    type: Date,
+    default: null
+  },
+
   hasCompletedOnboarding: {
     type: Boolean,
     default: true  // ✅ Default true for existing users

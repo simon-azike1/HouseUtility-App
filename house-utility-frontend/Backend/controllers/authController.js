@@ -4,35 +4,66 @@ import Household from '../models/Household.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import cloudinary from '../config/cloudinary.js';
+import crypto from 'crypto'; // ✅ ADD THIS
+import { sendVerificationEmail } from '../utils/sendEmail.js'; // ✅ ADD THIS
 
 // @desc Register user (unverified)
+// @desc Register user (unverified) and send verification email
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // ✅ Create unverified user
+    // ✅ Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+    console.log('📝 Creating user:', email);
+    console.log('🔑 Verification token generated');
+
+    // ✅ Create unverified user with verification token
     const user = await User.create({
       name,
       email,
       password,
-      isVerified: false, // Explicitly set as unverified
-      hasCompletedOnboarding: false // ✅ New users must watch onboarding
+      isVerified: false,
+      verificationToken,
+      verificationExpires,
+      hasCompletedOnboarding: false
     });
 
-    // ✅ Don't generate token yet - user needs to verify first
+    console.log('✅ User created:', user.email);
+
+    // ✅ Send verification email to ANY email provider (Yahoo, Outlook, Gmail, etc.)
+    const emailResult = await sendVerificationEmail(email, name, verificationToken);
+
+    if (!emailResult.success) {
+      console.error('❌ Failed to send verification email:', emailResult.error);
+      // Delete user if email fails
+      await User.findByIdAndDelete(user._id);
+      return res.status(500).json({ 
+        message: 'Failed to send verification email. Please try again.' 
+      });
+    }
+
+    console.log('✅ Verification email sent to:', email);
+
+    // ✅ Return success response
     res.status(201).json({
       success: true,
-      message: 'Account created successfully. Please verify your email.',
+      message: 'Account created successfully. Please check your email to verify your account.',
       userId: user._id,
       email: user.email,
-      needsVerification: true, // Signal to frontend
+      needsVerification: true,
     });
+
   } catch (err) {
+    console.error('❌ Registration error:', err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -105,7 +136,7 @@ export const login = async (req, res) => {
 // This is called after successful Google OAuth callback
 export const verifyEmailWithGoogle = async (req, res) => {
   try {
-    const { googleEmail, registeredEmail } = req.body;
+    const { googleEmail, registeredEmail, inviteCode } = req.body;
 
     // Check if emails match (case-insensitive)
     if (googleEmail.toLowerCase() !== registeredEmail.toLowerCase()) {
@@ -137,6 +168,8 @@ export const verifyEmailWithGoogle = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          household: user.household,
+          householdRole: user.householdRole,
         }
       });
     }
@@ -144,10 +177,7 @@ export const verifyEmailWithGoogle = async (req, res) => {
     // ✅ Mark user as verified
     user.isVerified = true;
 
-    // ✅ Check for invite code in request body
-    const { inviteCode } = req.body;
-
-    // ✅ Create household if user doesn't have one - with comprehensive error handling
+    // ✅ Create household if user doesn't have one
     console.log(`📊 Household status for user ${user.email}: ${user.household ? 'HAS HOUSEHOLD' : 'NO HOUSEHOLD'}`);
 
     if (!user.household) {
@@ -236,13 +266,19 @@ export const verifyEmailWithGoogle = async (req, res) => {
       } catch (householdError) {
         console.error('❌ ERROR during household creation:', householdError);
         console.error('❌ Stack trace:', householdError.stack);
-        // Don't throw - let user continue with verification, they can join/create household later
-        console.log('⚠️ Continuing with verification despite household error');
+        
+        // ✅ FIXED: Don't continue - return error response
+        return res.status(500).json({ 
+          success: false,
+          message: 'Failed to create or join household',
+          error: householdError.message 
+        });
       }
     } else {
       console.log(`ℹ️ User already has household: ${user.household}`);
     }
 
+    // ✅ Save user with household information
     await user.save();
 
     // Generate token
@@ -263,6 +299,7 @@ export const verifyEmailWithGoogle = async (req, res) => {
       }
     });
   } catch (err) {
+    console.error('❌ ERROR in verifyEmailWithGoogle:', err);
     res.status(500).json({ 
       success: false,
       message: err.message 
@@ -295,9 +332,16 @@ export const checkVerificationStatus = async (req, res) => {
 };
 
 // ✅ @desc Resend verification (for future email-based verification)
+// ✅ @desc Resend verification email
 export const resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
+
+    console.log('📧 Resending verification to:', email);
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -308,18 +352,203 @@ export const resendVerification = async (req, res) => {
       return res.status(400).json({ message: 'Email already verified' });
     }
 
-    // For now, just return success
-    // Later you can add email sending logic here
+    // ✅ Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+    user.verificationToken = verificationToken;
+    user.verificationExpires = verificationExpires;
+    await user.save();
+
+    console.log('🔑 New verification token generated');
+
+    // ✅ Send verification email
+    const emailResult = await sendVerificationEmail(email, user.name, verificationToken);
+
+    if (!emailResult.success) {
+      console.error('❌ Failed to send verification email:', emailResult.error);
+      return res.status(500).json({ 
+        message: 'Failed to send verification email. Please try again.' 
+      });
+    }
+
+    console.log('✅ Verification email resent to:', email);
+
     res.json({
       success: true,
-      message: 'Verification instructions sent',
+      message: 'Verification email sent! Please check your inbox.',
       email: user.email,
     });
+
   } catch (err) {
+    console.error('❌ Resend verification error:', err);
     res.status(500).json({ message: err.message });
   }
 };
+// ✅ @desc Verify email with token (from email link)
+// ✅ @desc Verify email with token (from email link)
+// ✅ @desc Verify email with token (from email link)
+export const verifyEmailWithToken = async (req, res) => {
+  try {
+    const { token, inviteCode } = req.body; // ✅ Accept inviteCode
 
+    console.log('🔍 Verifying email with token:', token);
+    console.log('📝 Invite code:', inviteCode || 'none');
+
+    if (!token) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Verification token is required' 
+      });
+    }
+
+    // Find user with valid token
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationExpires: { $gt: Date.now() }, // Token not expired
+    });
+
+    if (!user) {
+      console.log('❌ Invalid or expired token');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid or expired verification token' 
+      });
+    }
+
+    console.log('✅ User found:', user.email);
+
+    // Check if already verified
+    if (user.isVerified) {
+      console.log('ℹ️ User already verified');
+      return res.json({
+        success: true,
+        message: 'Email already verified! You can now log in.',
+        alreadyVerified: true,
+      });
+    }
+
+    // ✅ Mark user as verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationExpires = undefined;
+
+    // ✅ CREATE OR JOIN HOUSEHOLD
+    console.log(`📊 Household status for user ${user.email}: ${user.household ? 'HAS HOUSEHOLD' : 'NO HOUSEHOLD'}`);
+
+    if (!user.household) {
+      console.log('🏠 Creating/joining household for user...');
+
+      try {
+        // Helper function to generate invite code
+        const generateInviteCode = () => {
+          const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+          let code = '';
+          for (let i = 0; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          return code;
+        };
+
+        if (inviteCode) {
+          // ✅ User has an invite code - join existing household
+          console.log(`🔍 Looking for household with invite code: ${inviteCode}`);
+          const household = await Household.findOne({ inviteCode });
+
+          if (household) {
+            console.log(`✅ Found household: ${household.name} (ID: ${household._id})`);
+
+            // Add user to household if not already a member
+            if (!household.members.some(m => m.user.toString() === user._id.toString())) {
+              console.log(`➕ Adding user ${user.email} to household members`);
+              household.members.push({
+                user: user._id,
+                role: 'member',
+                joinedAt: new Date()
+              });
+              await household.save();
+              console.log(`✅ User added to household members array`);
+            } else {
+              console.log(`ℹ️ User already in household members`);
+            }
+
+            user.household = household._id;
+            user.householdRole = 'member';
+            console.log(`✅ User ${user.email} joined household ${household.name} with code ${inviteCode}`);
+          } else {
+            console.log(`⚠️ Invalid invite code ${inviteCode}, creating new household for user ${user.email}`);
+
+            // Invalid code - create own household as fallback
+            const newHousehold = await Household.create({
+              name: `${user.name}'s Household`,
+              owner: user._id,
+              inviteCode: generateInviteCode(),
+              members: [{
+                user: user._id,
+                role: 'admin',
+                joinedAt: new Date()
+              }]
+            });
+
+            console.log(`✅ Created fallback household: ${newHousehold.name} (ID: ${newHousehold._id}, Code: ${newHousehold.inviteCode})`);
+            user.household = newHousehold._id;
+            user.householdRole = 'admin';
+          }
+        } else {
+          // ✅ No invite code - create own household as admin
+          console.log(`🆕 No invite code - creating new household for ${user.email}`);
+
+          const household = await Household.create({
+            name: `${user.name}'s Household`,
+            owner: user._id,
+            inviteCode: generateInviteCode(),
+            members: [{
+              user: user._id,
+              role: 'admin',
+              joinedAt: new Date()
+            }]
+          });
+
+          console.log(`✅ Created household: ${household.name} (ID: ${household._id}, Code: ${household.inviteCode})`);
+          user.household = household._id;
+          user.householdRole = 'admin';
+        }
+
+        // ✅ Verify household was set
+        if (!user.household) {
+          throw new Error('Household creation failed - user.household is still null');
+        }
+
+        console.log(`✅ Household assignment complete - User household: ${user.household}, Role: ${user.householdRole}`);
+
+      } catch (householdError) {
+        console.error('❌ ERROR during household creation:', householdError);
+        console.error('❌ Stack trace:', householdError.stack);
+        // Continue with verification even if household creation fails
+        console.log('⚠️ Continuing with verification despite household error');
+      }
+    } else {
+      console.log(`ℹ️ User already has household: ${user.household}`);
+    }
+
+    await user.save();
+
+    console.log('✅ Email verified successfully for:', user.email);
+
+    res.json({ 
+      success: true,
+      message: 'Email verified successfully! You can now log in.',
+      email: user.email,
+    });
+
+  } catch (err) {
+    console.error('❌ Email verification error:', err);
+    res.status(500).json({ 
+      success: false,
+      message: 'Verification failed. Please try again.' 
+    });
+  }
+};
 // @desc Get logged-in user data
 export const getMe = async (req, res) => {
   try {
@@ -520,3 +749,5 @@ export const updateSettings = async (req, res) => {
     res.status(500).json({ message: 'Failed to update settings', error: err.message });
   }
 };
+
+

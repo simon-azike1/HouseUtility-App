@@ -245,7 +245,7 @@ const Footer = () => {
             </div>
             <div className="flex items-center space-x-6 text-sm text-gray-400">
               <a
-                href="https://my-new-portfolio-8zg5.vercel.app/"
+                href="https://my-new-portfolio-hazel.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors duration-300"
@@ -261,7 +261,7 @@ const Footer = () => {
               </Link>
               <span className="text-gray-600">•</span>
               <a
-                href="https://my-new-portfolio-8zg5.vercel.app/"
+                href="https://my-new-portfolio-hazel.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors duration-300 flex items-center gap-1"

@@ -27,15 +27,27 @@ const HouseholdSyncBanner = () => {
         const localHousehold = user.household;
         const serverHousehold = serverUser.household;
 
+        // ✅ Extract IDs properly (handle both object and string formats)
+        const localHouseholdId = typeof localHousehold === 'object' && localHousehold?._id 
+          ? localHousehold._id 
+          : localHousehold;
+
+        const serverHouseholdId = typeof serverHousehold === 'object' && serverHousehold?._id 
+          ? serverHousehold._id 
+          : serverHousehold;
+
         // Case 1: Server has household but local doesn't
-        if (serverHousehold && !localHousehold) {
+        if (serverHouseholdId && !localHouseholdId) {
           console.log('🔄 Household sync issue detected: Server has household, local does not');
           setShowBanner(true);
         }
 
-        // Case 2: Different household IDs
-        if (serverHousehold && localHousehold && serverHousehold !== localHousehold) {
+        // Case 2: Different household IDs (compare as strings)
+        if (serverHouseholdId && localHouseholdId && 
+            String(serverHouseholdId) !== String(localHouseholdId)) {
           console.log('🔄 Household sync issue detected: Different household IDs');
+          console.log('Local ID:', String(localHouseholdId));
+          console.log('Server ID:', String(serverHouseholdId));
           setShowBanner(true);
         }
 
