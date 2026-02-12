@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const HouseholdSyncBanner = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [showBanner, setShowBanner] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
