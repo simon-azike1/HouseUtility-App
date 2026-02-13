@@ -359,7 +359,7 @@ const Contact = () => {
                     +212 751-780853
                   </a>
                   <a
-                    href="https://my-new-portfolio-8zg5.vercel.app/"
+                    href="https://my-new-portfolio-hazel.vercel.app/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
