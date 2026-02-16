@@ -51,7 +51,10 @@ export const sendEmailHtml = async ({ to, subject, html }) => {
 // Send verification email
 export const sendVerificationEmail = async (email, name, verificationToken) => {
   try {
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    const frontendUrl =
+      process.env.FRONTEND_URL ||
+      (process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',')[0].trim() : '');
+    const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
 
     await sendEmailHtml({
       to: email,
