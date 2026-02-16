@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import DarkModeToggle from '../components/DarkModeToggle';
 import { useTranslation } from 'react-i18next';
 
 const Register = () => {
@@ -130,7 +129,6 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      <DarkModeToggle />
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
