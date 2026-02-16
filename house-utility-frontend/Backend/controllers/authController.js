@@ -564,9 +564,13 @@ export const verifyEmailWithToken = async (req, res) => {
 
     console.log('✅ Email verified successfully for:', user.email);
 
+    // Generate token + set cookie for auto-login
+    const authToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    setAuthCookie(res, authToken);
+
     res.json({ 
       success: true,
-      message: 'Email verified successfully! You can now log in.',
+      message: 'Email verified successfully! Redirecting you to your dashboard.',
       email: user.email,
     });
 

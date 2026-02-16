@@ -87,8 +87,8 @@ const VerifyEmail = () => {
       // ✅ Clean up invite code from localStorage
       localStorage.removeItem('pendingInviteCode');
       
-      // Redirect to login after 3 seconds
-      setTimeout(() => navigate('/login'), 3000);
+      // Redirect to verify success (auto-login via cookie)
+      setTimeout(() => navigate('/verify-success'), 1500);
     } catch (err) {
       setStatus('error');
       setMessage(err.response?.data?.message || 'Verification failed');
@@ -167,13 +167,13 @@ const VerifyEmail = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Email Verified! 🎉</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">{message}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">Redirecting to login in 3 seconds...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">Redirecting to your dashboard...</p>
             
             <Link 
-              to="/login"
+              to="/verify-success"
               className="mt-6 inline-block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all"
             >
-              Go to Login Now
+              Continue to Dashboard
             </Link>
           </div>
         </div>
