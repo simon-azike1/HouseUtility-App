@@ -15,6 +15,8 @@ console.log('FRONTEND_URLS:', process.env.FRONTEND_URLS);
 console.log('---');
 
 const app = express();
+// Required for secure cookies behind proxies (Render, Vercel, etc.)
+app.set('trust proxy', 1);
 
 // CORS configuration: support a single FRONTEND_URL or comma-separated FRONTEND_URLS
 const rawFrontendList = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000';
