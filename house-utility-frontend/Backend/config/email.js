@@ -18,26 +18,34 @@ const createTransporter = () => {
   }
 
   // For other SMTP services (like SendGrid, Mailgun, etc.)
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT || 587,
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD
-    }
-  });
+  if (process.env.SMTP_HOST) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+      }
+    });
+  }
+
+  return null;
 };
 
 const transporter = createTransporter();
 
 // Verify transporter configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.log('❌ Email configuration error:', error.message);
-  } else {
-    console.log('✅ Email server is ready to send messages');
-  }
-});
+if (transporter) {
+  transporter.verify((error, success) => {
+    if (error) {
+      console.log('❌ Email configuration error:', error.message);
+    } else {
+      console.log('✅ Email server is ready to send messages');
+    }
+  });
+} else {
+  console.log('⚠️ Email transporter not configured (SMTP/Gmail).');
+}
 
 export default transporter;

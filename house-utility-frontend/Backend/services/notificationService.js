@@ -1,7 +1,7 @@
 // services/notificationService.js
-import transporter from '../config/email.js';
 import twilio from 'twilio';
 import dotenv from 'dotenv';
+import { sendEmailHtml } from '../utils/sendEmail.js';
 
 dotenv.config();
 
@@ -299,23 +299,20 @@ const whatsAppTemplates = {
 // Send Email Notification
 export const sendEmailNotification = async (to, type, data) => {
   try {
-    if (!process.env.EMAIL_USER) {
+    if (!process.env.SENDGRID_API_KEY && !process.env.EMAIL_USER) {
       console.log('⚠️ Email not configured. Skipping email notification.');
       return { success: false, message: 'Email not configured' };
     }
 
     const template = emailTemplates[type](data);
 
-    const mailOptions = {
-      from: `"House Utility" <${process.env.EMAIL_USER}>`,
+    await sendEmailHtml({
       to,
       subject: template.subject,
       html: template.html
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    });
+    console.log('✅ Email sent:', to);
+    return { success: true };
   } catch (error) {
     console.error('❌ Email sending failed:', error);
     return { success: false, error: error.message };

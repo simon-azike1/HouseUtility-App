@@ -1,24 +1,59 @@
-import nodemailer from 'nodemailer';
+import transporter from '../config/email.js';
 
-// Create email transporter
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
+const sendWithSendGrid = async ({ to, subject, html }) => {
+  const apiKey = process.env.SENDGRID_API_KEY;
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL || process.env.EMAIL_USER;
+
+  if (!apiKey || !fromEmail) {
+    throw new Error('SendGrid not configured');
+  }
+
+  const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
     },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: to }] }],
+      from: { email: fromEmail, name: process.env.APP_NAME || 'UTIL' },
+      subject,
+      content: [{ type: 'text/html', value: html }]
+    })
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`SendGrid error: ${response.status} ${body}`);
+  }
+};
+
+export const sendEmailHtml = async ({ to, subject, html }) => {
+  if (process.env.SENDGRID_API_KEY) {
+    console.log('✅ Using SendGrid API for email delivery');
+    await sendWithSendGrid({ to, subject, html });
+    return;
+  }
+
+  if (!transporter) {
+    throw new Error('Email transporter not configured (and SENDGRID_API_KEY missing)');
+  }
+
+  console.log('✅ Using SMTP/Gmail transporter for email delivery');
+  await transporter.sendMail({
+    from: `"${process.env.APP_NAME || 'UTIL'}" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html
   });
 };
 
 // Send verification email
 export const sendVerificationEmail = async (email, name, verificationToken) => {
   try {
-    const transporter = createTransporter();
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-    await transporter.sendMail({
-      from: `"${process.env.APP_NAME || 'UTIL'}" <${process.env.EMAIL_USER}>`,
+    await sendEmailHtml({
       to: email,
       subject: 'Verify Your Email Address',
       html: `
@@ -63,7 +98,7 @@ export const sendVerificationEmail = async (email, name, verificationToken) => {
             </p>
           </div>
         </div>
-      `,
+      `
     });
 
     console.log('✅ Verification email sent to:', email);
@@ -78,10 +113,7 @@ export const sendVerificationEmail = async (email, name, verificationToken) => {
 // Send welcome email after verification
 export const sendWelcomeEmail = async (email, name) => {
   try {
-    const transporter = createTransporter();
-
-    await transporter.sendMail({
-      from: `"${process.env.APP_NAME || 'UTIL'}" <${process.env.EMAIL_USER}>`,
+    await sendEmailHtml({
       to: email,
       subject: '🎉 Welcome to UTIL!',
       html: `
@@ -105,7 +137,7 @@ export const sendWelcomeEmail = async (email, name) => {
             </div>
           </div>
         </div>
-      `,
+      `
     });
 
     console.log('✅ Welcome email sent to:', email);
