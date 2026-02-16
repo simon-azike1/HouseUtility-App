@@ -56,14 +56,11 @@ const Bills = () => {
 
   const fetchBills = async () => {
     try {
-      const token = localStorage.getItem('token');
       const url = filterStatus
         ? `/bills?status=${filterStatus}`
         : '/bills';
       
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(url);
       setBills(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -75,10 +72,7 @@ const Bills = () => {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/bills/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('/bills/stats');
       setStats(response.data.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -90,20 +84,14 @@ const Bills = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-
       // Ensure amount is a number before sending to the API
       const payload = { ...formData, amount: Number(formData.amount) };
 
       if (editingId) {
-        await axios.put(`/bills/${editingId}`, payload, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.put(`/bills/${editingId}`, payload);
         setSuccessMessage('Bill updated successfully!');
       } else {
-        await axios.post('/bills', payload, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.post('/bills', payload);
         setSuccessMessage('Bill added successfully!');
       }
 
@@ -165,10 +153,7 @@ const Bills = () => {
     if (!window.confirm('Are you sure you want to delete this bill?')) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/bills/${id}` , {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`/bills/${id}` );
       fetchBills();
       fetchStats();
     } catch (err) {
@@ -179,12 +164,10 @@ const Bills = () => {
 
   const handleMarkAsPaid = async (id) => {
     try {
-      const token = localStorage.getItem('token');
       const reference = prompt('Enter payment reference (optional):');
 
       await axios.post(`/bills/${id}/pay`,
-        { paymentReference: reference },
-        { headers: { Authorization: `Bearer ${token}` }}
+        { paymentReference: reference }
       );
       
       fetchBills();

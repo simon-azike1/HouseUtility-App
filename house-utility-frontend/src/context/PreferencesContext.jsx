@@ -38,15 +38,7 @@ export const PreferencesProvider = ({ children }) => {
   useEffect(() => {
     const loadPreferences = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get('/auth/settings', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.get('/auth/settings');
 
         console.log('Loaded preferences from backend:', response.data.preferences);
 

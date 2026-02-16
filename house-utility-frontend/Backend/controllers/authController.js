@@ -7,6 +7,27 @@ import cloudinary from '../config/cloudinary.js';
 import crypto from 'crypto'; // ✅ ADD THIS
 import { sendVerificationEmail } from '../utils/sendEmail.js'; // ✅ ADD THIS
 
+export const setAuthCookie = (res, token) => {
+  const isProd = process.env.NODE_ENV === 'production';
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/'
+  });
+};
+
+export const clearAuthCookie = (res) => {
+  const isProd = process.env.NODE_ENV === 'production';
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    path: '/'
+  });
+};
+
 // @desc Register user (unverified)
 // @desc Register user (unverified) and send verification email
 export const register = async (req, res) => {
@@ -111,10 +132,10 @@ export const login = async (req, res) => {
     await user.save();
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    setAuthCookie(res, token);
 
     res.json({
       success: true,
-      token,
       user: {
         id: user._id,
         name: user.name,
@@ -130,6 +151,14 @@ export const login = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+};
+
+// @desc Logout user
+// @route POST /api/auth/logout
+// @access Private
+export const logout = async (req, res) => {
+  clearAuthCookie(res);
+  res.json({ success: true });
 };
 
 // ✅ @desc Verify email with Google OAuth

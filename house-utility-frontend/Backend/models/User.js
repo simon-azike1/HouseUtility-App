@@ -93,6 +93,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  hasSubmittedFeedback: {
+    type: Boolean,
+    default: false
+  },
+  feedbackSubmittedAt: {
+    type: Date,
+    default: null
+  },
   // User preferences
   preferences: {
     language: {
@@ -115,6 +123,12 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: 'light'
     }
+  },
+  country: {
+    type: String,
+    trim: true,
+    maxlength: 100,
+    default: null
   },
   // Notification preferences
   notificationPreferences: {

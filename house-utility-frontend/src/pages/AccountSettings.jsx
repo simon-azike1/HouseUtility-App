@@ -51,12 +51,8 @@ const AccountSettings = () => {
   useEffect(() => {
     const loadPreferences = async () => {
       try {
-        const token = localStorage.getItem('token');
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/settings`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/settings`
         );
 
         if (response.data.notifications) {
@@ -108,15 +104,11 @@ const AccountSettings = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const token = localStorage.getItem('token');
       await axios.put(
         `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/settings`,
         {
           notifications,
           preferences
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
         }
       );
 

@@ -3,7 +3,6 @@ import { Target, Users, Award, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import DarkModeToggle from '../components/DarkModeToggle';
 import { useTranslation } from 'react-i18next';
 
 const OurStory = () => {
@@ -67,7 +66,6 @@ const OurStory = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
-      <DarkModeToggle />
 
       {/* Hero Section */}
       <section className="relative text-white pt-24 pb-32 overflow-hidden">

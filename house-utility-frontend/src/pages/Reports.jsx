@@ -55,17 +55,14 @@ const Reports = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
       // Fetch all data (we'll filter client-side since backend doesn't support date filtering)
       const [contributions, expenses, bills, contribStats, expenseStats, billStats] = await Promise.all([
-        axios.get('/contributions', { headers }),
-        axios.get('/expenses', { headers }),
-        axios.get('/bills', { headers }),
-        axios.get('/contributions/stats', { headers }),
-        axios.get('/expenses/stats', { headers }),
-        axios.get('/bills/stats', { headers })
+        axios.get('/contributions'),
+        axios.get('/expenses'),
+        axios.get('/bills'),
+        axios.get('/contributions/stats'),
+        axios.get('/expenses/stats'),
+        axios.get('/bills/stats')
       ]);
 
       // Filter data based on date range

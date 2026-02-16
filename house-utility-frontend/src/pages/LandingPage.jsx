@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from 'react-i18next';
@@ -18,10 +18,70 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import DarkModeToggle from "../components/DarkModeToggle";
 
 const Landing = () => {
   const { t } = useTranslation();
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [typedLength, setTypedLength] = useState(0);
+
+  const fullHeroTitle = useMemo(() => {
+    const parts = [
+      t('landing.heroTitle'),
+      t('landing.heroTitleHighlight'),
+      t('landing.heroTitleEnd')
+    ].filter(Boolean);
+    return parts.join(' ');
+  }, [t]);
+
+  const highlightRange = useMemo(() => {
+    const before = t('landing.heroTitle');
+    const highlight = t('landing.heroTitleHighlight');
+    const start = before.length + (before ? 1 : 0);
+    const end = start + highlight.length;
+    return { start, end };
+  }, [t]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setScrollProgress(progress);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    let index = 0;
+    let timeoutId;
+
+    const typeNext = () => {
+      if (cancelled) return;
+      setTypedLength(index);
+
+      if (index < fullHeroTitle.length) {
+        index += 1;
+        timeoutId = setTimeout(typeNext, 60);
+        return;
+      }
+
+      timeoutId = setTimeout(() => {
+        index = 0;
+        typeNext();
+      }, 1200);
+    };
+
+    typeNext();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [fullHeroTitle]);
 
   const features = [
     {
@@ -122,7 +182,12 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
-      <DarkModeToggle />
+      <div className="fixed top-0 left-0 z-50 h-1 w-full bg-transparent">
+        <div
+          className="h-full bg-gradient-to-r from-blue-600 to-green-500 transition-[width] duration-150"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
 
       {/* Hero Section - Mobile Optimized */}
       <motion.section
@@ -139,8 +204,20 @@ const Landing = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-            {t('landing.heroTitle')} <span className="text-green-400">{t('landing.heroTitleHighlight')}</span> {t('landing.heroTitleEnd')}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
+            {fullHeroTitle.slice(0, typedLength).split('').map((char, index) => (
+              <span
+                key={`${char}-${index}`}
+                className={
+                  index >= highlightRange.start && index < highlightRange.end
+                    ? 'text-green-400'
+                    : undefined
+                }
+              >
+                {char}
+              </span>
+            ))}
+            <span className="inline-block w-1 h-7 sm:h-9 md:h-10 bg-green-400 ml-1 align-middle animate-[blink_1s_step-end_infinite]"></span>
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-10 leading-relaxed text-gray-100 max-w-2xl mx-auto">

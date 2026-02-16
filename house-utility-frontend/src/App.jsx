@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { PreferencesProvider } from './context/PreferencesContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTopButton from './components/ScrollToTopButton';
 import Landing from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -20,6 +21,7 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import OurStory from './pages/OurStory';
 import Team from './pages/Team';
+import AdminDashboard from './pages/AdminDashboard';
 // import Blog from './pages/Blog';
 import Help from './pages/Help';
 import AccountSettings from './pages/AccountSettings';
@@ -28,6 +30,7 @@ import LegalPrivacy from './pages/LegalPrivacy';
 import LegalTerms from './pages/LegalTerms';
 import LegalCookies from './pages/LegalCookies';
 import Onboarding from './pages/Onboarding';
+import AdminRoute from './components/AdminRoute';
 
 // Redirect authenticated users away from auth pages
 const PublicRoute = ({ children }) => {
@@ -175,6 +178,17 @@ function AppRoutes() {
         }
       />
 
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          </ProtectedRoute>
+        }
+      />
+
       {/* 404 Catch-All */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -187,6 +201,7 @@ function App() {
       <ThemeProvider>
         <PreferencesProvider>
           <AuthProvider>
+            <ScrollToTopButton />
             <AppRoutes />
           </AuthProvider>
         </PreferencesProvider>

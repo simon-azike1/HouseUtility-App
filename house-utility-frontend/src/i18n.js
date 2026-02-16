@@ -19,6 +19,7 @@ const resources = {
         accountSettings: 'Account Settings',
         privacySecurity: 'Privacy & Security',
         helpSupport: 'Help & Support',
+        admin: 'Admin',
         logout: 'Logout'
       },
       // Dashboard
@@ -75,6 +76,24 @@ const resources = {
         pending: 'Pending',
         paid: 'Paid',
         overdue: 'Overdue'
+      },
+      feedback: {
+        button: 'Feedback',
+        title: 'Share feedback',
+        subtitle: 'Tell us what is working and what can be improved',
+        rating: 'Rating',
+        message: 'Message',
+        country: 'Country',
+        countryPlaceholder: 'Enter your country',
+        placeholder: 'Share your thoughts about using the app...',
+        submit: 'Send feedback',
+        sending: 'Sending...',
+        cancel: 'Cancel',
+        close: 'Close',
+        success: 'Thanks for the feedback!',
+        error: 'Could not send feedback',
+        validation: 'Please add a rating, a short message, and your country.',
+        rate: 'Rate {{value}}'
       },
       // Settings
       settings: {
@@ -254,9 +273,9 @@ const resources = {
       },
       // Landing Page
       landing: {
-        heroTitle: 'Manage Your',
-        heroTitleHighlight: 'House Expenses',
-        heroTitleEnd: 'Effortlessly',
+        heroTitle: 'Smart Spending,',
+        heroTitleHighlight: 'Shared Homes',
+        heroTitleEnd: '',
         heroSubtitle: 'Simplify shared expenses, track contributions, and monitor bills all in one place.',
         getStarted: 'Get Started',
         exploreFeatures: 'Explore Features',
@@ -610,6 +629,60 @@ const resources = {
         pending: 'En Attente',
         paid: 'Payé',
         overdue: 'En Retard'
+      },
+      feedback: {
+        button: 'Avis',
+        title: 'Partager votre avis',
+        subtitle: 'Dites-nous ce qui fonctionne et ce qui peut Ãªtre amÃ©liorÃ©',
+        rating: 'Note',
+        message: 'Message',
+        country: 'Pays',
+        countryPlaceholder: 'Entrez votre pays',
+        placeholder: "Partagez votre expÃ©rience d'utilisation...",
+        submit: 'Envoyer',
+        sending: 'Envoi...',
+        cancel: 'Annuler',
+        close: 'Fermer',
+        success: 'Merci pour votre avis !',
+        error: "Impossible d'envoyer l'avis",
+        validation: 'Veuillez ajouter une note, un message et votre pays.',
+        rate: 'Noter {{value}}'
+      },
+      feedback: {
+        button: 'Ù…Ù„Ø§Ø­Ø¸Ø§Øª',
+        title: 'Ù…Ø´Ø§Ø±Ùƒ Ù…Ù„Ø§Ø­Ø¸Ø§ØªÙƒ',
+        subtitle: 'Ø£Ø®Ø¨Ø±Ù†Ø§ Ù…Ø§ Ø§Ù„Ø°ÙŠ ÙŠØ¹Ù…Ù„ ÙˆÙ…Ø§ Ø§Ù„Ø°ÙŠ ÙŠØ¬Ø¨ ØªØ­Ø³ÙŠÙ†Ù‡',
+        rating: 'Ø§Ù„ØªÙ‚ÙŠÙŠÙ…',
+        message: 'Ø§Ù„Ø±Ø³Ø§Ù„Ø©',
+        country: 'Ø§Ù„Ø¨Ù„Ø¯',
+        countryPlaceholder: 'Ø£Ø¯Ø®Ù„ Ø¨Ù„Ø¯Ùƒ',
+        placeholder: 'Ø´Ø§Ø±ÙƒÙ†Ø§ ØªØ¬Ø±Ø¨ØªÙƒ ÙÙŠ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„ØªØ·Ø¨ÙŠÙ‚...',
+        submit: 'Ø¥Ø±Ø³Ø§Ù„',
+        sending: 'Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¥Ø±Ø³Ø§Ù„...',
+        cancel: 'Ø¥Ù„ØºØ§Ø¡',
+        close: 'Ø¥ØºÙ„Ø§Ù‚',
+        success: 'Ø´ÙƒØ±Ø§Ù‹ Ù„Ù…Ù„Ø§Ø­Ø¸Ø§ØªÙƒ!',
+        error: 'ØªØ¹Ø°Ø± Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª',
+        validation: 'ÙŠØ±Ø¬Ù‰ Ø¥Ø¶Ø§ÙØ© ØªÙ‚ÙŠÙŠÙ… ÙˆØ±Ø³Ø§Ù„Ø© Ù‚ØµÙŠØ±Ø© ÙˆØ¨Ù„Ø¯Ùƒ.',
+        rate: 'Ù‚ÙŠÙ… {{value}}'
+      },
+      feedback: {
+        button: 'Comentarios',
+        title: 'Comparte tus comentarios',
+        subtitle: 'Cuéntanos qué funciona y qué podemos mejorar',
+        rating: 'Calificación',
+        message: 'Mensaje',
+        country: 'País',
+        countryPlaceholder: 'Escribe tu país',
+        placeholder: 'Comparte tus ideas sobre el uso de la app...',
+        submit: 'Enviar',
+        sending: 'Enviando...',
+        cancel: 'Cancelar',
+        close: 'Cerrar',
+        success: '¡Gracias por tus comentarios!',
+        error: 'No se pudieron enviar los comentarios',
+        validation: 'Agrega una calificación, un mensaje breve y tu país.',
+        rate: 'Calificar {{value}}'
       },
       settings: {
         title: 'Paramètres du Compte',

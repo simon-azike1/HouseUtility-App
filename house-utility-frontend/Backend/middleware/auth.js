@@ -6,9 +6,16 @@ import User from '../models/User.js';
 export const protect = async (req, res, next) => {
   let token;
 
-  // Check for token in header
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
+  // Check for token in httpOnly cookie
+  if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  }
+  // Check for token in header (fallback)
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    const headerToken = req.headers.authorization.split(' ')[1];
+    if (headerToken && headerToken !== 'null' && headerToken !== 'undefined') {
+      token = headerToken;
+    }
   }
 
   // Make sure token exists

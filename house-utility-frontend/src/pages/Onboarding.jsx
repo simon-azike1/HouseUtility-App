@@ -14,12 +14,8 @@ const Onboarding = () => {
 
   const handleComplete = async () => {
     try {
-      const token = localStorage.getItem('token');
-
       // Mark onboarding as completed in the backend
-      await axios.put('/auth/complete-onboarding', {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.put('/auth/complete-onboarding', {});
 
       // Update user context
       if (updateUser) {

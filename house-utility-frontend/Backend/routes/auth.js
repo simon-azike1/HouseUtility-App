@@ -4,6 +4,7 @@ import passport from '../config/passport.js';
 import {
   register,
   login,
+  logout,
   getMe,
   getAllUsers,
   updateProfile,
@@ -14,6 +15,7 @@ import {
   changePassword,
   getSettings,
   updateSettings,
+  setAuthCookie,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
@@ -29,6 +31,7 @@ const getFrontendUrl = () => {
 // Basic routes
 router.post('/register', register);
 router.post('/login', login);
+router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 router.get('/users', protect, getAllUsers);
 router.put('/profile', protect, updateProfile);
@@ -113,9 +116,10 @@ router.get('/google/callback/login',
       // Generate JWT token
       const jwt = (await import('jsonwebtoken')).default;
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+      setAuthCookie(res, token);
 
-      // Redirect to frontend with token
-      res.redirect(`${frontendUrl}/login?token=${token}`);
+      // Redirect to frontend
+      res.redirect(`${frontendUrl}/dashboard`);
 
     } catch (error) {
       console.error('❌ Google login callback error:', error);
@@ -317,9 +321,10 @@ router.get('/google/callback',
       // Generate token
       const jwt = (await import('jsonwebtoken')).default;
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+      setAuthCookie(res, token);
       
       // Redirect with HTML
-      const redirectUrl = `${frontendUrl}/verify-success?token=${token}`;
+      const redirectUrl = `${frontendUrl}/verify-success`;
       console.log('✅ Redirecting to:', redirectUrl);
       
       res.send(`

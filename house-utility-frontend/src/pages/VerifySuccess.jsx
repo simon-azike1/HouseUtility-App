@@ -1,39 +1,23 @@
 // frontend/src/pages/VerifySuccess.jsx
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const VerifySuccess = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [isLoggingIn, setIsLoggingIn] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const handleAutoLogin = async () => {
-      const token = searchParams.get('token');
-
-      if (!token) {
-        console.error('❌ No token found in URL');
-        setError('No authentication token found');
-        setIsLoggingIn(false);
-        // Redirect to login after 3 seconds
-        setTimeout(() => navigate('/login'), 3000);
-        return;
-      }
-
       try {
-        console.log('🔑 Token received, fetching user data...');
+        console.log('🔑 Checking session cookie...');
 
-        // Fetch user data with the token
-        const response = await axios.get('/auth/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // Fetch user data with session cookie
+        const response = await axios.get('/auth/me');
 
         console.log('✅ User data fetched:', response.data);
 
-        // Store token and user data in localStorage
-        localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(response.data));
 
         console.log('✅ Auto-login successful!');
@@ -62,7 +46,7 @@ const VerifySuccess = () => {
     };
 
     handleAutoLogin();
-  }, [searchParams, navigate]);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-blue-50 p-4">

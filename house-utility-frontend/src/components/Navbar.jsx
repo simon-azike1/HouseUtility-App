@@ -5,6 +5,7 @@ import { Menu, X, ChevronDown, Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
+import DarkModeToggle from './DarkModeToggle';
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
@@ -335,14 +336,9 @@ const Navbar = () => {
 
                             // Save to backend if user is authenticated
                             try {
-                              const token = localStorage.getItem('token');
-                              if (token) {
-                                await axios.put('/auth/settings', {
-                                  preferences: { ...preferences, language: lang.code }
-                                }, {
-                                  headers: { Authorization: `Bearer ${token}` }
-                                });
-                              }
+                              await axios.put('/auth/settings', {
+                                preferences: { ...preferences, language: lang.code }
+                              });
                             } catch (error) {
                               console.error('Failed to save language preference:', error);
                             }
@@ -364,6 +360,8 @@ const Navbar = () => {
                   )}
                 </AnimatePresence>
               </div>
+
+              <DarkModeToggle variant="inline" />
 
               {/* Login Button */}
               <Link
@@ -497,14 +495,9 @@ const Navbar = () => {
 
                                 // Save to backend if user is authenticated
                                 try {
-                                  const token = localStorage.getItem('token');
-                                  if (token) {
-                                    await axios.put('/auth/settings', {
-                                      preferences: { ...preferences, language: lang.code }
-                                    }, {
-                                      headers: { Authorization: `Bearer ${token}` }
-                                    });
-                                  }
+                                  await axios.put('/auth/settings', {
+                                    preferences: { ...preferences, language: lang.code }
+                                  });
                                 } catch (error) {
                                   console.error('Failed to save language preference:', error);
                                 }
@@ -521,6 +514,13 @@ const Navbar = () => {
                           ))}
                         </div>
                       </div>
+                    </motion.div>
+
+                    <motion.div variants={itemVariants}>
+                      <DarkModeToggle
+                        variant="inline"
+                        className="w-full flex items-center justify-center border border-gray-600 hover:border-blue-400"
+                      />
                     </motion.div>
 
                     {/* Mobile Login */}

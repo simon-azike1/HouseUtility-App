@@ -48,10 +48,7 @@ const Contributions = () => {
 
   const fetchContributions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/contributions', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('/contributions');
       setContributions(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -63,10 +60,7 @@ const Contributions = () => {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/contributions/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('/contributions/stats');
       setStats(response.data.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -78,19 +72,13 @@ const Contributions = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-
       if (editingId) {
         // Update existing contribution
-        await axios.put(`/contributions/${editingId}`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.put(`/contributions/${editingId}`, formData);
         setSuccessMessage('Contribution updated successfully!');
       } else {
         // Create new contribution
-        await axios.post('/contributions', formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.post('/contributions', formData);
         setSuccessMessage('Contribution added successfully!');
       }
 
@@ -137,10 +125,7 @@ const Contributions = () => {
     if (!window.confirm('Are you sure you want to delete this contribution?')) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/contributions/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`/contributions/${id}`);
       fetchContributions();
       fetchStats();
     } catch (error) {

@@ -42,17 +42,14 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
       // Fetch all data in parallel
       const [contribStats, expenseStats, billStats, contributions, expenses, bills] = await Promise.all([
-        axios.get('/contributions/stats', { headers }),
-        axios.get('/expenses/stats', { headers }),
-        axios.get('/bills/stats', { headers }),
-        axios.get('/contributions', { headers }),
-        axios.get('/expenses', { headers }),
-        axios.get('/bills', { headers })
+        axios.get('/contributions/stats'),
+        axios.get('/expenses/stats'),
+        axios.get('/bills/stats'),
+        axios.get('/contributions'),
+        axios.get('/expenses'),
+        axios.get('/bills')
       ]);
 
       // Get upcoming bills (next 7 days)
@@ -520,7 +517,7 @@ const Dashboard = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <Sparkles className="w-6 h-6 text-blue-400" />
+                     {/*<Sparkles className="w-6 h-6 text-blue-400" />*/}
                   </div>
                   <h3 className="text-3xl font-bold">{t('dashboard.buildingSomethingAmazing')}</h3>
                 </div>

@@ -44,14 +44,11 @@ const Expenses = () => {
 
   const fetchExpenses = async () => {
     try {
-      const token = localStorage.getItem('token');
       const url = filterCategory
         ? `/expenses?category=${filterCategory}`
         : '/expenses';
       
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(url);
       setExpenses(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -63,10 +60,7 @@ const Expenses = () => {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/expenses/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('/expenses/stats');
       setStats(response.data.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -78,8 +72,6 @@ const Expenses = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-
       // Prepare data
       const data = {
         ...formData,
@@ -87,14 +79,10 @@ const Expenses = () => {
       };
 
       if (editingId) {
-        await axios.put(`/expenses/${editingId}`, data, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.put(`/expenses/${editingId}`, data);
         setSuccessMessage('Expense updated successfully!');
       } else {
-        await axios.post('/expenses', data, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.post('/expenses', data);
         setSuccessMessage('Expense added successfully!');
       }
 
@@ -143,10 +131,7 @@ const Expenses = () => {
     if (!window.confirm('Are you sure you want to delete this expense?')) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/expenses/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`/expenses/${id}`);
       fetchExpenses();
       fetchStats();
     } catch (error) {

@@ -14,12 +14,7 @@ const HouseholdSyncBanner = () => {
 
       try {
         // Fetch fresh user data from server
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const response = await axios.get('/auth/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.get('/auth/me');
 
         const serverUser = response.data;
 

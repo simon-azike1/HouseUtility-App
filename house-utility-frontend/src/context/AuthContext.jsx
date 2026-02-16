@@ -19,9 +19,6 @@ export const AuthProvider = ({ children }) => {
   // ✅ Refresh user data from server
   const refreshUser = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return null;
-
       const userResponse = await authAPI.getMe();
       const userData = userResponse.data;
 
@@ -34,6 +31,8 @@ export const AuthProvider = ({ children }) => {
       return userData;
     } catch (err) {
       console.error('❌ Failed to refresh user data:', err);
+      localStorage.removeItem('user');
+      setUser(null);
       return null;
     }
   }, []);
@@ -41,10 +40,9 @@ export const AuthProvider = ({ children }) => {
   // Load user from localStorage on mount
   useEffect(() => {
     const loadUser = async () => {
-      const token = localStorage.getItem('token');
       const savedUser = localStorage.getItem('user');
 
-      if (token && savedUser) {
+      if (savedUser) {
         try {
           // Set cached user first for immediate display
           setUser(JSON.parse(savedUser));
@@ -52,10 +50,11 @@ export const AuthProvider = ({ children }) => {
           // Then refresh from server to get latest data
           await refreshUser();
         } catch (err) {
-          localStorage.removeItem('token');
           localStorage.removeItem('user');
           setUser(null);
         }
+      } else {
+        await refreshUser();
       }
       setLoading(false);
     };
@@ -68,10 +67,6 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await authAPI.login({ email, password });
-      const { token } = response.data;
-
-      localStorage.setItem('token', token);
-
       const userResponse = await authAPI.getMe();
       const userData = userResponse.data;
 
@@ -79,8 +74,6 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
 
       console.log('User fetched after login:', userData);
-      console.log('Token saved:', token);
-
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed';
@@ -134,7 +127,7 @@ export const AuthProvider = ({ children }) => {
   
   // Logout method
   const logout = () => {
-    localStorage.removeItem('token');
+    authAPI.logout().catch(() => {});
     localStorage.removeItem('user');
     localStorage.removeItem('pendingVerificationEmail'); // ✅ Clean up
     setUser(null);

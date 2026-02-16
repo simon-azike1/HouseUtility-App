@@ -27,6 +27,41 @@ if (
 
 // Email Templates
 const emailTemplates = {
+  feedback: (details) => ({
+    subject: `âœ‰ï¸ New App Feedback (${details.rating}/5)`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%); color: white; padding: 24px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 24px; border-radius: 0 0 10px 10px; }
+            .card { background: white; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #22c55e; }
+            .rating { font-size: 18px; font-weight: bold; color: #0ea5e9; }
+            .meta { color: #666; font-size: 13px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>New Feedback</h1>
+            </div>
+            <div class="content">
+              <p class="rating">Rating: ${details.rating}/5</p>
+              <div class="card">
+                <p>${details.message}</p>
+              </div>
+              <p class="meta"><strong>Name:</strong> ${details.userName || 'Unknown'}</p>
+              <p class="meta"><strong>Email:</strong> ${details.userEmail || 'unknown'}</p>
+              <p class="meta"><strong>Country:</strong> ${details.country || 'N/A'}</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+  }),
   billReminder: (billDetails) => ({
     subject: `⚠️ Bill Due Soon: ${billDetails.title}`,
     html: `
@@ -228,6 +263,13 @@ const emailTemplates = {
 
 // WhatsApp Templates (Plain text for WhatsApp)
 const whatsAppTemplates = {
+  feedback: (details) =>
+    `âœ‰ï¸ *New App Feedback*\n\n` +
+    `Rating: ${details.rating}/5\n` +
+    `Name: ${details.userName || 'Unknown'}\n` +
+    `Email: ${details.userEmail || 'unknown'}\n` +
+    `Country: ${details.country || 'N/A'}\n\n` +
+    `${details.message}\n`,
   billReminder: (billDetails) =>
     `⚠️ *Bill Payment Reminder*\n\n` +
     `Hi! You have an upcoming bill:\n\n` +

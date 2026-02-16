@@ -27,8 +27,11 @@ import {
   Moon,
   Sun,
   Zap,
-  Languages
+  Languages,
+  MessageSquare,
+  BarChart3
 } from 'lucide-react';
+import FeedbackModal from './FeedbackModal';
 
 const DashboardLayout = ({ children }) => {
   const { t, i18n } = useTranslation();
@@ -40,10 +43,13 @@ const DashboardLayout = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [forceFeedbackOpen, setForceFeedbackOpen] = useState(false);
+  const [logoutAfterFeedback, setLogoutAfterFeedback] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
@@ -52,12 +58,7 @@ const DashboardLayout = ({ children }) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const response = await axios.get('/notifications?limit=10', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.get('/notifications?limit=10');
 
         if (response.data.notifications) {
           // Transform notifications to match UI format
@@ -104,11 +105,10 @@ const DashboardLayout = ({ children }) => {
   // Mark notification as read
   const markNotificationAsRead = async (notificationId) => {
     try {
-      const token = localStorage.getItem('token');
       await axios.put(
         `/notifications/${notificationId}/read`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {}
       );
 
       // Update local state
@@ -148,12 +148,26 @@ const DashboardLayout = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      if (user && !user.hasSubmittedFeedback) {
+        setLogoutAfterFeedback(true);
+        setForceFeedbackOpen(true);
+        return;
+      }
       await logout();
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
+
+  useEffect(() => {
+    if (user && !user.hasSubmittedFeedback) {
+      setForceFeedbackOpen(true);
+    }
+  }, [user]);
+
+  const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase();
+  const isAdminEmail = user?.email?.toLowerCase() === adminEmail;
 
   const navigation = [
     { name: t('nav.dashboard'), href: '/dashboard', icon: Home, current: location.pathname === '/dashboard' },
@@ -163,6 +177,7 @@ const DashboardLayout = ({ children }) => {
     { name: t('nav.reports'), href: '/reports', icon: Calendar, current: location.pathname === '/reports' },
     { name: t('nav.members'), href: '/members', icon: Users, current: location.pathname === '/members' },
     { name: t('nav.settings'), href: '/account', icon: Settings, current: location.pathname === '/account' },
+    ...(isAdminEmail ? [{ name: t('nav.admin') || 'Admin', href: '/admin', icon: BarChart3, current: location.pathname === '/admin' }] : [])
   ];
 
   const profileMenuItems = [
@@ -530,6 +545,30 @@ const DashboardLayout = ({ children }) => {
 
               {/* Right side */}
               <div className="flex items-center gap-3">
+                {/* Feedback (Header) */}
+                <motion.button
+                  onClick={() => setFeedbackOpen(true)}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="hidden sm:flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="text-sm font-semibold">{t('feedback.button')}</span>
+                </motion.button>
+                <motion.button
+                  onClick={() => setFeedbackOpen(true)}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="sm:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                  title={t('feedback.button')}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                </motion.button>
+
                 {/* Dark mode toggle */}
                 <button
                   onClick={toggleDarkMode}
@@ -575,11 +614,8 @@ const DashboardLayout = ({ children }) => {
 
                               // Save to backend
                               try {
-                                const token = localStorage.getItem('token');
                                 await axios.put('/auth/settings', {
                                   preferences: { ...preferences, language: lang.code }
-                                }, {
-                                  headers: { Authorization: `Bearer ${token}` }
                                 });
                               } catch (error) {
                                 console.error('Failed to save language preference:', error);
@@ -765,6 +801,43 @@ const DashboardLayout = ({ children }) => {
           </main>
         </div>
       </div>
+      <FeedbackModal
+        isOpen={feedbackOpen || forceFeedbackOpen}
+        onClose={() => {
+          setFeedbackOpen(false);
+          setForceFeedbackOpen(false);
+        }}
+        force={forceFeedbackOpen}
+        onSubmitted={async () => {
+          await refreshUser();
+          setForceFeedbackOpen(false);
+          if (logoutAfterFeedback) {
+            setLogoutAfterFeedback(false);
+            await logout();
+            navigate('/login');
+          }
+        }}
+      />
+
+      {/* Floating Feedback Button */}
+      <motion.button
+        onClick={() => setFeedbackOpen(true)}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ y: -2, scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700 transition-all"
+        aria-label={t('feedback.button')}
+      >
+        <motion.span
+          animate={{ y: [0, -2, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          className="flex items-center gap-2"
+        >
+          <MessageSquare className="w-5 h-5" />
+          <span className="hidden sm:inline text-sm font-semibold">{t('feedback.button')}</span>
+        </motion.span>
+      </motion.button>
     </div>
   );
 };

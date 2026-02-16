@@ -63,14 +63,10 @@ const PrivacySecurity = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
       await axios.put('/auth/change-password',
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
         }
       );
 

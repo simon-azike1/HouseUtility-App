@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
 // ✅ Debug: Check if env variables loaded
 console.log('🔍 Environment Variables Check:');
@@ -55,6 +56,7 @@ app.options('*', cors());
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Session middleware
 app.use(
@@ -82,6 +84,8 @@ app.use(
     const expenseRoutes = (await import('./routes/expenses.js')).default;
     const contributionRoutes = (await import('./routes/contributions.js')).default;
     const notificationRoutes = (await import('./routes/notification.js')).default;
+    const feedbackRoutes = (await import('./routes/feedback.js')).default;
+    const adminRoutes = (await import('./routes/admin.js')).default;
     console.log('✅ Routes imported successfully');
 
     // Import passport after env vars are loaded
@@ -105,6 +109,8 @@ app.use(
     app.use('/api/expenses', expenseRoutes);
     app.use('/api/contributions', contributionRoutes);
     app.use('/api/notifications', notificationRoutes);
+    app.use('/api/feedback', feedbackRoutes);
+    app.use('/api/admin', adminRoutes);
 
     // Health check endpoint
     app.get('/', (req, res) => {
