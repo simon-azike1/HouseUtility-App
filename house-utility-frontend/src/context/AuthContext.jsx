@@ -67,6 +67,10 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await authAPI.login({ email, password });
+      const useTokenFallback = import.meta.env.VITE_TOKEN_FALLBACK === 'true';
+      if (useTokenFallback && response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       const userResponse = await authAPI.getMe();
       const userData = userResponse.data;
 
@@ -128,6 +132,7 @@ export const AuthProvider = ({ children }) => {
   // Logout method
   const logout = () => {
     authAPI.logout().catch(() => {});
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('pendingVerificationEmail'); // ✅ Clean up
     setUser(null);

@@ -4,6 +4,7 @@ import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-reac
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -29,8 +30,8 @@ const Contact = () => {
     setLoading(true);
     setStatus({ type: '', message: '' });
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await axios.post('/contact', formData);
       setStatus({
         type: 'success',
         message: t('contact.successMessage')
@@ -42,8 +43,14 @@ const Contact = () => {
         subject: '',
         message: ''
       });
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        message: t('contact.errorMessage') || 'Failed to send message'
+      });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const contactInfo = [

@@ -134,8 +134,11 @@ export const login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
     setAuthCookie(res, token);
 
+    const includeToken = process.env.ENABLE_TOKEN_FALLBACK === 'true';
+
     res.json({
       success: true,
+      ...(includeToken ? { token } : {}),
       user: {
         id: user._id,
         name: user.name,
@@ -568,10 +571,13 @@ export const verifyEmailWithToken = async (req, res) => {
     const authToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
     setAuthCookie(res, authToken);
 
+    const includeToken = process.env.ENABLE_TOKEN_FALLBACK === 'true';
+
     res.json({ 
       success: true,
       message: 'Email verified successfully! Redirecting you to your dashboard.',
       email: user.email,
+      ...(includeToken ? { token: authToken } : {})
     });
 
   } catch (err) {

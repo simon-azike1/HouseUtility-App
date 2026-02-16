@@ -79,6 +79,10 @@ const VerifyEmail = () => {
       
       // ✅ Send both token AND inviteCode
       const response = await authAPI.verifyEmail(token, inviteCode);
+      const useTokenFallback = import.meta.env.VITE_TOKEN_FALLBACK === 'true';
+      if (useTokenFallback && response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       
       setStatus('success');
       setMessage(response.data.message);

@@ -88,6 +88,7 @@ app.use(
     const notificationRoutes = (await import('./routes/notification.js')).default;
     const feedbackRoutes = (await import('./routes/feedback.js')).default;
     const adminRoutes = (await import('./routes/admin.js')).default;
+    const contactRoutes = (await import('./routes/contact.js')).default;
     console.log('✅ Routes imported successfully');
 
     // Import passport after env vars are loaded
@@ -113,6 +114,7 @@ app.use(
     app.use('/api/notifications', notificationRoutes);
     app.use('/api/feedback', feedbackRoutes);
     app.use('/api/admin', adminRoutes);
+    app.use('/api/contact', contactRoutes);
 
     // Health check endpoint
     app.get('/', (req, res) => {
