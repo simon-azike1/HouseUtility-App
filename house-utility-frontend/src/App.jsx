@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { PreferencesProvider } from './context/PreferencesContext';
@@ -34,7 +34,16 @@ import AdminRoute from './components/AdminRoute';
 
 // Redirect authenticated users away from auth pages
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const shouldLogout = searchParams.get('logout') === '1';
+
+  if (shouldLogout) {
+    logout();
+    return <Navigate to="/login" replace />;
+  }
+
   return isAuthenticated ? <Navigate to="/dashboard" /> : children;
 };
 
