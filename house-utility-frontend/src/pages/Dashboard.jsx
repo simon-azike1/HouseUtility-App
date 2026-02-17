@@ -139,7 +139,7 @@ const Dashboard = () => {
   };
 
   const calculateBalance = () => {
-    return dashboardData.contributions.total - dashboardData.expenses.total - dashboardData.bills.paidAmount;
+    return dashboardData.contributions.total - dashboardData.expenses.total;
   };
 
   const calculateMonthlyChange = (thisMonth, lastMonth) => {
@@ -160,7 +160,7 @@ const Dashboard = () => {
   const stats = [
     {
       title: t('dashboard.totalBalance'),
-      value: formatCurrency(Math.abs(balance)),
+      value: formatCurrency(balance),
       change: balance >= 0 ? t('dashboard.surplus') : t('dashboard.deficit'),
       trend: balance >= 0 ? 'up' : 'down',
       icon: DollarSign,
