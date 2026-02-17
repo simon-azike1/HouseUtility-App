@@ -6,7 +6,7 @@ import { usePreferences } from '../context/PreferencesContext';
 import DashboardLayout from '../components/DashboardLayout';
 import HouseholdSyncBanner from '../components/HouseholdSyncBanner';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -20,7 +20,8 @@ import {
   Bell,
   Sparkles,
   ArrowUpRight,
-  Activity
+  Activity,
+  ChevronDown
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -29,6 +30,7 @@ const Dashboard = () => {
   const { formatCurrency, formatDate } = usePreferences();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [budgetMenuOpen, setBudgetMenuOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState({
     contributions: { total: 0, thisMonth: 0, lastMonth: 0, count: 0 },
     expenses: { total: 0, thisMonth: 0, lastMonth: 0, count: 0 },
@@ -162,6 +164,7 @@ const Dashboard = () => {
       change: balance >= 0 ? t('dashboard.surplus') : t('dashboard.deficit'),
       trend: balance >= 0 ? 'up' : 'down',
       icon: DollarSign,
+      path: '/reports',
       bgColor: 'from-blue-500 to-blue-600',
       textColor: balance >= 0 ? 'text-blue-600' : 'text-red-600',
       bgLight: balance >= 0 ? 'bg-blue-50' : 'bg-red-50',
@@ -173,6 +176,7 @@ const Dashboard = () => {
       change: expenseChange,
       trend: getTrendFromChange(expenseChange),
       icon: BarChart3,
+      path: '/expenses',
       bgColor: 'from-green-500 to-green-600',
       textColor: 'text-green-600',
       bgLight: 'bg-green-50',
@@ -184,6 +188,7 @@ const Dashboard = () => {
       change: formatCurrency(dashboardData.bills.pendingAmount),
       trend: dashboardData.bills.overdue > 0 ? 'down' : 'neutral',
       icon: Calendar,
+      path: '/bills',
       bgColor: 'from-orange-500 to-orange-600',
       textColor: 'text-orange-600',
       bgLight: 'bg-orange-50',
@@ -195,6 +200,7 @@ const Dashboard = () => {
       change: `${dashboardData.contributions.count} ${t('common.total')}`,
       trend: 'up',
       icon: Users,
+      path: '/contributions',
       bgColor: 'from-purple-500 to-purple-600',
       textColor: 'text-purple-600',
       bgLight: 'bg-purple-50',
@@ -208,7 +214,8 @@ const Dashboard = () => {
       icon: null, // ✅ Use UTIL logo instead
       color: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
       description: t('dashboard.recordNewPayment'),
-      path: '/contributions'
+      path: '/contributions',
+      isDropdown: true
     },
     {
       name: t('dashboard.recordExpense'),
@@ -337,6 +344,14 @@ const Dashboard = () => {
                 key={index}
                 variants={cardVariant}
                 whileHover={{ y: -5, scale: 1.02 }}
+                onClick={() => navigate(stat.path)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    navigate(stat.path);
+                  }
+                }}
                 className="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-4">
@@ -379,31 +394,90 @@ const Dashboard = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {quickActions.map((action, index) => {
-                return (
-                  <motion.button
-                    key={index}
-                    variants={cardVariant}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate(action.path)}
-                    className={`${action.color} text-white p-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl group`}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      {/* ✅ UTIL Logo instead of icon */}
-                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform">
-                        <img
-                          src="/images/logo.png"
-                          alt="UTIL"
-                          className="w-8 h-8 object-contain brightness-150 contrast-125"
-                        />
+                if (!action.isDropdown) {
+                  return (
+                    <motion.button
+                      key={index}
+                      variants={cardVariant}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate(action.path)}
+                      className={`${action.color} text-white p-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl group`}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        {/* ✅ UTIL Logo instead of icon */}
+                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform">
+                          <img
+                            src="/images/logo.png"
+                            alt="UTIL"
+                            className="w-8 h-8 object-contain brightness-150 contrast-125"
+                          />
+                        </div>
+                        <ArrowUpRight className="w-5 h-5 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                       </div>
-                      <ArrowUpRight className="w-5 h-5 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-bold text-lg mb-1">{action.name}</p>
-                      <p className="text-sm opacity-90">{action.description}</p>
-                    </div>
-                  </motion.button>
+                      <div className="text-left">
+                        <p className="font-bold text-lg mb-1">{action.name}</p>
+                        <p className="text-sm opacity-90">{action.description}</p>
+                      </div>
+                    </motion.button>
+                  );
+                }
+
+                return (
+                  <div key={index} className="relative">
+                    <motion.button
+                      variants={cardVariant}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setBudgetMenuOpen((prev) => !prev)}
+                      className={`${action.color} text-white p-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl group w-full`}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform">
+                          <img
+                            src="/images/logo.png"
+                            alt="UTIL"
+                            className="w-8 h-8 object-contain brightness-150 contrast-125"
+                          />
+                        </div>
+                        <ChevronDown className={`w-5 h-5 opacity-80 transition-transform ${budgetMenuOpen ? 'rotate-180' : ''}`} />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold text-lg mb-1">{action.name}</p>
+                        <p className="text-sm opacity-90">{action.description}</p>
+                      </div>
+                    </motion.button>
+
+                    <AnimatePresence>
+                      {budgetMenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          className="absolute left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-20 overflow-hidden"
+                        >
+                          <button
+                            onClick={() => {
+                              setBudgetMenuOpen(false);
+                              navigate('/contributions');
+                            }}
+                            className="w-full text-left px-4 py-3 text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          >
+                            {t('dashboard.addContribution')}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setBudgetMenuOpen(false);
+                              navigate('/contributions?mode=budget');
+                            }}
+                            className="w-full text-left px-4 py-3 text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700"
+                          >
+                            {t('dashboard.budget')}
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 );
               })}
             </div>

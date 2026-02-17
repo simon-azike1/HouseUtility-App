@@ -7,7 +7,7 @@ const resources = {
     translation: {
       // Navigation
       nav: {
-        dashboard: 'Dashboard',
+        dashboard: 'Overview',
         bills: 'Bills',
         expenses: 'Expenses',
         contributions: 'Contributions',
@@ -57,8 +57,10 @@ const resources = {
         smartAnalytics: 'Smart Analytics',
         autoBillReminders: 'Auto Bill Reminders',
         expenseInsights: 'Expense Insights',
-        mobileApp: 'Mobile App'
+        mobileApp: 'Mobile App',
+        budget: 'Budget'
       },
+      // Dashboard extras
       // Common
       common: {
         save: 'Save Changes',
@@ -170,6 +172,9 @@ const resources = {
         title: 'Contributions',
         subtitle: 'Track and manage household contributions',
         addNew: 'Add New Contribution',
+        budgetTitle: 'Budget',
+        budgetSubtitle: 'Track your personal budget',
+        addBudget: 'Add Budget',
         editContribution: 'Edit Contribution',
         noContributions: 'No contributions yet',
         startTracking: 'Start tracking your contributions',
@@ -564,7 +569,7 @@ const resources = {
   fr: {
     translation: {
       nav: {
-        dashboard: 'Tableau de bord',
+        dashboard: 'Aperçu',
         bills: 'Factures',
         expenses: 'Dépenses',
         contributions: 'Contributions',
@@ -612,7 +617,8 @@ const resources = {
         smartAnalytics: 'Analyses Intelligentes',
         autoBillReminders: 'Rappels Automatiques de Factures',
         expenseInsights: 'Aperçus des Dépenses',
-        mobileApp: 'Application Mobile'
+        mobileApp: 'Application Mobile',
+        budget: 'Budget'
       },
       common: {
         save: 'Enregistrer les Modifications',
@@ -756,6 +762,9 @@ const resources = {
         title: 'Contributions',
         subtitle: 'Suivez et gérez les contributions du ménage',
         addNew: 'Ajouter une Contribution',
+        budgetTitle: 'Budget',
+        budgetSubtitle: 'Suivez votre budget personnel',
+        addBudget: 'Ajouter un budget',
         editContribution: 'Modifier la Contribution',
         noContributions: 'Aucune contribution',
         startTracking: 'Commencez à suivre vos contributions',
@@ -1145,7 +1154,7 @@ const resources = {
   ar: {
     translation: {
       nav: {
-        dashboard: 'لوحة التحكم',
+        dashboard: 'نظرة عامة',
         bills: 'الفواتير',
         expenses: 'المصروفات',
         contributions: 'المساهمات',
@@ -1193,7 +1202,8 @@ const resources = {
         smartAnalytics: 'تحليلات ذكية',
         autoBillReminders: 'تذكيرات تلقائية للفواتير',
         expenseInsights: 'رؤى المصروفات',
-        mobileApp: 'تطبيق الجوال'
+        mobileApp: 'تطبيق الجوال',
+        budget: 'الميزانية'
       },
       common: {
         save: 'حفظ التغييرات',
@@ -1283,6 +1293,9 @@ const resources = {
         title: 'المساهمات',
         subtitle: 'تتبع وإدارة مساهمات الأسرة',
         addNew: 'إضافة مساهمة جديدة',
+        budgetTitle: 'الميزانية',
+        budgetSubtitle: 'تتبع ميزانيتك الشخصية',
+        addBudget: 'إضافة ميزانية',
         editContribution: 'تعديل المساهمة',
         noContributions: 'لا توجد مساهمات',
         startTracking: 'ابدأ في تتبع مساهماتك',
@@ -1672,7 +1685,7 @@ const resources = {
   es: {
     translation: {
       nav: {
-        dashboard: 'Panel de Control',
+        dashboard: 'Resumen',
         bills: 'Facturas',
         expenses: 'Gastos',
         contributions: 'Contribuciones',
@@ -1720,7 +1733,8 @@ const resources = {
         smartAnalytics: 'Análisis Inteligente',
         autoBillReminders: 'Recordatorios Automáticos de Facturas',
         expenseInsights: 'Perspectivas de Gastos',
-        mobileApp: 'Aplicación Móvil'
+        mobileApp: 'Aplicación Móvil',
+        budget: 'Presupuesto'
       },
       common: {
         save: 'Guardar Cambios',
@@ -1810,6 +1824,9 @@ const resources = {
         title: 'Contribuciones',
         subtitle: 'Rastrea y gestiona las contribuciones del hogar',
         addNew: 'Agregar Nueva Contribución',
+        budgetTitle: 'Presupuesto',
+        budgetSubtitle: 'Rastrea tu presupuesto personal',
+        addBudget: 'Agregar Presupuesto',
         editContribution: 'Editar Contribución',
         noContributions: 'Sin contribuciones',
         startTracking: 'Comienza a rastrear tus contribuciones',

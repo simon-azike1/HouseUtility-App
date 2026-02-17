@@ -46,6 +46,7 @@ const DashboardLayout = ({ children }) => {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [forceFeedbackOpen, setForceFeedbackOpen] = useState(false);
   const [logoutAfterFeedback, setLogoutAfterFeedback] = useState(false);
+  const [overviewMenuOpen, setOverviewMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -127,6 +128,7 @@ const DashboardLayout = ({ children }) => {
   useEffect(() => {
     setProfileDropdownOpen(false);
     setNotificationsOpen(false);
+    setOverviewMenuOpen(false);
     // Don't close sidebar on desktop
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
@@ -161,17 +163,20 @@ const DashboardLayout = ({ children }) => {
   };
 
   useEffect(() => {
-    if (user && !user.hasSubmittedFeedback) {
-      setForceFeedbackOpen(true);
+    if (!user) return;
+    const shouldShow = localStorage.getItem('showFeedbackOnLogin') === '1';
+    if (shouldShow && !user.hasSubmittedFeedback) {
+      setFeedbackOpen(true);
+      localStorage.removeItem('showFeedbackOnLogin');
     }
   }, [user]);
 
   const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase();
   const isAdminEmail = user?.email?.toLowerCase() === adminEmail;
+  const overviewActive = location.pathname === '/dashboard';
 
   const navigation = [
     { name: t('nav.dashboard'), href: '/dashboard', icon: Home, current: location.pathname === '/dashboard' },
-    { name: t('nav.contributions'), href: '/contributions', icon: DollarSign, current: location.pathname === '/contributions' },
     { name: t('nav.expenses'), href: '/expenses', icon: FileText, current: location.pathname === '/expenses' },
     { name: t('nav.bills'), href: '/bills', icon: Calendar, current: location.pathname === '/bills' },
     { name: t('nav.reports'), href: '/reports', icon: Calendar, current: location.pathname === '/reports' },
@@ -329,7 +334,7 @@ const DashboardLayout = ({ children }) => {
                   UTIL
                 </h1>
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-widest uppercase">
-                  Dashboard
+                  {t('nav.dashboard')}
                 </p>
               </div>
             </Link>
@@ -338,6 +343,60 @@ const DashboardLayout = ({ children }) => {
             <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
               {navigation.map((item) => {
                 const IconComponent = item.icon;
+                if (item.href === '/dashboard') {
+                  return (
+                    <div key={item.name} className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setOverviewMenuOpen((prev) => !prev)}
+                        className={`group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 w-full ${
+                          overviewActive
+                            ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <IconComponent className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                          overviewActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                        }`} />
+                        <span className="flex-1 text-left">{item.name}</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${
+                          overviewMenuOpen ? 'rotate-180' : ''
+                        }`} />
+                      </button>
+                      <AnimatePresence>
+                        {overviewMenuOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            className="pl-4 space-y-1"
+                          >
+                            <Link
+                              to="/dashboard"
+                              className={`flex items-center gap-3 px-4 py-2 text-sm rounded-xl transition-all ${
+                                location.pathname === '/dashboard'
+                                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                              }`}
+                            >
+                              {t('nav.dashboard')}
+                            </Link>
+                            <Link
+                              to="/contributions?mode=budget"
+                              className={`flex items-center gap-3 px-4 py-2 text-sm rounded-xl transition-all ${
+                                location.pathname === '/contributions' && location.search === '?mode=budget'
+                                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                              }`}
+                            >
+                              {t('dashboard.budget')}
+                            </Link>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                }
                 return (
                   <Link
                     key={item.name}
@@ -413,7 +472,7 @@ const DashboardLayout = ({ children }) => {
                         UTIL
                       </h1>
                       <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-widest uppercase">
-                        Dashboard
+                        {t('nav.dashboard')}
                       </p>
                     </div>
                   </Link>
@@ -429,6 +488,62 @@ const DashboardLayout = ({ children }) => {
                 <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
                   {navigation.map((item) => {
                     const IconComponent = item.icon;
+                    if (item.href === '/dashboard') {
+                      return (
+                        <div key={item.name} className="space-y-2">
+                          <button
+                            type="button"
+                            onClick={() => setOverviewMenuOpen((prev) => !prev)}
+                            className={`group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 w-full ${
+                              overviewActive
+                                ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                            }`}
+                          >
+                            <IconComponent className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                              overviewActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                            }`} />
+                            <span className="flex-1 text-left">{item.name}</span>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${
+                              overviewMenuOpen ? 'rotate-180' : ''
+                            }`} />
+                          </button>
+                          <AnimatePresence>
+                            {overviewMenuOpen && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                className="pl-4 space-y-1"
+                              >
+                                <Link
+                                  to="/dashboard"
+                                  onClick={() => setSidebarOpen(false)}
+                                  className={`flex items-center gap-3 px-4 py-2 text-sm rounded-xl transition-all ${
+                                    location.pathname === '/dashboard'
+                                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                                  }`}
+                                >
+                                  {t('nav.dashboard')}
+                                </Link>
+                                <Link
+                                  to="/contributions?mode=budget"
+                                  onClick={() => setSidebarOpen(false)}
+                                  className={`flex items-center gap-3 px-4 py-2 text-sm rounded-xl transition-all ${
+                                    location.pathname === '/contributions' && location.search === '?mode=budget'
+                                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                                  }`}
+                                >
+                                  {t('dashboard.budget')}
+                                </Link>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    }
                     return (
                       <Link
                         key={item.name}

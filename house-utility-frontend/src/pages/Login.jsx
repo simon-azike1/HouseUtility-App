@@ -109,6 +109,11 @@ const Login = () => {
               </svg>
               <div className="flex-1">
                 <p className="text-sm font-medium">{error}</p>
+                {needsVerification && (
+                  <p className="mt-2 text-sm font-semibold text-yellow-800">
+                    Please check your Spam or Junk folder for the verification email.
+                  </p>
+                )}
                 
                 {needsVerification && (
                   <button

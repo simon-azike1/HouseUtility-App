@@ -14,15 +14,18 @@ import {
   PieChart,
   ArrowRight,
   CheckCircle,
-  Star
+  Star,
+  MessageSquare
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import FeedbackModal from "../components/FeedbackModal";
 
 const Landing = () => {
   const { t } = useTranslation();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [typedLength, setTypedLength] = useState(0);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const fullHeroTitle = useMemo(() => {
     const parts = [
@@ -420,6 +423,30 @@ const Landing = () => {
 
 
       <Footer />
+
+      <FeedbackModal
+        isOpen={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+      />
+
+      <motion.button
+        onClick={() => setFeedbackOpen(true)}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ y: -2, scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700 transition-all"
+        aria-label={t('feedback.button')}
+      >
+        <motion.span
+          animate={{ y: [0, -2, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          className="flex items-center gap-2"
+        >
+          <MessageSquare className="w-5 h-5" />
+          <span className="hidden sm:inline text-sm font-semibold">{t('feedback.button')}</span>
+        </motion.span>
+      </motion.button>
     </div>
   );
 };

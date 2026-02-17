@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
@@ -7,6 +8,8 @@ import axios from 'axios';
 const Contributions = () => {
   const { t } = useTranslation();
   const { formatCurrency, formatDate } = usePreferences();
+  const [searchParams] = useSearchParams();
+  const isBudgetMode = searchParams.get('mode') === 'budget';
   const [contributions, setContributions] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -156,8 +159,12 @@ const Contributions = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('contributions.title')}</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">{t('contributions.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {isBudgetMode ? t('contributions.budgetTitle') : t('contributions.title')}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            {isBudgetMode ? t('contributions.budgetSubtitle') : t('contributions.subtitle')}
+          </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -166,7 +173,7 @@ const Contributions = () => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span>{t('contributions.addNew')}</span>
+          <span>{isBudgetMode ? t('contributions.addBudget') : t('contributions.addNew')}</span>
         </button>
       </div>
 

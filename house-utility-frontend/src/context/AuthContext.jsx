@@ -71,6 +71,9 @@ export const AuthProvider = ({ children }) => {
       if (useTokenFallback && response.data?.token) {
         localStorage.setItem('token', response.data.token);
       }
+      if (response.data?.user?.isFirstLogin) {
+        localStorage.setItem('showFeedbackOnLogin', '1');
+      }
       const userResponse = await authAPI.getMe();
       const userData = userResponse.data;
 
