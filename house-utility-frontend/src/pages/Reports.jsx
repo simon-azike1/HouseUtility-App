@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
 import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
+import { ChevronDown } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -35,6 +36,7 @@ const Reports = () => {
   const { formatCurrency, formatDate } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
@@ -346,6 +348,26 @@ const Reports = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('reports.title')}</h1>
         <p className="text-gray-600 dark:text-gray-400">{t('reports.subtitle')}</p>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-8">
+        <button
+          type="button"
+          onClick={() => setInfoOpen((prev) => !prev)}
+          aria-expanded={infoOpen}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <span className="text-sm text-blue-900 font-semibold">What this page shows</span>
+          <span className="flex items-center gap-2 text-blue-900 text-sm font-semibold">
+            {infoOpen ? 'Hide' : 'Show'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${infoOpen ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
+        {infoOpen && (
+          <p className="text-sm text-blue-800 mt-2">
+            Reports summarize contributions, expenses, and bills for the selected date range. Use the charts to spot trends and export PDFs for sharing or record-keeping.
+          </p>
+        )}
       </div>
 
       {/* Date Range Filter */}

@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
 import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
+import { ChevronDown } from 'lucide-react';
 
 const Bills = () => {
   const { t } = useTranslation();
   const { formatCurrency, formatDate } = usePreferences();
+  const [infoOpen, setInfoOpen] = useState(false);
   const [bills, setBills] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -219,6 +221,26 @@ const Bills = () => {
           </svg>
           <span>{t('bills.addNew')}</span>
         </button>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-8">
+        <button
+          type="button"
+          onClick={() => setInfoOpen((prev) => !prev)}
+          aria-expanded={infoOpen}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <span className="text-sm text-blue-900 font-semibold">What this page shows</span>
+          <span className="flex items-center gap-2 text-blue-900 text-sm font-semibold">
+            {infoOpen ? 'Hide' : 'Show'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${infoOpen ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
+        {infoOpen && (
+          <p className="text-sm text-blue-800 mt-2">
+            Bills are reminders of what is due and when. Mark items paid to keep your schedule clean. Bill reminders do not change your balance unless you also record an expense.
+          </p>
+        )}
       </div>
 
       {/* Stats Cards */}

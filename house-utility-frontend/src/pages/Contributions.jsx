@@ -4,12 +4,14 @@ import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
+import { ChevronDown } from 'lucide-react';
 
 const Contributions = () => {
   const { t } = useTranslation();
   const { formatCurrency, formatDate } = usePreferences();
   const [searchParams] = useSearchParams();
   const isBudgetMode = searchParams.get('mode') === 'budget';
+  const [infoOpen, setInfoOpen] = useState(false);
   const [contributions, setContributions] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -175,6 +177,28 @@ const Contributions = () => {
           </svg>
           <span>{isBudgetMode ? t('contributions.addBudget') : t('contributions.addNew')}</span>
         </button>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-8">
+        <button
+          type="button"
+          onClick={() => setInfoOpen((prev) => !prev)}
+          aria-expanded={infoOpen}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <span className="text-sm text-blue-900 font-semibold">What this page shows</span>
+          <span className="flex items-center gap-2 text-blue-900 text-sm font-semibold">
+            {infoOpen ? 'Hide' : 'Show'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${infoOpen ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
+        {infoOpen && (
+          <p className="text-sm text-blue-800 mt-2">
+            {isBudgetMode
+              ? 'Budget mode helps you plan and track personal spending goals in one place.'
+              : 'Contributions show what members have paid into the household and feed the Overview balance.'}
+          </p>
+        )}
       </div>
 
       {/* Stats Cards */}

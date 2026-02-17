@@ -372,16 +372,6 @@ const DashboardLayout = ({ children }) => {
                             className="pl-4 space-y-1"
                           >
                             <Link
-                              to="/dashboard"
-                              className={`flex items-center gap-3 px-4 py-2 text-sm rounded-xl transition-all ${
-                                location.pathname === '/dashboard'
-                                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                              }`}
-                            >
-                              {t('nav.dashboard')}
-                            </Link>
-                            <Link
                               to="/contributions?mode=budget"
                               className={`flex items-center gap-3 px-4 py-2 text-sm rounded-xl transition-all ${
                                 location.pathname === '/contributions' && location.search === '?mode=budget'
@@ -516,17 +506,6 @@ const DashboardLayout = ({ children }) => {
                                 exit={{ opacity: 0, y: -6 }}
                                 className="pl-4 space-y-1"
                               >
-                                <Link
-                                  to="/dashboard"
-                                  onClick={() => setSidebarOpen(false)}
-                                  className={`flex items-center gap-3 px-4 py-2 text-sm rounded-xl transition-all ${
-                                    location.pathname === '/dashboard'
-                                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                                  }`}
-                                >
-                                  {t('nav.dashboard')}
-                                </Link>
                                 <Link
                                   to="/contributions?mode=budget"
                                   onClick={() => setSidebarOpen(false)}

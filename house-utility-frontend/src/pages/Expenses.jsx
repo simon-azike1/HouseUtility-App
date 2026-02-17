@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
 import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
+import { ChevronDown } from 'lucide-react';
 
 const Expenses = () => {
   const { t } = useTranslation();
   const { formatCurrency, formatDate } = usePreferences();
+  const [infoOpen, setInfoOpen] = useState(false);
   const [expenses, setExpenses] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -170,6 +172,26 @@ const Expenses = () => {
           </svg>
           <span>{t('expenses.addNew')}</span>
         </button>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-8">
+        <button
+          type="button"
+          onClick={() => setInfoOpen((prev) => !prev)}
+          aria-expanded={infoOpen}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <span className="text-sm text-blue-900 font-semibold">What this page shows</span>
+          <span className="flex items-center gap-2 text-blue-900 text-sm font-semibold">
+            {infoOpen ? 'Hide' : 'Show'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${infoOpen ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
+        {infoOpen && (
+          <p className="text-sm text-blue-800 mt-2">
+            Expenses are actual money spent. These entries affect your total balance and reports. Add tags and categories to make filtering easier later.
+          </p>
+        )}
       </div>
 
       {/* Stats Cards */}
