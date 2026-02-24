@@ -37,27 +37,27 @@ const OurStory = () => {
 
   const milestones = [
     {
-      year: '2020',
+      year: '2022',
       title: t('ourStory.milestone2020Title'),
       description: t('ourStory.milestone2020Desc')
     },
     {
-      year: '2022',
+      year: '2023',
       title: t('ourStory.milestone2021Title'),
       description: t('ourStory.milestone2021Desc')
     },
     {
-      year: '2023',
+      year: '2024',
       title: t('ourStory.milestone2022Title'),
       description: t('ourStory.milestone2022Desc')
     },
     {
-      year: '2024',
+      year: '2025',
       title: t('ourStory.milestone2023Title'),
       description: t('ourStory.milestone2023Desc')
     },
     {
-      year: '2025',
+      year: '2026',
       title: t('ourStory.milestone2024Title'),
       description: t('ourStory.milestone2024Desc')
     }
