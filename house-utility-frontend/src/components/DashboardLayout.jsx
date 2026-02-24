@@ -174,6 +174,17 @@ const DashboardLayout = ({ children }) => {
   const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase();
   const isAdminEmail = user?.email?.toLowerCase() === adminEmail;
   const overviewActive = location.pathname === '/dashboard';
+  const handleOverviewClick = (closeSidebar = false) => {
+    if (!overviewActive) {
+      navigate('/dashboard');
+      if (closeSidebar) {
+        setSidebarOpen(false);
+      }
+      return;
+    }
+
+    setOverviewMenuOpen((prev) => !prev);
+  };
 
   const navigation = [
     { name: t('nav.dashboard'), href: '/dashboard', icon: Home, current: location.pathname === '/dashboard' },
@@ -348,7 +359,7 @@ const DashboardLayout = ({ children }) => {
                     <div key={item.name} className="space-y-2">
                       <button
                         type="button"
-                        onClick={() => setOverviewMenuOpen((prev) => !prev)}
+                        onClick={() => handleOverviewClick()}
                         className={`group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 w-full ${
                           overviewActive
                             ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
@@ -483,7 +494,7 @@ const DashboardLayout = ({ children }) => {
                         <div key={item.name} className="space-y-2">
                           <button
                             type="button"
-                            onClick={() => setOverviewMenuOpen((prev) => !prev)}
+                            onClick={() => handleOverviewClick(true)}
                             className={`group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 w-full ${
                               overviewActive
                                 ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'

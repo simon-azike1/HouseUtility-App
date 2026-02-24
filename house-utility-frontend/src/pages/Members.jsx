@@ -4,14 +4,16 @@ import { useTranslation } from 'react-i18next';
 import DashboardLayout from "../components/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
 import api from "/services/api"; // your axios instance (baseURL = /api)
-import { Crown, User } from "lucide-react";
+import { Camera, Crown, User } from "lucide-react";
 
 export default function Members() {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, refreshUser } = useAuth();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadingMemberId, setUploadingMemberId] = useState(null);
+  const [uploadMessage, setUploadMessage] = useState(null);
 
   useEffect(() => {
     fetchMembers();
@@ -68,7 +70,7 @@ export default function Members() {
           name: m.user.name || m.name || "Unnamed Member",
           email: m.user.email || m.email || "",
           role: m.role || (m.user.role || "member"),
-          imageUrl: m.user.imageUrl || m.imageUrl || null,
+          imageUrl: m.user.profilePicture || m.profilePicture || m.user.imageUrl || m.imageUrl || null,
           joinedAt: m.joinedAt || m.user.joinedAt || m.createdAt || null,
           userId: m.user._id || m.userId || m._id,
         };
@@ -80,11 +82,65 @@ export default function Members() {
         name: m.name || "Unnamed Member",
         email: m.email || "",
         role: m.role || "member",
-        imageUrl: m.imageUrl || null,
+        imageUrl: m.profilePicture || m.imageUrl || null,
         joinedAt: m.joinedAt || m.createdAt || null,
         userId: m._id,
       };
     });
+  };
+
+  const handleProfilePictureChange = async (event, member) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadMessage({ type: "error", text: "Image size must be less than 5MB." });
+      event.target.value = "";
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setUploadMessage({ type: "error", text: "Please select a valid image file." });
+      event.target.value = "";
+      return;
+    }
+
+    const memberKey = member.userId || member._id;
+    setUploadingMemberId(memberKey);
+    setUploadMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const response = await api.post("/auth/upload-profile-picture", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const profilePicture = response.data?.profilePicture;
+      if (profilePicture) {
+        setMembers((prev) =>
+          prev.map((m) => {
+            const key = m.userId || m._id;
+            if (key !== memberKey) return m;
+            return { ...m, imageUrl: profilePicture };
+          })
+        );
+      }
+
+      await refreshUser();
+      setUploadMessage({ type: "success", text: "Profile photo updated." });
+    } catch (uploadErr) {
+      setUploadMessage({
+        type: "error",
+        text: uploadErr.response?.data?.message || "Failed to upload profile photo.",
+      });
+    } finally {
+      setUploadingMemberId(null);
+      event.target.value = "";
+    }
   };
 
   if (loading) {
@@ -115,6 +171,17 @@ export default function Members() {
               {error}
             </div>
           )}
+          {uploadMessage && (
+            <div
+              className={`mb-4 p-3 rounded-lg border ${
+                uploadMessage.type === "success"
+                  ? "bg-green-50 text-green-700 border-green-100"
+                  : "bg-red-50 text-red-700 border-red-100"
+              }`}
+            >
+              {uploadMessage.text}
+            </div>
+          )}
 
           {members.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
@@ -130,6 +197,13 @@ export default function Members() {
                     key={member._id || member.userId}
                     className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 flex flex-col items-center text-center group"
                   >
+                    {(member.role === "admin" || member.role === "owner") && (
+                      <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                        <Crown size={12} className="text-yellow-600" />
+                        Admin
+                      </span>
+                    )}
+
                     {/* status dot (placeholder) */}
                     <div className="absolute top-3 right-3">
                       <span
@@ -155,6 +229,30 @@ export default function Members() {
                         <div className="w-16 h-16 rounded-full bg-indigo-100 flex justify-center items-center text-indigo-700 font-bold text-xl border-4 border-indigo-50">
                           {member.name?.charAt(0).toUpperCase() || "?"}
                         </div>
+                      )}
+
+                      {isMe && (
+                        <>
+                          <label
+                            htmlFor={`member-photo-${member.userId || member._id}`}
+                            className="absolute -bottom-2 -left-2 bg-white rounded-full p-2 shadow border border-gray-100 cursor-pointer hover:bg-indigo-50 transition-colors"
+                            title="Upload profile photo"
+                          >
+                            {uploadingMemberId === (member.userId || member._id) ? (
+                              <span className="block w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Camera size={14} className="text-indigo-600" />
+                            )}
+                          </label>
+                          <input
+                            id={`member-photo-${member.userId || member._id}`}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingMemberId === (member.userId || member._id)}
+                            onChange={(e) => handleProfilePictureChange(e, member)}
+                          />
+                        </>
                       )}
 
                       <span className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow">

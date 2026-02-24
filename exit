@@ -1,0 +1,263 @@
+[33mcommit 076bf4c912474d34a437b3a321d9564df207d717[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 53508fd 423c9ae
+Author: Simon <simonazike155@gmail.com>
+Date:   Thu Feb 12 16:12:17 2026 +0100
+
+    Conflict resolved
+
+[33mcommit 53508fd22782a3859a4d93e63d974be76e43d37c[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Thu Feb 12 16:02:20 2026 +0100
+
+    Added google OAth feature
+
+[33mcommit 423c9aeb48aef2f547baaa6ece480c3869802b3d[m
+Author: AZIKE SIMON SHINYE <azikeshinye@gmail.com>
+Date:   Wed Dec 31 16:41:37 2025 +0100
+
+    Update README.md
+
+[33mcommit ba0ec7598f74bc93195056d9d8041ed3e588abf5[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 24 10:55:06 2025 +0100
+
+    Add project documentation files
+    
+    - Added ONBOARDING_VIDEO_SCRIPT.md with video script
+    - Added UTIL_Application_Documentation.md with comprehensive app documentation
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+[33mcommit 85e213c65dfc2fd9d2a57df53962e71766b9600e[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 15 19:56:15 2025 +0100
+
+    Updated security tab
+
+[33mcommit bec2754fdadea07fa9cfe99a3a07b1dc5b4f2744[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 15 19:30:37 2025 +0100
+
+    Deabled forgot password link
+
+[33mcommit 4b9e37860f4b52bca037cfb27324cdaab1d4a135[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 15 19:19:16 2025 +0100
+
+    Deabled forgot password link
+
+[33mcommit 189f37e9838ce04523eeae175cdf12ecc6897fe1[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 15 18:51:32 2025 +0100
+
+    Onboarding component added and dashboard updated
+
+[33mcommit 9256e8cbd13070aa669af4aa57c9941a080414d4[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 15 07:38:47 2025 +0100
+
+    Updated web tab tittle
+
+[33mcommit 63f69c61ef0beea1593aa2e0c4d673c9887cb272[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sat Dec 13 18:12:29 2025 +0100
+
+    Update  the forms style
+
+[33mcommit e26d7adb45afca24fc8542d0bbdc838a8fe8323d[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sat Dec 13 06:26:43 2025 +0100
+
+    Dashboard clean up of imogies
+
+[33mcommit 177956edafcb5683586d7db15464a5d6c77b7e23[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sat Dec 13 06:04:52 2025 +0100
+
+    Made report page filter functional
+
+[33mcommit 3cefcf20f2e37ff60f5103ea8a5f36ab82bfd1d5[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sat Dec 13 05:25:54 2025 +0100
+
+    Added new domain name and updated dashboard
+
+[33mcommit 77ab953e5cec4fa4640413b405522bff70ec2566[m
+Author: AZIKE SIMON SHINYE <azikeshinye@gmail.com>
+Date:   Wed Dec 10 20:38:33 2025 +0100
+
+    Fix formatting in README.md
+
+[33mcommit 6d85c8210a0901a3d78589891e194d7bc41d07c5[m
+Author: AZIKE SIMON SHINYE <azikeshinye@gmail.com>
+Date:   Wed Dec 10 20:37:15 2025 +0100
+
+    Update README.md
+
+[33mcommit e91be994939efb8229389b5b6dce374e24abddbd[m
+Author: AZIKE SIMON SHINYE <azikeshinye@gmail.com>
+Date:   Wed Dec 10 20:37:03 2025 +0100
+
+    Update README.md
+
+[33mcommit c87ea33c3a11b1967c438c8c333a92be2bb3741b[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 20:34:45 2025 +0100
+
+    Updated all the forms lable and title for mobile responsiveness
+
+[33mcommit 2e69571ebe237fc90449aed7b885ffa930d50c04[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 20:29:15 2025 +0100
+
+    Updated all the forms lable and title for mobile responsiveness
+
+[33mcommit 7f6258e1c601d747c7e41963fce18808c2e61f10[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 20:20:00 2025 +0100
+
+    Updated Notification panel for mobile responsiveness
+
+[33mcommit cbc7ac4906a59c47b01e984201c18fd198c3d018[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 20:12:08 2025 +0100
+
+    Updated Notification panel for mobile responsiveness
+
+[33mcommit dc1bef6115bf580447da6ab0e2d43b95b161c865[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 19:58:44 2025 +0100
+
+    Updated bill form
+
+[33mcommit 759564695b219ef0529ab61a383f0026cbaebb4b[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 19:40:19 2025 +0100
+
+    Updated admin URIs
+
+[33mcommit d8d0c6516892d35647eb8457532984211ce3d5e0[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 19:22:15 2025 +0100
+
+    Updated admin URIs
+
+[33mcommit 9d8286fdd2e2c77bb41b1ae1d88fcd062b31a9e3[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Wed Dec 10 16:19:41 2025 +0100
+
+    Updated dashboard and pricing page
+
+[33mcommit f5eec7910b88fd606d6c04afa7923964b0b12271[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Fri Dec 5 12:57:28 2025 +0100
+
+    Added language switch system and Dark mood update.
+
+[33mcommit fb30d4120ffd84cebca52d48383d856f65e8784d[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Tue Dec 2 18:33:51 2025 +0100
+
+    Removed duplicated api in the dashboard
+
+[33mcommit 7eadfb3e7c921fb202194d4dc0cb16d68191daf7[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Tue Dec 2 15:03:03 2025 +0100
+
+    Removed duplicated api in the dashboard
+
+[33mcommit 976a41239d709e286e745d440aff456035cf1db1[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 1 19:44:30 2025 +0100
+
+    Updated Notification and Account setting
+
+[33mcommit 2a39f9d3df0da9adcc6c4b33ce5cfa5f23b92300[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 1 05:55:21 2025 +0100
+
+    Updated profile image upload functionality
+
+[33mcommit 3a3e3ec1d2eb7b32924b5faa73f0d19829b13886[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 1 04:58:34 2025 +0100
+
+    Fixed passport URL issues
+
+[33mcommit 497037d390aa4a8ce5ddb65a4b8b39bdd9ace22d[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 1 04:49:16 2025 +0100
+
+    Isolated blog page
+
+[33mcommit b5fc4230e22b43d073afed2f0a49b0d64906265d[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 1 04:44:22 2025 +0100
+
+    Removed content from contact page
+
+[33mcommit 4fe984737116ad0c79fb21947315c6f838bb2a32[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Mon Dec 1 04:39:43 2025 +0100
+
+    Updated pages and  app UI
+
+[33mcommit 630c8c68dea2863ba744eb7a6116332c9135f976[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sun Nov 30 22:44:56 2025 +0100
+
+    Updated profile tab
+
+[33mcommit 5aa8af7b10e3b8a04281d4180b94622ccf096fa6[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sun Nov 30 06:16:19 2025 +0100
+
+    Removed confusing roles in profile tab
+
+[33mcommit ff436ce3a6884ca9a36c86fe59000759cb93501e[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sun Nov 30 05:59:08 2025 +0100
+
+    Removed confusing roles in profile tab
+
+[33mcommit cf09a14c2b6d0e37edc8f1db5026ca9dc07b8f4c[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sun Nov 30 05:44:45 2025 +0100
+
+    Updated member profile to only have member permission
+
+[33mcommit 0386e492ea733d5d569b7b19eca861cc1235d91d[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sun Nov 30 05:32:19 2025 +0100
+
+    Updated member profile to only have member permission
+
+[33mcommit e6f091792425d6dd4335ff2933cef51f6f39926d[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sun Nov 30 05:08:05 2025 +0100
+
+    Clean up README formatting
+
+[33mcommit f5b6035d63f47852bfb09bfe85c25cf7a309ae3c[m
+Author: Simon <simonazike155@gmail.com>
+Date:   Sun Nov 30 04:54:54 2025 +0100
+
+    Implement household invite system, cascade deletion, member permissions, and sync detection
+    
+    ## Features Added
+    
+    ### Household Invite Flow
+    - Add invite code generation and sharing for households
+    - Implement member registration via invite links
+    - Pass invite codes through Google OAuth verification flow
+    - Auto-assign users to households during verification
+    - Add "Copy Invite Link" button in Profile for owners
+    - Manual "Join Household" option for existing users
+    
+    ### Cascade Deletion System
+    - Implement automatic cascade deletion for User and Household models
+    - Delete all owned households when user/owner is deleted
+    - Clean up all related expenses, bills, and contributions
+    - Clear household reference
