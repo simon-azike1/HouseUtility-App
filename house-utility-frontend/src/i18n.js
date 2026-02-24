@@ -534,7 +534,7 @@ const resources = {
         milestone2023Title: 'Rapid Growth',
         milestone2023Desc: 'Reached 10,000 households. Expanded to help families, roommates, and couples worldwide.',
         milestone2024Title: 'Today',
-        milestone2024Desc: 'Serving 50K+ users across 100+ countries, staying true to our founding vision.',
+        milestone2024Desc: 'Serving 13+ users across 4+ countries, staying true to our founding vision.',
         ctaTitle: 'Start Your Journey with UTIL',
         ctaSubtitle: 'Experience the transparency and accountability that changed everything',
         getStarted: 'Get Started Today'
