@@ -26,13 +26,13 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
 
-      logger.log('✅ User data refreshed from server:', userData); // ✅ ALREADY CORRECT
-      logger.log('📋 Household field:', userData.household); // ✅ ALREADY CORRECT
-      logger.log('👤 Household role:', userData.householdRole); // ✅ ALREADY CORRECT
+      logger.log('✅ User data refreshed from server:', userData); 
+      logger.log('📋 Household field:', userData.household); 
+      logger.log('👤 Household role:', userData.householdRole); 
 
       return userData;
     } catch (err) {
-      logger.error('❌ Failed to refresh user data:', err); // ✅ CHANGED
+      logger.error('❌ Failed to refresh user data:', err); 
       localStorage.removeItem('user');
       setUser(null);
       return null;
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
 
-      logger.log('User fetched after login:', userData); // ✅ CHANGED
+      logger.log('User fetched after login:', userData); 
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed';
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
       // Store email for verification page
       localStorage.setItem('pendingVerificationEmail', email);
       
-      logger.log('Registration response:', response.data); // ✅ CHANGED
+      logger.log('Registration response:', response.data); 
       
       return { 
         success: true, 

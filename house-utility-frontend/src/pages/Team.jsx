@@ -15,7 +15,7 @@ const Team = () => {
       bio: t('team.founderBio'),
       linkedin: 'https://linkedin.com/in/simonzik',
       facebook: 'https://web.facebook.com/simon.azike/',
-      website: 'https://my-new-portfolio-8zg5.vercel.app/',
+      website: 'https://my-new-portfolio-hazel.vercel.app/',
       email: 'azikeshinye@gmail.com'
     },
     {
