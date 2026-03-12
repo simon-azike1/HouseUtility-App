@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import i18n from '../i18n';
+import { logger } from '../utils/logger';
 
 const PreferencesContext = createContext();
 
@@ -20,7 +21,7 @@ export const PreferencesProvider = ({ children }) => {
       try {
         return JSON.parse(cached);
       } catch (e) {
-        console.error('Failed to parse cached preferences:', e);
+        logger.error('Failed to parse cached preferences:', e); // ✅ CHANGED
       }
     }
     return {
@@ -40,7 +41,7 @@ export const PreferencesProvider = ({ children }) => {
       try {
         const response = await axios.get('/auth/settings');
 
-        console.log('Loaded preferences from backend:', response.data.preferences);
+        logger.log('Loaded preferences from backend:', response.data.preferences); // ✅ CHANGED
 
         if (response.data.preferences) {
           setPreferences(response.data.preferences);
@@ -52,7 +53,7 @@ export const PreferencesProvider = ({ children }) => {
           }
         }
       } catch (error) {
-        console.error('Failed to load preferences:', error);
+        logger.error('Failed to load preferences:', error); // ✅ CHANGED
       } finally {
         setLoading(false);
       }
@@ -62,7 +63,7 @@ export const PreferencesProvider = ({ children }) => {
   }, []);
 
   const updatePreferences = (newPreferences) => {
-    console.log('Updating preferences to:', newPreferences);
+    logger.log('Updating preferences to:', newPreferences); // ✅ CHANGED
     const updated = {
       ...preferences,
       ...newPreferences
@@ -75,7 +76,7 @@ export const PreferencesProvider = ({ children }) => {
     // Sync language with i18n when language changes
     if (newPreferences.language) {
       i18n.changeLanguage(newPreferences.language);
-      console.log('Changed language to:', newPreferences.language);
+      logger.log('Changed language to:', newPreferences.language); // ✅ CHANGED
     }
   };
 
@@ -106,7 +107,7 @@ export const PreferencesProvider = ({ children }) => {
 
     // Debug logging (remove in production)
     if (Math.random() < 0.01) { // Log 1% of calls to avoid spam
-      console.log('formatCurrency:', {
+      logger.log('formatCurrency:', { // ✅ CHANGED
         amount,
         currency: preferences.currency,
         language: currentLanguage,

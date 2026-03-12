@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../utils/logger';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -37,7 +38,7 @@ const Login = () => {
 
     const result = await login(formData.email, formData.password);
     
-    console.log('Login result:', result);
+    logger.log('Login result:', result);
 
     if (result.success) {
       navigate('/dashboard');

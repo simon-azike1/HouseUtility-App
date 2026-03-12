@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import api from '../../services/api';
 import { motion } from 'framer-motion';
+import { logger } from '../utils/logger';
 import {
   User,
   Mail,
@@ -69,7 +70,7 @@ const Profile = () => {
         const response = await api.get('/household');
         setHousehold(response.data.data);
       } catch (error) {
-        console.error('Error fetching household data:', error);
+        logger.error('Error fetching household data:', error);
         setHousehold(null);
       } finally {
         setHouseholdLoading(false);
@@ -127,7 +128,7 @@ const Profile = () => {
       const response = await api.get('/household/members');
       setMembers(response.data.data || []);
     } catch (error) {
-      console.error('Error fetching members:', error);
+      logger.error('Error fetching members:', error);
       setMessage({
         type: 'error',
         text: error.response?.data?.message || 'Failed to fetch members'
@@ -142,18 +143,18 @@ const Profile = () => {
       return;
     }
 
-    console.log('🗑️ Removing member:', memberId);
+    logger.log('🗑️ Removing member:', memberId);
     setActionLoading(memberId);
     try {
       const response = await api.delete(`/household/members/${memberId}`);
-      console.log('✅ Remove member response:', response.data);
+      logger.log('✅ Remove member response:', response.data);
 
       setMessage({ type: 'success', text: 'Member removed successfully!' });
       fetchMembers(); // Refresh members list
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
-      console.error('❌ Remove member error:', error);
-      console.error('Error response:', error.response?.data);
+      logger.error('❌ Remove member error:', error);
+      logger.error('Error response:', error.response?.data);
       setMessage({
         type: 'error',
         text: error.response?.data?.message || 'Failed to remove member'

@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { logger } from '../utils/logger';
 import { authAPI, householdAPI } from '/services/api';
 
 const AuthContext = createContext();
@@ -25,12 +26,13 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
 
-      console.log('✅ User data refreshed from server:', userData);
-      console.log('📋 Household field:', userData.household);
-      console.log('👤 Household role:', userData.householdRole);
+      logger.log('✅ User data refreshed from server:', userData); // ✅ ALREADY CORRECT
+      logger.log('📋 Household field:', userData.household); // ✅ ALREADY CORRECT
+      logger.log('👤 Household role:', userData.householdRole); // ✅ ALREADY CORRECT
+
       return userData;
     } catch (err) {
-      console.error('❌ Failed to refresh user data:', err);
+      logger.error('❌ Failed to refresh user data:', err); // ✅ CHANGED
       localStorage.removeItem('user');
       setUser(null);
       return null;
@@ -80,7 +82,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
 
-      console.log('User fetched after login:', userData);
+      logger.log('User fetched after login:', userData); // ✅ CHANGED
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed';
@@ -111,7 +113,7 @@ export const AuthProvider = ({ children }) => {
       // Store email for verification page
       localStorage.setItem('pendingVerificationEmail', email);
       
-      console.log('Registration response:', response.data);
+      logger.log('Registration response:', response.data); // ✅ CHANGED
       
       return { 
         success: true, 
@@ -123,7 +125,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       const message = err.response?.data?.message || 'Registration failed';
       setError(message);
-      console.error('Registration error:', err);
+      logger.error('Registration error:', err); // ✅ CHANGED
       return { 
         success: false, 
         error: message 
@@ -157,11 +159,11 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     login,
-    loginWithGoogle, // ✅ ADD THIS
+    loginWithGoogle,
     register,
     logout,
-    refreshUser, // ✅ Expose refresh function
-    updateUser: setUser, // ✅ Allow manual user updates
+    refreshUser,
+    updateUser: setUser,
     isAuthenticated: !!user,
   };
 

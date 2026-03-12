@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../utils/logger';
 
 const Register = () => {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ const Register = () => {
     // Only clear token and user, keep pendingVerificationEmail and pendingInviteCode if they exist
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    console.log('🧹 Cleared stale auth data from localStorage');
+    logger.log('🧹 Cleared stale auth data from localStorage');
   }, []);
 
   const calculatePasswordStrength = (password) => {
@@ -75,24 +76,24 @@ const Register = () => {
       // ✅ Call register from AuthContext
       const result = await register(formData.name, formData.email, formData.password);
 
-      console.log('📝 Registration result:', result); // Debug log
+      logger.log('📝 Registration result:', result);
 
       if (result.success) {
         // ✅ ALWAYS redirect to verification for new users
-        console.log('✅ Registration successful, redirecting to verification...');
-        console.log('📧 Email to verify:', formData.email);
+        logger.log('✅ Registration successful, redirecting to verification...');
+        logger.log('📧 Email to verify:', formData.email);
         
         // Store email in localStorage as backup
         localStorage.setItem('pendingVerificationEmail', formData.email);
-        console.log('✅ Email stored in localStorage');
+        logger.log('✅ Email stored in localStorage');
         
         // Redirect to verification page (use window.location for most reliable redirect)
-        console.log('🔄 Redirecting to /verify-email...');
+        logger.log('🔄 Redirecting to /verify-email...');
 
         // Store invite code if present
         if (inviteCode) {
           localStorage.setItem('pendingInviteCode', inviteCode);
-          console.log('📝 Invite code stored:', inviteCode);
+          logger.log('📝 Invite code stored:', inviteCode);
         }
 
         setTimeout(() => {
@@ -100,12 +101,12 @@ const Register = () => {
         }, 100);
       } else {
         // Show error
-        console.log('❌ Registration failed:', result.error);
+        logger.log('❌ Registration failed:', result.error);
         setError(result.error || 'Registration failed. Please try again.');
         setLoading(false);
       }
     } catch (err) {
-      console.error('❌ Registration error:', err);
+      logger.error('❌ Registration error:', err);
       setError('An unexpected error occurred. Please try again.');
       setLoading(false);
     }

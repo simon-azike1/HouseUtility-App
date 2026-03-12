@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { authAPI } from '../../services/api';
+import { logger } from '../utils/logger';
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
@@ -29,7 +30,7 @@ const VerifyEmail = () => {
     const emailToVerify = urlEmail || storedEmail || '';
     setEmail(emailToVerify);
 
-    console.log('📧 Email to verify:', emailToVerify);
+    logger.log('📧 Email to verify:', emailToVerify);
 
     // Store in localStorage as backup
     if (emailToVerify) {
@@ -42,7 +43,7 @@ const VerifyEmail = () => {
     if (urlInviteCode || storedInviteCode) {
       const inviteCodeToUse = urlInviteCode || storedInviteCode;
       localStorage.setItem('pendingInviteCode', inviteCodeToUse);
-      console.log('📝 Invite code detected:', inviteCodeToUse);
+      logger.log('📝 Invite code detected:', inviteCodeToUse);
     }
 
     // Check for errors from Google OAuth callback
@@ -67,15 +68,14 @@ const VerifyEmail = () => {
   }, [searchParams]);
 
   // ✅ TOKEN-BASED VERIFICATION (from email link)
-  // ✅ TOKEN-BASED VERIFICATION (from email link)
   const verifyEmailWithToken = async (token) => {
     setStatus('verifying');
     try {
       // ✅ Get invite code from localStorage
       const inviteCode = localStorage.getItem('pendingInviteCode');
       
-      console.log('🔍 Verifying with token:', token);
-      console.log('📝 Invite code:', inviteCode || 'none');
+      logger.log('🔍 Verifying with token:', token);
+      logger.log('📝 Invite code:', inviteCode || 'none');
       
       // ✅ Send both token AND inviteCode
       const response = await authAPI.verifyEmail(token, inviteCode);
@@ -128,7 +128,7 @@ const VerifyEmail = () => {
       return;
     }
 
-    console.log('🚀 Starting verification for:', email);
+    logger.log('🚀 Starting verification for:', email);
 
     const inviteCode = localStorage.getItem('pendingInviteCode');
     const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -136,10 +136,10 @@ const VerifyEmail = () => {
 
     if (inviteCode) {
       redirectUrl += `&inviteCode=${encodeURIComponent(inviteCode)}`;
-      console.log('📝 Including invite code:', inviteCode);
+      logger.log('📝 Including invite code:', inviteCode);
     }
 
-    console.log('🔗 Redirecting to:', redirectUrl);
+    logger.log('🔗 Redirecting to:', redirectUrl);
     window.location.href = redirectUrl;
   };
 
@@ -271,14 +271,14 @@ const VerifyEmail = () => {
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                 </div>
-              <div className="ml-3">
-                <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                  <strong>Check your email</strong> for a verification link, or use Google to verify instantly.
-                </p>
-                <p className="mt-2 text-sm font-semibold text-yellow-800 dark:text-yellow-300">
-                  Please also check your Spam or Junk folder.
-                </p>
-              </div>
+                <div className="ml-3">
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                    <strong>Check your email</strong> for a verification link, or use Google to verify instantly.
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                    Please also check your Spam or Junk folder.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
