@@ -27,6 +27,7 @@ const Team = () => {
       facebook: 'https://web.facebook.com/marcelinaadebisi',
       website: 'https://mercel-life.vercel.app/',
       email: 'keyinde@util.com'
+      //https://www.hutill.com/team
     },
     {
       name: 'Quadri Kobiowu',

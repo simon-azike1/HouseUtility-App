@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
 import { usePreferences } from '../context/PreferencesContext';
 import axios from 'axios';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Sparkles } from 'lucide-react';
 
 const Expenses = () => {
   const { t } = useTranslation();
@@ -15,6 +15,12 @@ const Expenses = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('');
+  
+  // ✅ AI Categorization States
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [isCategorizingAI, setIsCategorizingAI] = useState(false);
+  const [aiError, setAiError] = useState('');
+  
   const [formData, setFormData] = useState({
     title: '',
     amount: '',
@@ -38,6 +44,82 @@ const Expenses = () => {
     { value: 'transportation', label: 'Transportation', icon: '🚗', color: 'bg-orange-100 text-orange-700' },
     { value: 'other', label: 'Other', icon: '📦', color: 'bg-gray-100 text-gray-700' },
   ];
+
+  // ✅ Map AI categories to your existing categories
+  const mapAICategory = (aiCategory) => {
+    const mapping = {
+      'Food & Groceries': 'groceries',
+      'Dining Out': 'entertainment',
+      'Transportation': 'transportation',
+      'Utilities': 'utilities',
+      'Rent/Mortgage': 'other',
+      'Entertainment': 'entertainment',
+      'Shopping': 'other',
+      'Healthcare': 'other',
+      'Education': 'other',
+      'Insurance': 'other',
+      'Subscriptions': 'internet',
+      'Travel': 'transportation',
+      'Personal Care': 'other',
+      'Household Items': 'maintenance',
+      'Gifts & Donations': 'other',
+      'Other': 'other'
+    };
+    return mapping[aiCategory] || 'other';
+  };
+
+  // ✅ AI Categorization function
+  const getAISuggestion = async (title, amount) => {
+    if (!title || title.length < 3) {
+      setAiSuggestion(null);
+      return;
+    }
+
+    setIsCategorizingAI(true);
+    setAiError('');
+    
+    try {
+      const response = await axios.post('/expenses/categorize', {
+        description: title,
+        amount: amount || null
+      });
+
+      if (response.data.success) {
+        const aiCategory = response.data.suggestedCategory;
+        const mappedCategory = mapAICategory(aiCategory);
+        
+        setAiSuggestion({
+          original: aiCategory,
+          mapped: mappedCategory
+        });
+      }
+    } catch (error) {
+      console.error('AI categorization failed:', error);
+      setAiError('AI categorization unavailable');
+      setAiSuggestion(null);
+    } finally {
+      setIsCategorizingAI(false);
+    }
+  };
+
+  // ✅ Debounced AI suggestion when title or amount changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.title && formData.title.length >= 3 && !editingId) {
+        getAISuggestion(formData.title, formData.amount);
+      }
+    }, 1000); // Wait 1 second after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [formData.title, formData.amount, editingId]);
+
+  // ✅ Apply AI suggestion
+  const applyAISuggestion = () => {
+    if (aiSuggestion) {
+      setFormData({ ...formData, category: aiSuggestion.mapped });
+      setAiSuggestion(null);
+    }
+  };
 
   useEffect(() => {
     fetchExpenses();
@@ -100,6 +182,7 @@ const Expenses = () => {
         setShowModal(false);
         setEditingId(null);
         setShowSuccess(false);
+        setAiSuggestion(null); // ✅ Clear AI suggestion
         setFormData({
           title: '',
           amount: '',
@@ -127,6 +210,7 @@ const Expenses = () => {
       tags: expense.tags?.join(', ') || ''
     });
     setShowModal(true);
+    setAiSuggestion(null); // ✅ Clear AI suggestion when editing
   };
 
   const handleDelete = async (id) => {
@@ -164,7 +248,10 @@ const Expenses = () => {
           <p className="text-gray-600 mt-1">{t('expenses.subtitle')}</p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setShowModal(true);
+            setAiSuggestion(null); // ✅ Clear AI suggestion
+          }}
           className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg shadow-indigo-500/30 flex items-center space-x-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,6 +473,7 @@ const Expenses = () => {
                     setEditingId(null);
                     setError('');
                     setShowSuccess(false);
+                    setAiSuggestion(null); // ✅ Clear AI suggestion
                   }}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
@@ -415,8 +503,23 @@ const Expenses = () => {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                    placeholder="e.g., Grocery Shopping"
+                    placeholder="e.g., Grocery Shopping, Netflix subscription, Gas for car..."
                   />
+                  
+                  {/* ✅ AI Loading Indicator */}
+                  {isCategorizingAI && !editingId && (
+                    <div className="flex items-center gap-2 text-indigo-600 text-sm mt-2">
+                      <Sparkles className="w-4 h-4 animate-pulse" />
+                      <span>AI is analyzing...</span>
+                    </div>
+                  )}
+                  
+                  {/* ✅ AI Error */}
+                  {aiError && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {aiError}
+                    </div>
+                  )}
                 </div>
 
                 {/* Amount */}
@@ -449,15 +552,48 @@ const Expenses = () => {
                   />
                 </div>
 
-                {/* Category */}
-                <div>
+                {/* ✅ Category with AI Suggestion */}
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category <span className="text-red-500">*</span>
                   </label>
+                  
+                  {/* ✅ AI Suggestion Banner */}
+                  {aiSuggestion && !editingId && (
+                    <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl p-4 mb-3 animate-slideDown">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-indigo-100 dark:bg-indigo-900 p-2 rounded-lg">
+                            <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">
+                              AI Suggestion
+                            </p>
+                            <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                              Detected: <strong>{aiSuggestion.original}</strong> → {getCategoryDetails(aiSuggestion.mapped).icon} {getCategoryDetails(aiSuggestion.mapped).label}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={applyAISuggestion}
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
                   <select
                     required
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, category: e.target.value });
+                      setAiSuggestion(null); // Clear suggestion when manually changed
+                    }}
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                   >
                     {categories.map((cat) => (
@@ -469,7 +605,7 @@ const Expenses = () => {
                 </div>
 
                 {/* Paid By */}
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Paid By <span className="text-red-500">*</span>
                   </label>
@@ -522,6 +658,7 @@ const Expenses = () => {
                     setEditingId(null);
                     setError('');
                     setShowSuccess(false);
+                    setAiSuggestion(null); // ✅ Clear AI suggestion
                   }}
                   className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
