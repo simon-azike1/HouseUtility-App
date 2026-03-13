@@ -45,29 +45,33 @@ const Expenses = () => {
     { value: 'other', label: 'Other', icon: '📦', color: 'bg-gray-100 text-gray-700' },
   ];
 
-  // ✅ Map AI categories to your existing categories
-  const mapAICategory = (aiCategory) => {
-    const mapping = {
-      'Food & Groceries': 'groceries',
-      'Dining Out': 'entertainment',
-      'Transportation': 'transportation',
-      'Utilities': 'utilities',
-      'Rent/Mortgage': 'other',
-      'Entertainment': 'entertainment',
-      'Shopping': 'other',
-      'Healthcare': 'other',
-      'Education': 'other',
-      'Insurance': 'other',
-      'Subscriptions': 'internet',
-      'Travel': 'transportation',
-      'Personal Care': 'other',
-      'Household Items': 'maintenance',
-      'Gifts & Donations': 'other',
-      'Other': 'other'
-    };
-    return mapping[aiCategory] || 'other';
+  // ✅ UPDATED - Map AI categories to your existing categories
+const mapAICategory = (aiCategory) => {
+  const mapping = {
+    'Food & Groceries': 'groceries',
+    'Dining Out': 'groceries',
+    'Transportation': 'transportation',
+    'Utilities': 'utilities',  // ← Should work but let's debug
+    'Rent/Mortgage': 'other',
+    'Entertainment': 'entertainment',
+    'Shopping': 'other',
+    'Healthcare': 'other',
+    'Education': 'other',
+    'Insurance': 'other',
+    'Subscriptions': 'internet',
+    'Travel': 'transportation',
+    'Personal Care': 'other',
+    'Household Items': 'maintenance',
+    'Gifts & Donations': 'other',
+    'Other': 'other'
   };
-
+  
+  // ✅ ADD DEBUG LOGGING
+  console.log('🤖 AI returned category:', aiCategory);
+  console.log('📋 Mapped to:', mapping[aiCategory] || 'other');
+  
+  return mapping[aiCategory] || 'other';
+};
   // ✅ AI Categorization function
   const getAISuggestion = async (title, amount) => {
     if (!title || title.length < 3) {
