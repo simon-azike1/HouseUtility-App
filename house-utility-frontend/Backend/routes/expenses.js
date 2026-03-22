@@ -15,6 +15,18 @@ const router = express.Router();
 // Protect all routes
 router.use(protect);
 
+
+// Protect all routes
+router.use(protect);
+
+// ✅ SUPER SIMPLE TEST - Add this at the top
+router.get('/test-simple', async (req, res) => {
+  console.log('═══════════════════════════════════════');
+  console.log('🧪 SIMPLE TEST ROUTE HIT!');
+  console.log('═══════════════════════════════════════');
+  res.json({ message: 'Test route works!' });
+});
+
 // ✅ AI CATEGORIZATION ROUTE - MUST BE BEFORE /:id
 router.post('/categorize', async (req, res) => {
   try {
