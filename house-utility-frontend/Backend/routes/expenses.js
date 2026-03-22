@@ -8,7 +8,7 @@ import {
   getStats
 } from '../controllers/expenseController.js';
 import { protect } from '../middleware/auth.js';
-import { categorizeExpense } from '../services/aiCategorization.js'; // ✅ ADD THIS
+import { categorizeExpense } from '../services/aiCategorization.js'; // ✅ IMPORT
 
 const router = express.Router();
 
@@ -18,6 +18,9 @@ router.use(protect);
 // ✅ AI CATEGORIZATION ROUTE - MUST BE BEFORE /:id
 router.post('/categorize', async (req, res) => {
   try {
+    console.log('🎯 /categorize route hit!'); // ✅ ADD THIS LOG
+    console.log('Request body:', req.body);
+    
     const { description, amount } = req.body;
 
     if (!description) {
@@ -27,8 +30,12 @@ router.post('/categorize', async (req, res) => {
       });
     }
 
+    console.log('📞 Calling categorizeExpense function...'); // ✅ ADD THIS LOG
+    
     // Get AI suggestion
     const suggestedCategory = await categorizeExpense(description, amount);
+
+    console.log('✅ Got response from categorizeExpense:', suggestedCategory); // ✅ ADD THIS LOG
 
     res.json({
       success: true,
@@ -47,7 +54,7 @@ router.post('/categorize', async (req, res) => {
   }
 });
 
-// TEST ENDPOINT - Remove after debugging
+// TEST ENDPOINT - can remove later
 router.get('/test-ai', protect, async (req, res) => {
   const fs = await import('fs');
   const path = await import('path');
@@ -62,7 +69,6 @@ router.get('/test-ai', protect, async (req, res) => {
     openaiKeyExists: !!process.env.OPENAI_API_KEY
   });
 });
-
 
 // Existing routes
 router.route('/stats').get(getStats);
