@@ -46,7 +46,24 @@ router.post('/categorize', async (req, res) => {
     });
   }
 });
-``
+
+// TEST ENDPOINT - Remove after debugging
+router.get('/test-ai', protect, async (req, res) => {
+  const fs = await import('fs');
+  const path = await import('path');
+  
+  const filePath = path.join(process.cwd(), 'services', 'aiCategorization.js');
+  const exists = fs.existsSync(filePath);
+  
+  res.json({
+    fileExists: exists,
+    cwd: process.cwd(),
+    expectedPath: filePath,
+    openaiKeyExists: !!process.env.OPENAI_API_KEY
+  });
+});
+
+
 // Existing routes
 router.route('/stats').get(getStats);
 router.route('/')
