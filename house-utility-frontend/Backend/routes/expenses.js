@@ -46,7 +46,7 @@ router.post('/categorize', async (req, res) => {
     });
   }
 });
-
+``
 // Existing routes
 router.route('/stats').get(getStats);
 router.route('/')
