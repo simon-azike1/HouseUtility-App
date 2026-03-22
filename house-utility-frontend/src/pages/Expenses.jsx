@@ -51,7 +51,7 @@ const mapAICategory = (aiCategory) => {
     'Food & Groceries': 'groceries',
     'Dining Out': 'groceries',
     'Transportation': 'transportation',
-    'Utilities': 'utilities',  // ← Should work but let's debug
+    'Utilities': 'utilities',  
     'Rent/Mortgage': 'other',
     'Entertainment': 'entertainment',
     'Shopping': 'other',
