@@ -10,6 +10,7 @@
     "cleanup": "node scripts/cleanup-database.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.0",
     "cookie-parser": "^1.4.6",
