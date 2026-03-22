@@ -31,9 +31,14 @@ const EXPENSE_CATEGORIES = [
  * @returns {Promise<string>} - The predicted category
  */
 export const categorizeExpense = async (description, amount = null) => {
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🤖 AI CATEGORIZATION STARTED');
+  console.log('Description:', description);
+  console.log('Amount:', amount);
+  console.log('API Key exists:', !!process.env.OPENAI_API_KEY);
+  console.log('API Key (first 20 chars):', process.env.OPENAI_API_KEY?.substring(0, 20));
+  
   try {
-    console.log('🤖 AI categorizing:', description);
-
     const prompt = `You are a financial categorization assistant. Categorize the following expense into one of these categories:
 
 ${EXPENSE_CATEGORIES.join(', ')}
@@ -43,8 +48,10 @@ ${amount ? `Amount: $${amount}` : ''}
 
 Respond with ONLY the category name, nothing else.`;
 
+    console.log('📤 Sending request to OpenAI...');
+    
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Use gpt-4 for better accuracy but higher cost
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -55,24 +62,40 @@ Respond with ONLY the category name, nothing else.`;
           content: prompt
         }
       ],
-      temperature: 0.3, // Lower temperature for more consistent results
+      temperature: 0.3,
       max_tokens: 20,
     });
 
+    console.log('📥 Received response from OpenAI');
+    console.log('Full response:', JSON.stringify(completion, null, 2));
+    
     const category = completion.choices[0].message.content.trim();
+    console.log('✅ Extracted category:', category);
 
     // Validate that the response is one of our categories
     if (EXPENSE_CATEGORIES.includes(category)) {
-      console.log('✅ AI suggested:', category);
+      console.log('✅ Category is valid!');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return category;
     }
 
     // Fallback if AI returns something unexpected
     console.warn('⚠️ AI returned unexpected category:', category);
+    console.warn('Expected one of:', EXPENSE_CATEGORIES);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     return 'Other';
 
   } catch (error) {
-    console.error('❌ AI Categorization Error:', error.message);
+    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.error('❌ AI CATEGORIZATION ERROR');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    if (error.response) {
+      console.error('API Response Status:', error.response.status);
+      console.error('API Response Data:', error.response.data);
+    }
+    console.error('Full error:', error);
+    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     // Fallback to 'Other' if AI fails
     return 'Other';
   }
