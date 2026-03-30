@@ -59,7 +59,7 @@ const DashboardLayout = ({ children }) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('/notifications?limit=10');
+        const response = await axios.get('/notifications?limit=50');
 
         if (response.data.notifications) {
           // Transform notifications to match UI format
@@ -171,8 +171,11 @@ const DashboardLayout = ({ children }) => {
     }
   }, [user]);
 
-  const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase();
-  const isAdminEmail = user?.email?.toLowerCase() === adminEmail;
+  const normalizeEmail = (value) =>
+    (value || '').toLowerCase().trim().replace(/^['"`]|['"`]$/g, '');
+  const adminEmail = normalizeEmail(import.meta.env.VITE_ADMIN_EMAIL);
+  const isAdminEmail = normalizeEmail(user?.email) === adminEmail;
+  
   const overviewActive = location.pathname === '/dashboard';
   const handleOverviewClick = (closeSidebar = false) => {
     if (!overviewActive) {

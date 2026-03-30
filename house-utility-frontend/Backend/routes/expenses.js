@@ -8,7 +8,7 @@ import {
   getStats
 } from '../controllers/expenseController.js';
 import { protect } from '../middleware/auth.js';
-import { categorizeExpense } from '../services/aiCategorization.js'; // ✅ IMPORT
+import { categorizeExpense } from '../services/aiCategorizationGemini.js';
 
 const router = express.Router();
 

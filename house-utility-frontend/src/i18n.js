@@ -514,7 +514,7 @@ const resources = {
         transformationSubtitle: 'From chaos to harmony',
         transformationPara1: 'What started as a simple solution for one apartment quickly spread across campus. Roommates who used to argue about money now had complete visibility into their shared finances. The tension disappeared. Trust was restored.',
         transformationPara2: "Students started telling their families about it. Families told other families. Soon, UTIL wasn't just helping students—it was helping households of all kinds: couples managing joint expenses, families tracking budgets, friends splitting vacation costs.",
-        transformationPara3: "Today, UTIL serves over 50,000 users across 100+ countries. But we've never forgotten our roots: a frustrated student who just wanted a fair, transparent way to manage shared expenses. That's why transparency and accountability remain at the core of everything we build.",
+        transformationPara3: "Today, UTIL serves over 13, users across 3+ countries. But we've never forgotten our roots: a frustrated student who just wanted a fair, transparent way to manage shared expenses. That's why transparency and accountability remain at the core of everything we build.",
         coreValuesTitle: 'Our Core Values',
         coreValuesSubtitle: "The principles that guide everything we do, inspired by our founder's experience",
         transparencyTitle: 'Transparency',
