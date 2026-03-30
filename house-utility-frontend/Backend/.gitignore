@@ -5,3 +5,4 @@
 
 .env
 *.log" > .gitignore
+.env.production
