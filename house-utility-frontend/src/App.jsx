@@ -20,7 +20,7 @@ import Members from './pages/Members';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
 import OurStory from './pages/OurStory';
-import Team from './pages/Team';
+// import Team from './pages/Team';
 import AdminDashboard from './pages/AdminDashboard';
 // import Blog from './pages/Blog';
 import Help from './pages/Help';
@@ -56,7 +56,7 @@ function AppRoutes() {
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/our-story" element={<OurStory />} />
-      <Route path="/team" element={<Team />} />
+      {/* <Route path="/team" element={<Team />} /> */}
       {/* <Route path="/blog" element={<Blog />} /> */}
 
       {/* Legal Pages */}

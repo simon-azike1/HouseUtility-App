@@ -60,7 +60,7 @@ const Navbar = () => {
       isRoute: true,
       dropdown: [
         { label: t('navbar.ourStory'), href: '/our-story', isRoute: true },
-        { label: t('navbar.team'), href: '/team', isRoute: true }
+        // { label: t('navbar.team'), href: '/team', isRoute: true }
       ]
     },
     {
