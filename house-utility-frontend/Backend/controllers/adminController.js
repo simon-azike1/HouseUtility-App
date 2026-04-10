@@ -56,8 +56,16 @@ export const getAdminMetrics = async (req, res) => {
     const usersPrev7 = await User.countDocuments({ createdAt: { $gte: fourteenDaysAgo, $lt: sevenDaysAgo } });
 
     const ratingBreakdown = await Feedback.aggregate([
+      { $match: { rating: { $exists: true, $ne: null } } },
       { $group: { _id: '$rating', count: { $sum: 1 } } },
       { $sort: { _id: 1 } }
+    ]);
+
+    const surveyOptionsBreakdown = await Feedback.aggregate([
+      { $match: { feedbackType: 'survey', surveyOptions: { $exists: true, $ne: [] } } },
+      { $unwind: '$surveyOptions' },
+      { $group: { _id: '$surveyOptions', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
     ]);
 
     const feedbackOverTime = await Feedback.aggregate([
@@ -84,9 +92,21 @@ export const getAdminMetrics = async (req, res) => {
       { $sort: { count: -1 } }
     ]);
 
+    const surveyFeedbackCount = await Feedback.countDocuments({ feedbackType: 'survey' });
+    const surveyFeedbackLast7 = await Feedback.countDocuments({ 
+      feedbackType: 'survey', 
+      createdAt: { $gte: sevenDaysAgo } 
+    });
+
     const recentFeedback = await Feedback.find()
       .sort({ createdAt: -1 })
       .limit(20)
+      .populate('user', 'name email')
+      .lean();
+
+    const recentSurveyFeedback = await Feedback.find({ feedbackType: 'survey' })
+      .sort({ createdAt: -1 })
+      .limit(10)
       .populate('user', 'name email')
       .lean();
 
@@ -95,6 +115,8 @@ export const getAdminMetrics = async (req, res) => {
       data: {
         usersCount,
         feedbackCount,
+        surveyFeedbackCount,
+        surveyFeedbackLast7,
         avgRating,
         feedbackLast7,
         feedbackPrev7,
@@ -103,9 +125,11 @@ export const getAdminMetrics = async (req, res) => {
         usersLast7,
         usersPrev7,
         ratingBreakdown,
+        surveyOptionsBreakdown,
         feedbackOverTime,
         countryBreakdown,
-        recentFeedback
+        recentFeedback,
+        recentSurveyFeedback
       }
     });
   } catch (error) {

@@ -13,7 +13,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -33,18 +33,21 @@ const AdminDashboard = () => {
   const [data, setData] = useState(null);
   const [deletingId, setDeletingId] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadMetrics();
   }, []);
 
-  const loadMetrics = async () => {
+  const loadMetrics = async (showRefresh = false) => {
+    if (showRefresh) setRefreshing(true);
     try {
       const response = await api.get('/admin/metrics');
       setData(response.data.data);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load metrics');
     } finally {
+      if (showRefresh) setRefreshing(false);
       setLoading(false);
     }
   };
@@ -88,6 +91,32 @@ const AdminDashboard = () => {
           backgroundColor: 'rgba(37, 99, 235, 0.15)',
           tension: 0.3,
           fill: true
+        }
+      ]
+    };
+  }, [data]);
+
+  const surveyChartData = useMemo(() => {
+    if (!data?.surveyOptionsBreakdown) return null;
+    const labels = data.surveyOptionsBreakdown.map((s) => {
+      const labelMap = {
+        tracking: 'Tracking payments',
+        transparency: 'Lack of transparency',
+        contributions: 'Managing contributions',
+        organizing: 'Organizing records',
+        conflicts: 'Avoiding conflicts',
+        other: 'Other'
+      };
+      return labelMap[s._id] || s._id;
+    });
+    const values = data.surveyOptionsBreakdown.map((s) => s.count);
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Survey Responses',
+          data: values,
+          backgroundColor: ['#2563eb', '#16a34a', '#f59e0b', '#8b5cf6', '#ef4444', '#64748b']
         }
       ]
     };
@@ -194,9 +223,18 @@ const AdminDashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">App feedback metrics and user insights</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">App feedback metrics and user insights</p>
+          </div>
+          <button
+            onClick={() => loadMetrics(true)}
+            disabled={refreshing}
+            className="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+          >
+            {refreshing ? 'Refreshing...' : 'Refresh Data'}
+          </button>
         </div>
 
         {loading && (
@@ -208,7 +246,7 @@ const AdminDashboard = () => {
 
         {data && (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Total Users</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{data.usersCount}</p>
@@ -217,10 +255,17 @@ const AdminDashboard = () => {
                 </p>
               </div>
               <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Feedback Count</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total Feedback</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{data.feedbackCount}</p>
                 <p className={`text-xs mt-1 ${formatPct(data.feedbackLast7, data.feedbackPrev7) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatPct(data.feedbackLast7, data.feedbackPrev7).toFixed(1)}% last 7 days
+                </p>
+              </div>
+              <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Survey Responses</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{data.surveyFeedbackCount}</p>
+                <p className={`text-xs mt-1 ${data.surveyFeedbackLast7 > 0 ? 'text-green-600' : 'text-gray-500'}`}>
+                  {data.surveyFeedbackLast7} this week
                 </p>
               </div>
               <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
@@ -251,61 +296,94 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 lg:col-span-1">
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Country Distribution</h2>
-                {countryChartData && <Doughnut data={countryChartData} options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }} />}
+              <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Survey Responses by Category</h2>
+                {surveyChartData ? <Bar data={surveyChartData} options={{ responsive: true, plugins: { legend: { display: false } } }} /> : (
+                  <div className="text-sm text-gray-500 dark:text-gray-400">No survey data yet</div>
+                )}
               </div>
               <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 lg:col-span-2">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Feedback</h2>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleExportUsersCsv}
-                      disabled={exporting}
-                      className="px-3 py-2 text-xs font-semibold rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {exporting ? 'Exporting...' : 'Export Users CSV'}
-                    </button>
-                    <button
-                      onClick={handleExportCsv}
-                      disabled={exporting}
-                      className="px-3 py-2 text-xs font-semibold rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {exporting ? 'Exporting...' : 'Export Feedback CSV'}
-                    </button>
-                  </div>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Survey Responses</h2>
                 </div>
-
                 <div className="space-y-3">
-                  {data.recentFeedback.map((fb) => (
+                  {data.recentSurveyFeedback?.map((fb) => (
                     <div key={fb._id} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span>Rating: {fb.rating}/5</span>
+                        <span className="inline-flex gap-1">
+                          {fb.surveyOptions?.map((opt) => (
+                            <span key={opt} className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                              {opt}
+                            </span>
+                          ))}
+                        </span>
                         <span>|</span>
                         <span>{new Date(fb.createdAt).toLocaleString()}</span>
                       </div>
-                      <p className="mt-2 text-sm text-gray-900 dark:text-white">{fb.message}</p>
+                      {fb.message && (
+                        <p className="mt-2 text-sm text-gray-900 dark:text-white">{fb.message}</p>
+                      )}
                       <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        {fb.user?.name || 'Unknown'} | {fb.user?.email || 'unknown'} | {fb.country || 'N/A'}
-                      </div>
-                      <div className="mt-3 flex items-center justify-end">
-                        <button
-                          onClick={() => handleDeleteFeedback(fb._id)}
-                          disabled={deletingId === fb._id}
-                          className="px-3 py-1.5 text-xs font-semibold rounded-lg text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                          {deletingId === fb._id ? 'Deleting...' : 'Delete'}
-                        </button>
+                        {fb.user?.name || 'Unknown'} | {fb.user?.email || 'unknown'}
                       </div>
                     </div>
                   ))}
-                  {data.recentFeedback.length === 0 && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">No feedback yet.</div>
+                  {(!data.recentSurveyFeedback || data.recentSurveyFeedback.length === 0) && (
+                    <div className="text-sm text-gray-500 dark:text-gray-400">No survey responses yet</div>
                   )}
                 </div>
               </div>
             </div>
 
+            <div className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Feedback</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleExportUsersCsv}
+                    disabled={exporting}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {exporting ? 'Exporting...' : 'Export Users CSV'}
+                  </button>
+                  <button
+                    onClick={handleExportCsv}
+                    disabled={exporting}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {exporting ? 'Exporting...' : 'Export Feedback CSV'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {data.recentFeedback.map((fb) => (
+                  <div key={fb._id} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <span>Rating: {fb.rating}/5</span>
+                      <span>|</span>
+                      <span>{new Date(fb.createdAt).toLocaleString()}</span>
+                    </div>
+                    <p className="mt-2 text-sm text-gray-900 dark:text-white">{fb.message}</p>
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      {fb.user?.name || 'Unknown'} | {fb.user?.email || 'unknown'} | {fb.country || 'N/A'}
+                    </div>
+                    <div className="mt-3 flex items-center justify-end">
+                      <button
+                        onClick={() => handleDeleteFeedback(fb._id)}
+                        disabled={deletingId === fb._id}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {deletingId === fb._id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {data.recentFeedback.length === 0 && (
+                  <div className="text-sm text-gray-500 dark:text-gray-400">No feedback yet.</div>
+                )}
+              </div>
+            </div>
           </>
         )}
       </div>

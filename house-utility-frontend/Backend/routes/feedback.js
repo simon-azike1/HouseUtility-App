@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
-import { createFeedback } from '../controllers/feedbackController.js';
+import { createFeedback, createSurveyFeedback } from '../controllers/feedbackController.js';
 import { sendWhatsAppNotification } from '../services/notificationService.js';
 
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(protect);
 
 router.post('/', createFeedback);
+router.post('/survey', createSurveyFeedback);
 
 router.post('/test-whatsapp', protect, async (req, res) => {
   try {

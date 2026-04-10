@@ -14,12 +14,10 @@ const FeedbackSchema = new mongoose.Schema(
     rating: {
       type: Number,
       min: 1,
-      max: 5,
-      required: true
+      max: 5
     },
     message: {
       type: String,
-      required: true,
       trim: true,
       maxlength: 2000
     },
@@ -37,6 +35,15 @@ const FeedbackSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 300
+    },
+    surveyOptions: [{
+      type: String,
+      trim: true
+    }],
+    feedbackType: {
+      type: String,
+      enum: ['general', 'survey'],
+      default: 'general'
     }
   },
   { timestamps: true }

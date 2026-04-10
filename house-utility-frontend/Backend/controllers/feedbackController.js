@@ -72,3 +72,79 @@ export const createFeedback = async (req, res) => {
     });
   }
 };
+
+// @desc    Create survey feedback (from FeedbackBanner)
+// @route   POST /api/feedback/survey
+// @access  Private
+export const createSurveyFeedback = async (req, res) => {
+  try {
+    const { options, additional, page, userAgent } = req.body || {};
+
+    if (!options || !Array.isArray(options) || options.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one option is required'
+      });
+    }
+
+    const feedback = await Feedback.create({
+      user: req.user.id,
+      household: req.user.household || undefined,
+      rating: null,
+      message: additional || '',
+      page,
+      country: null,
+      userAgent,
+      surveyOptions: options,
+      feedbackType: 'survey'
+    });
+
+    try {
+      const User = (await import('../models/User.js')).default;
+      await User.findByIdAndUpdate(req.user.id, {
+        hasSubmittedFeedback: true,
+        feedbackSubmittedAt: new Date()
+      });
+    } catch (updateError) {
+      console.error('Failed to update user feedback status:', updateError?.message || updateError);
+    }
+
+    const ownerEmail = process.env.OWNER_EMAIL;
+    const ownerWhatsApp = process.env.OWNER_WHATSAPP;
+    const whatsappEnabled = process.env.FEEDBACK_WHATSAPP_ENABLED === 'true';
+
+    if ((ownerEmail || ownerWhatsApp) && whatsappEnabled) {
+      const payload = {
+        options,
+        additional: additional || '',
+        page,
+        userAgent,
+        userName: req.user?.name,
+        userEmail: req.user?.email,
+        feedbackType: 'survey'
+      };
+
+      try {
+        if (ownerEmail) {
+          await sendEmailNotification(ownerEmail, 'feedback', payload);
+        }
+        if (ownerWhatsApp) {
+          await sendWhatsAppNotification(ownerWhatsApp, 'feedback', payload);
+        }
+      } catch (notifyError) {
+        console.error('Survey feedback owner notification failed:', notifyError?.message || notifyError);
+      }
+    }
+
+    return res.status(201).json({
+      success: true,
+      data: feedback
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to submit survey feedback',
+      error: error.message
+    });
+  }
+};

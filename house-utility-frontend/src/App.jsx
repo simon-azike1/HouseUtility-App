@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { PreferencesProvider } from './context/PreferencesContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import FeedbackBanner from './components/FeedbackBanner';
 import Landing from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -211,6 +212,7 @@ function App() {
         <PreferencesProvider>
           <AuthProvider>
             <ScrollToTopButton />
+            <FeedbackBanner />
             <AppRoutes />
           </AuthProvider>
         </PreferencesProvider>
